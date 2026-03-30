@@ -1,0 +1,57 @@
+/* ===== FOOTER STYLES ===== */
+.footer-track {
+    background-color: var(--track-beige, var(--beige-bg, var(--coop-beige, #F5F5DC)));
+    border-top: 1px solid #E2E2C7;
+    padding: 60px 0;
+    margin-top: auto;
+    text-align: center;
+}
+
+.footer-track .navbar-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.8px;
+    color: var(--track-dark, var(--deep-black, var(--coop-black, #1a1a1a))) !important;
+    text-decoration: none;
+}
+
+.footer-track .navbar-brand span {
+    color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
+}
+
+.footer-description {
+    color: var(--text-muted, #636e72);
+    max-width: 400px;
+}
+
+.social-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: white;
+    color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
+    border: 1px solid #E2E2C7;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.social-btn:hover {
+    background-color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
+    color: white;
+    transform: translateY(-3px);
+    border-color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
+}
+
+.footer-track .small {
+    color: var(--text-muted, #636e72);
+}
+
+@media (max-width: 992px) {
+    .footer-track {
+        text-align: center;
+        padding: 50px 0;
+    }
+}

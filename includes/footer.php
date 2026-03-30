@@ -1,0 +1,239 @@
+<footer class="footer-track">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0">
+                <a class="navbar-brand d-inline-block mb-2" href="<?php echo (file_exists('index.php')) ? 'index.php' : '../index.php'; ?>">
+                    Track<span>COOP</span>
+                </a>
+                <p class="small mb-0 footer-description">
+                    Digital governance for Nasugbu's agricultural growth. Empowering cooperatives through data and transparency.
+                </p>
+            </div>
+            <div class="col-lg-6 text-center text-lg-end">
+                <div class="d-flex justify-content-center justify-content-lg-end gap-2 gap-lg-3 mb-3">
+                    <a href="#" class="social-btn" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-btn" title="Email"><i class="bi bi-envelope"></i></a>
+                    <a href="#" class="social-btn" title="Website"><i class="bi bi-globe"></i></a>
+                </div>
+                <p class="small mb-0">&copy; 2026 <strong>TrackCOOP</strong>. Official NFFAV Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+/* --- PREMIUM CONFIRMATION MODAL --- */
+#trackGlobalConfirmModal .modal-content {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(25px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(32, 160, 96, 0.1) !important;
+    border-radius: 32px !important;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.1) !important;
+    overflow: visible !important; 
+}
+
+#trackGlobalConfirmModal .modal-backdrop.show {
+    backdrop-filter: blur(8px);
+    background-color: rgba(15, 23, 42, 0.5);
+}
+
+#trackGlobalConfirmModal .icon-circle {
+    width: 84px !important;
+    height: 84px !important;
+    box-shadow: 0 15px 35px rgba(32, 160, 96, 0.15);
+    border: 6px solid white !important;
+    background: white !important;
+    transform: translateY(-50%);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -42px;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+#trackGlobalConfirmModal .modal-body {
+    padding: 60px 24px 32px !important;
+}
+
+@keyframes trackModalZoom {
+    from { opacity: 0; transform: scale(0.85) translateY(30px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#trackGlobalConfirmModal.show .modal-dialog {
+    animation: trackModalZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+#trackGlobalConfirmModal .btn-confirm {
+    padding: 14px 20px !important;
+    border-radius: 18px !important;
+    font-weight: 800 !important;
+    transition: all 0.3s ease !important;
+    letter-spacing: -0.3px !important;
+    border: none !important;
+    box-shadow: 0 10px 20px rgba(32, 160, 96, 0.15) !important;
+}
+
+#trackGlobalConfirmModal .btn-confirm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(32, 160, 96, 0.25) !important;
+}
+
+#trackGlobalConfirmModal .btn-confirm:active {
+    transform: translateY(-1px);
+}
+
+#trackGlobalConfirmModal .btn-cancel {
+    padding: 14px 20px !important;
+    border-radius: 18px !important;
+    font-weight: 700 !important;
+    color: #64748b !important;
+    background: #f1f5f9 !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+#trackGlobalConfirmModal .btn-cancel:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+</style>
+
+<!-- Global Confirmation Modal -->
+<div class="modal fade" id="trackGlobalConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content">
+            <div id="confirmIconContainer" class="icon-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-question-circle" style="font-size: 2.8rem; color: var(--track-green);"></i>
+            </div>
+            <div class="modal-body text-center">
+                <h4 class="fw-800 mb-2" id="confirmTitle" style="color: var(--track-dark); letter-spacing: -1.2px;">Confirm Action</h4>
+                <p class="text-muted mb-0 px-2" id="confirmMessage" style="font-size: 0.95rem; line-height: 1.6;">Are you sure you want to proceed? This will update the cooperative database records.</p>
+                
+                <div class="d-flex gap-3 mt-4 pt-2">
+                    <button type="button" class="btn btn-cancel w-100" data-bs-dismiss="modal">Keep</button>
+                    <button type="button" id="confirmButton" class="btn btn-confirm w-100 text-white">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.TrackUI = {
+    confirmModal: null,
+    resolvePromise: null,
+    isInitialized: false,
+    
+    init() {
+        if (this.isInitialized) return;
+        
+        const modalEl = document.getElementById('trackGlobalConfirmModal');
+        if (modalEl && window.bootstrap) {
+            try {
+                this.confirmModal = new bootstrap.Modal(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                this.isInitialized = true;
+            } catch (e) {
+                console.warn("TrackUI: Modal initialization failed, using fallbacks.");
+            }
+        }
+
+        const btnConfirm = document.getElementById('confirmButton');
+        const btnCancel = modalEl ? modalEl.querySelector('.btn-cancel') : null;
+
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', () => {
+                if (this.resolvePromise) {
+                    this.confirmModal.hide();
+                    const resolve = this.resolvePromise;
+                    this.resolvePromise = null;
+                    resolve(true);
+                }
+            });
+        }
+
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => {
+                if (this.resolvePromise) {
+                    const resolve = this.resolvePromise;
+                    this.resolvePromise = null;
+                    resolve(false);
+                }
+            });
+        }
+    },
+
+    show(message, title = 'Confirm', type = 'primary', btnConfirm = 'Confirm', btnCancel = 'Cancel') {
+        this.init();
+        if (!this.confirmModal) return Promise.resolve(false);
+
+        // Update content
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmTitle').textContent = title;
+        
+        const btnCancelEl = document.querySelector('#trackGlobalConfirmModal .btn-cancel');
+        if (btnCancelEl) btnCancelEl.textContent = btnCancel;
+        
+        const icon = document.querySelector('#confirmIconContainer i');
+        const iconCircle = document.getElementById('confirmIconContainer');
+        const btn = document.getElementById('confirmButton');
+        
+        if (btn) btn.textContent = btnConfirm;
+
+        // Apply Premium themes for Icon (Dynamic for warning)
+        if (type === 'danger' || type === 'logout') {
+            if (icon) icon.className = (type === 'logout') ? 'bi bi-box-arrow-right' : 'bi bi-exclamation-triangle-fill';
+            if (icon) icon.style.color = '#ef4444';
+            if (iconCircle) iconCircle.style.boxShadow = '0 15px 35px rgba(239, 68, 68, 0.15)';
+        } else {
+            if (icon) icon.className = 'bi bi-check-circle-fill';
+            if (icon) icon.style.color = 'var(--track-green)';
+            if (iconCircle) iconCircle.style.boxShadow = '0 15px 35px rgba(32, 160, 96, 0.15)';
+        }
+
+        // FORCE GREEN BUTTON System-wide (Professional & Uniform)
+        if (btn) {
+            btn.style.background = 'linear-gradient(135deg, var(--track-green), #1a8548)';
+            btn.style.boxShadow = '0 10px 20px rgba(32, 160, 96, 0.2)';
+        }
+
+        return new Promise((resolve) => {
+            this.resolvePromise = resolve;
+            this.confirmModal.show();
+        });
+    },
+
+    async confirmLink(event, message, title = 'Confirm', type = 'primary', btnC = 'Confirm', btnX = 'Cancel') {
+        const url = event.currentTarget.href;
+        
+        // Fail-safe: If modal logic is missing or fails, just follow the link
+        if (!window.bootstrap || !document.getElementById('trackGlobalConfirmModal')) {
+            return true;
+        }
+
+        event.preventDefault();
+        if (await this.show(message, title, type, btnC, btnX)) {
+            window.location.href = url;
+        }
+        return false;
+    },
+
+    async confirmForm(event, message, title = 'Submit', type = 'primary', btnC = 'Continue', btnX = 'Back') {
+        event.preventDefault();
+        const form = event.currentTarget;
+        if (await this.show(message, title, type, btnC, btnX)) {
+            form.submit();
+        }
+        return false;
+    },
+
+    toast(message, type = 'primary') {
+        this.show(message, (type === 'success' ? 'Success' : 'Notification'), type, 'Okay', 'Dismiss');
+    }
+};
+</script>
