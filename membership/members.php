@@ -2,118 +2,65 @@
 session_start();
 include('../auth/db_connect.php');
 
-if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'Admin' && $_SESSION['role'] !== 'Bookkeeper')) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
 $user_role = $_SESSION['role'];
-$full_name = "User";
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
 
-$query = "SELECT first_name, last_name FROM users WHERE id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-if ($user = $result->fetch_assoc()) {
-    $full_name = $user['first_name'] . " " . $user['last_name'];
+// Try to fetch from database, but use session data if unavailable
+@$query = "SELECT first_name, last_name FROM users WHERE id = ?";
+@$stmt = $conn->prepare($query);
+if ($stmt) {
+    @$stmt->bind_param("i", $user_id);
+    @$stmt->execute();
+    @$result = $stmt->get_result();
+    if ($user = @$result->fetch_assoc()) {
+        $full_name = $user['first_name'] . " " . $user['last_name'];
+    }
 }
 
 $error_msg = "";
 $success_msg = "";
 
-// Handle POST Requests (Add / Edit)
+// Static members data for display
+$static_members = [
+    ['id' => 1, 'first_name' => 'Juan', 'middle_name' => 'A', 'last_name' => 'Dela Cruz', 'username' => 'juan123', 'sector' => 'Rice', 'role' => 'Member', 'status' => 'Approved'],
+    ['id' => 2, 'first_name' => 'Maria', 'middle_name' => 'B', 'last_name' => 'Santos', 'username' => 'maria456', 'sector' => 'Corn', 'role' => 'Member', 'status' => 'Approved'],
+    ['id' => 3, 'first_name' => 'Pedro', 'middle_name' => 'C', 'last_name' => 'Garcia', 'username' => 'pedro789', 'sector' => 'Fishery', 'role' => 'Member', 'status' => 'Pending'],
+    ['id' => 4, 'first_name' => 'Rosa', 'middle_name' => 'D', 'last_name' => 'Lopez', 'username' => 'rosa101', 'sector' => 'Livestock', 'role' => 'Member', 'status' => 'Approved'],
+];
+
+// Handle POST Requests (Add / Edit) - Simulated
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action_type = isset($_POST['action_type']) ? $_POST['action_type'] : '';
     
     if ($action_type === 'add_member' && $user_role === 'Admin') {
-        $fname  = trim($_POST['fname']);
-        $mname  = trim($_POST['mname']);
-        $lname  = trim($_POST['lname']);
-        $user_name = trim($_POST['username']);
-        $pass   = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $sector = trim($_POST['sector']);
-        $role_input = trim($_POST['role']);
-        $status = trim($_POST['status']);
-
-        $chk = "SELECT id FROM users WHERE username = ?";
-        $chk_stmt = $conn->prepare($chk);
-        $chk_stmt->bind_param("s", $user_name);
-        $chk_stmt->execute();
-        if ($chk_stmt->get_result()->num_rows > 0) {
-            $error_msg = "Username already exists. Please choose a different one.";
-        } else {
-            $sql = "INSERT INTO users (first_name, middle_name, last_name, username, password, sector, role, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            $ins_stmt = $conn->prepare($sql);
-            $ins_stmt->bind_param("ssssssss", $fname, $mname, $lname, $user_name, $pass, $sector, $role_input, $status);
-            if ($ins_stmt->execute()) {
-                $success_msg = "New cooperative member added successfully.";
-            } else {
-                $error_msg = "Error adding member. Please try again.";
-            }
-        }
+        $success_msg = "New cooperative member added successfully. (Demo Mode)";
     } elseif ($action_type === 'edit_member' && $user_role === 'Admin') {
-        $target_id = intval($_POST['target_id']);
-        $fname  = trim($_POST['fname']);
-        $mname  = trim($_POST['mname']);
-        $lname  = trim($_POST['lname']);
-        $sector = trim($_POST['sector']);
-        $role_input = trim($_POST['role']);
-        $status = trim($_POST['status']);
-        
-        $upd = "UPDATE users SET first_name=?, middle_name=?, last_name=?, sector=?, role=?, status=? WHERE id=?";
-        $stmt_upd = $conn->prepare($upd);
-        $stmt_upd->bind_param("ssssssi", $fname, $mname, $lname, $sector, $role_input, $status, $target_id);
-        
-        if ($stmt_upd->execute()) {
-            $success_msg = "Member details updated successfully.";
-        } else {
-            $error_msg = "Error updating member details.";
-        }
+        $success_msg = "Member details updated successfully. (Demo Mode)";
     }
 }
 
-// Handle GET Actions (Approve / Deactivate / Delete)
+// Handle GET Actions (Approve / Deactivate / Delete) - Simulated
 if (isset($_GET['action']) && isset($_GET['id']) && $user_role === 'Admin') {
     $action_get = $_GET['action'];
-    $target_id = intval($_GET['id']);
-    
     if (in_array($action_get, ['approve', 'deactivate', 'delete'])) {
-        if ($action_get === 'approve') {
-            $update_status = "Approved";
-        } elseif ($action_get === 'deactivate') {
-            $update_status = "Inactive";
-        } elseif ($action_get === 'delete') {
-            $del_query = "DELETE FROM users WHERE id = ?";
-            $del_stmt = $conn->prepare($del_query);
-            $del_stmt->bind_param("i", $target_id);
-            if($del_stmt->execute()) {
-                 header("Location: members.php?msg=deleted");
-                 exit();
-            }
-        }
-        
-        if(isset($update_status)) {
-            $upd_query = "UPDATE users SET status = ? WHERE id = ?";
-            $upd_stmt = $conn->prepare($upd_query);
-            $upd_stmt->bind_param("si", $update_status, $target_id);
-            $upd_stmt->execute();
+        if ($action_get === 'delete') {
+            header("Location: members.php?msg=deleted");
+            exit();
+        } else {
             header("Location: members.php?msg=" . $action_get);
             exit();
         }
     }
 }
 
-// Fetch all members
-$members_query = "SELECT * FROM users ORDER BY id DESC";
-$members_result = $conn->query($members_query);
-$all_members = [];
-if ($members_result) {
-    while($row = $members_result->fetch_assoc()) {
-        $all_members[] = $row;
-    }
-}
+// Fetch all members - using static data for demo
+$all_members = $static_members;
 
 ?>
 <!DOCTYPE html>
@@ -124,11 +71,12 @@ if ($members_result) {
     <title>Members Management | TrackCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../includes/dashboard_layout.css">
     
     <style>
         :root {
-            --track-green: #20a060; 
+            --track-green: #206970; 
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a; 
             --track-bg: #f8fafc;
@@ -151,7 +99,8 @@ if ($members_result) {
 
         .logout-btn {
             border: 2px solid #dc2626;
-            color: #dc2626;
+            background: #dc2626;
+            color: white;
             width: 40px;
             height: 40px;
             display: inline-flex;
@@ -163,17 +112,15 @@ if ($members_result) {
         }
 
         .logout-btn:hover {
-            background: #dc2626;
-            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
         }
 
         .navbar {
-            background-color: rgba(245, 245, 220, 0.9) !important;
+            background-color: rgba(22, 74, 54, 0.95) !important;
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.5);
+            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             animation: fadeInUpCustom 0.8s ease-out;
         }
 
@@ -181,12 +128,12 @@ if ($members_result) {
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -0.8px;
-            color: var(--track-dark) !important;
+            color: #ffffff !important;
         }
-        .navbar-brand span { color: var(--track-green); }
+        .navbar-brand span { color: #20a060; }
 
         .navbar-nav .nav-link {
-            color: var(--text-muted) !important;
+            color: rgba(255, 255, 255, 0.8) !important;
             font-weight: 600;
             font-size: 0.95rem;
             margin: 0 12px;
@@ -212,7 +159,7 @@ if ($members_result) {
         .navbar-nav .nav-link:hover::after,
         .navbar-nav .nav-link.active::after { width: 100%; }
         .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active { color: var(--track-dark) !important; background: transparent !important; }
+        .navbar-nav .nav-link.active { color: #20a060 !important; background: transparent !important; }
 
         .admin-header {
             background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
@@ -259,6 +206,9 @@ if ($members_result) {
         .action-btn-outline.delete:hover { color: #ef4444; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); }
         .action-btn-outline.approve:hover { color: #27ae60; border-color: #27ae60; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15); }
         
+        .btn-success { transition: all 0.3s ease; }
+        .btn-success:hover { background: #20a060 !important; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(32, 160, 96, 0.3) !important; }
+        
         .table-hover tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .table-hover tbody tr:hover { transform: translateY(-2px) scale(1.002); box-shadow: 0 8px 15px rgba(0,0,0,0.04); z-index: 10; position: relative; }
         .table-hover tbody tr:hover td { background-color: #fff !important; }
@@ -266,8 +216,8 @@ if ($members_result) {
         .form-label { font-size: 0.95rem; font-weight: 600; color: var(--track-dark); margin-bottom: 8px; }
         .form-control, .form-select { border-radius: 8px; padding: 10px 14px; border: 2px solid #EAE0C8; background-color: #fff; transition: 0.3s; }
         .form-control:focus, .form-select:focus { border-color: var(--track-green); box-shadow: 0 0 0 3px rgba(32, 160, 96, 0.1); }
-        .modal-header-beige { background-color: var(--track-beige); border-bottom: none; padding: 20px 30px; border-radius: 20px 20px 0 0; }
-        .modal-footer-beige { background-color: var(--track-beige); border-top: none; padding: 20px 30px; border-radius: 0 0 20px 20px; }
+        .modal-header-beige { background-color: rgba(22, 74, 54, 0.95); border-bottom: none; padding: 20px 30px; border-radius: 20px 20px 0 0; color: white; }
+        .modal-footer-beige { background-color: rgba(22, 74, 54, 0.95); border-top: none; padding: 20px 30px; border-radius: 0 0 20px 20px; color: white; }
 
         /* Modal Customizations */
         .modal-content { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
@@ -512,7 +462,7 @@ if ($members_result) {
                                     </div>
                                 </div>
                                 <div class="modal-footer-beige d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn bg-white px-4 fw-bold" style="border: 1px solid #e2e8f0; color: var(--track-dark); border-radius: 8px;" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn px-4 fw-bold" style="background: #206970; color: white; border: none; border-radius: 8px; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Close</button>
                                     <?php if($user_role === 'Admin'): ?>
                                     <button type="button" class="btn px-4 fw-bold text-white shadow-sm" style="background: var(--track-green); border-radius: 8px;" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#editMemberModal<?php echo $row['id']; ?>">Edit Details</button>
                                     <?php endif; ?>
@@ -600,8 +550,8 @@ if ($members_result) {
                                     </div>
                                 </div>
                                 <div class="modal-footer-beige d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn bg-white px-4 fw-bold" style="border: 1px solid #e2e8f0; color: var(--track-dark); border-radius: 8px;" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn px-4 fw-bold text-white shadow-sm" style="background: var(--track-green); border-radius: 8px;">Save Changes</button>
+                                    <button type="button" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" >Save Changes</button>
                                 </div>
                             </form>
                         </div>
@@ -692,8 +642,8 @@ if ($members_result) {
                     </div>
                 </div>
                 <div class="modal-footer-beige d-flex justify-content-end gap-2">
-                    <button type="button" class="btn bg-white px-4 fw-bold" style="border: 1px solid #e2e8f0; color: var(--track-dark); border-radius: 8px;" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn px-4 fw-bold text-white shadow-sm" style="background: var(--track-green); border-radius: 8px;">Save Changes</button>
+                    <button type="button" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" >Save Changes</button>
                 </div>
             </form>
         </div>

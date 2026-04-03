@@ -1,13 +1,12 @@
 <footer class="footer-track">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0">
-                <a class="navbar-brand d-inline-block mb-2" href="<?php echo (file_exists('index.php')) ? 'index.php' : '../index.php'; ?>">
-                    Track<span>COOP</span>
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0 d-flex align-items-center justify-content-center justify-content-lg-start" style="gap: 0;">
+                <img src="<?php echo (file_exists('TrackCOOP Logo.svg')) ? 'TrackCOOP Logo.svg' : '../TrackCOOP Logo.svg'; ?>" alt="TrackCOOP Logo" style="height: 70px; width: auto; filter: drop-shadow(0 8px 16px rgba(32, 160, 96, 0.25)); margin-right: -15px;">
+                <a class="navbar-brand d-inline-block d-flex align-items-center flex-column" href="<?php echo (file_exists('index.php')) ? 'index.php' : '../index.php'; ?>" style="gap: 0; padding: 0; margin-left: -15px;">
+                    <span style="font-weight: 900; font-size: 2.2rem; line-height: 0.9; letter-spacing: -2px; color: #ffffff;">TRACK</span>
+                    <span style="font-weight: 900; font-size: 2.2rem; line-height: 0.9; letter-spacing: -2px; color: #20a060;">COOP</span>
                 </a>
-                <p class="small mb-0 footer-description">
-                    Digital governance for Nasugbu's agricultural growth. Empowering cooperatives through data and transparency.
-                </p>
             </div>
             <div class="col-lg-6 text-center text-lg-end">
                 <div class="d-flex justify-content-center justify-content-lg-end gap-2 gap-lg-3 mb-3">
@@ -70,15 +69,18 @@
     padding: 14px 20px !important;
     border-radius: 18px !important;
     font-weight: 800 !important;
+    background: #206970 !important;
+    color: white !important;
     transition: all 0.3s ease !important;
     letter-spacing: -0.3px !important;
     border: none !important;
-    box-shadow: 0 10px 20px rgba(32, 160, 96, 0.15) !important;
+    box-shadow: 0 10px 20px rgba(32, 126, 112, 0.2) !important;
 }
 
 #trackGlobalConfirmModal .btn-confirm:hover {
+    background: #20a060 !important;
     transform: translateY(-3px);
-    box-shadow: 0 15px 25px rgba(32, 160, 96, 0.25) !important;
+    box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3) !important;
 }
 
 #trackGlobalConfirmModal .btn-confirm:active {
@@ -89,15 +91,18 @@
     padding: 14px 20px !important;
     border-radius: 18px !important;
     font-weight: 700 !important;
-    color: #64748b !important;
-    background: #f1f5f9 !important;
+    color: white !important;
+    background: #206970 !important;
     border: none !important;
     transition: all 0.3s ease !important;
+    box-shadow: 0 10px 20px rgba(32, 126, 112, 0.2) !important;
 }
 
 #trackGlobalConfirmModal .btn-cancel:hover {
-    background: #e2e8f0 !important;
-    color: #1e293b !important;
+    background: #20a060 !important;
+    color: white !important;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3) !important;
 }
 </style>
 

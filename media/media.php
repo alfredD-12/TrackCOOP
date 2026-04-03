@@ -5,19 +5,20 @@ include '../auth/db_connect.php';
 $user_role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Guest';
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 
-// Fetch media activities
+// Static media activities data
+$static_media = [
+    ['id' => 1, 'title' => 'Community Planting Day', 'description' => 'Members gathering for planting crops', 'category' => 'Events', 'activity_date' => '2024-03-20', 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'file_path' => 'uploads/event1.jpg'],
+    ['id' => 2, 'title' => 'Harvest Festival 2024', 'description' => 'Annual harvest celebration', 'category' => 'Activities', 'activity_date' => '2024-03-15', 'first_name' => 'Maria', 'last_name' => 'Santos', 'file_path' => 'uploads/harvest1.jpg'],
+    ['id' => 3, 'title' => 'Training Workshop', 'description' => 'Agricultural innovation workshop', 'category' => 'Training', 'activity_date' => '2024-03-10', 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'file_path' => 'uploads/training1.jpg'],
+];
+
 $category_filter = isset($_GET['category']) ? $_GET['category'] : 'All';
-$sql = "SELECT m.*, u.first_name, u.last_name 
-        FROM media_activities m 
-        JOIN users u ON m.uploaded_by = u.id";
-
+$media_activities = $static_media;
 if ($category_filter !== 'All') {
-    $cat = mysqli_real_escape_string($conn, $category_filter);
-    $sql .= " WHERE m.category = '$cat'";
+    $media_activities = array_filter($media_activities, function($m) use ($category_filter) {
+        return $m['category'] === $category_filter;
+    });
 }
-
-$sql .= " ORDER BY m.activity_date DESC";
-$result = mysqli_query($conn, $sql);
 
 // Messages from actions
 $msg = "";
@@ -36,7 +37,7 @@ if (isset($_GET['delete']) && $_GET['delete'] == 'success') $msg = "Media entry 
     <link rel="stylesheet" href="../includes/footer.css">
     
     <style>
-        :root { --track-green: #20a060; --track-dark: #1e272e; }
+        :root { --track-green: #206970; --track-dark: #1e272e; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
         
         .navbar { background: white; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 15px 0; }
@@ -98,6 +99,7 @@ if (isset($_GET['delete']) && $_GET['delete'] == 'success') $msg = "Media entry 
             color: white; font-weight: 700; box-shadow: 0 10px 20px rgba(32, 160, 96, 0.2);
             transition: all 0.3s ease;
         }
+        .btn-upload:hover { background: linear-gradient(135deg, #20a060, #1a8548); transform: translateY(-2px); box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3); color: white; }
     </style>
 </head>
 <body>

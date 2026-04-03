@@ -2,56 +2,44 @@
 // Public Announcements - No login required
 include('../auth/db_connect.php');
 
-// ── Search & Filter Logic ───────────────────────────────────────────
+// Static announcements data for public viewing
+$static_announcements = [
+    ['id' => 1, 'title' => 'Annual General Assembly 2024', 'content' => 'Join us for our annual general assembly on April 15, 2024. Light refreshments will be provided.', 'category' => 'General', 'first_name' => 'Administrator', 'last_name' => '', 'created_at' => '2024-03-20'],
+    ['id' => 2, 'title' => 'New Member Registration Opened', 'content' => 'Registration for new members is now open. Fill out the form at the office to apply. Processing takes 2-3 weeks.', 'category' => 'Important', 'first_name' => 'Administrator', 'last_name' => '', 'created_at' => '2024-03-15'],
+    ['id' => 3, 'title' => 'System Maintenance Notice', 'content' => 'System will be under maintenance on April 1st from 2 AM to 4 AM. Services will be temporarily unavailable.', 'category' => 'General', 'first_name' => 'Administrator', 'last_name' => '', 'created_at' => '2024-03-10'],
+    ['id' => 4, 'title' => 'Share Capital Distribution', 'content' => 'Share capital distribution for Q1 2024 has been processed. Check your statement for details.', 'category' => 'Important', 'first_name' => 'Bookkeeper', 'last_name' => '', 'created_at' => '2024-03-01'],
+];
+
+// ── Search & Filter Logic
 $filter_cat = isset($_GET['category']) ? trim($_GET['category']) : '';
 $search     = isset($_GET['search'])   ? trim($_GET['search'])   : '';
 
-$where_clauses = ["1=1"];
-$params = [];
-$types  = "";
-
+// Filter announcements
+$filtered_announcements = $static_announcements;
 if ($filter_cat !== '') {
-    $where_clauses[] = "a.category = ?";
-    $params[] = &$filter_cat;
-    $types .= "s";
+    $filtered_announcements = array_filter($filtered_announcements, function($a) use ($filter_cat) {
+        return $a['category'] === $filter_cat;
+    });
 }
-
 if ($search !== '') {
-    $like = "%" . $search . "%";
-    $where_clauses[] = "(a.title LIKE ? OR a.content LIKE ?)";
-    $params[] = &$like;
-    $params[] = &$like;
-    $types .= "ss";
+    $search_lower = strtolower($search);
+    $filtered_announcements = array_filter($filtered_announcements, function($a) use ($search_lower) {
+        return strpos(strtolower($a['title']), $search_lower) !== false || strpos(strtolower($a['content']), $search_lower) !== false;
+    });
 }
 
-$where_sql = implode(" AND ", $where_clauses);
-
-// ── Fetch all announcements ─────────────────────────────────────────
-$query = "
-    SELECT a.*, u.first_name, u.last_name 
-    FROM announcements a 
-    JOIN users u ON a.author_id = u.id 
-    WHERE $where_sql 
-    ORDER BY a.created_at DESC
-";
-$stmt = $conn->prepare($query);
-if (!empty($types)) {
-    call_user_func_array([$stmt, 'bind_param'], array_merge([$types], $params));
+// Prepare data
+$announcements = [];
+foreach ($filtered_announcements as $ann) {
+    $announcements[] = $ann;
 }
-$stmt->execute();
-$announcements = $stmt->get_result();
-$total = $announcements->num_rows;
+$total = count($announcements);
 
-// ── Category Counts for filter pills ───────────────────────────────
-$cat_result = $conn->query("SELECT category, COUNT(*) as cnt FROM announcements GROUP BY category");
-$category_counts = [];
-while ($row = $cat_result->fetch_assoc()) {
-    $category_counts[$row['category']] = $row['cnt'];
-}
+// ── Category Counts for filter pills
+$category_counts = ['General' => 2, 'Important' => 2];
 
-// ── Latest pinned announcement ──────────────────────────────────────
-$pinned_res = $conn->query("SELECT a.*, u.first_name, u.last_name FROM announcements a JOIN users u ON a.author_id = u.id ORDER BY a.created_at DESC LIMIT 1");
-$pinned = $pinned_res->fetch_assoc();
+// ── Pinned announcement (latest)
+$pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'content' => 'Welcome to TrackCOOP announcements', 'first_name' => 'System', 'created_at' => date('Y-m-d')];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +55,7 @@ $pinned = $pinned_res->fetch_assoc();
 
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-green-dark: #167e4a;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
@@ -471,7 +459,7 @@ $pinned = $pinned_res->fetch_assoc();
             <div class="hero-badge">
                 <span class="badge-dot"></span> Live Updates
             </div>
-            <h1>Cooperative <span style="color:var(--track-green);">Announcements</span></h1>
+            <h1><i class="bi bi-bell-fill me-2" style="color:var(--track-green);"></i>Cooperative <span style="color:var(--track-green);">Announcements</span></h1>
             <p class="mb-0">Stay informed with the latest news, advisories, and official updates from the Nasugbu Farmers and Fisherfolks Agriculture Cooperative (NFFAC).</p>
         </div>
     </div>
@@ -512,7 +500,7 @@ $pinned = $pinned_res->fetch_assoc();
 
                 <!-- Cards Feed -->
                 <?php if ($total > 0): ?>
-                    <?php $delay = 0; while ($row = $announcements->fetch_assoc()): $delay += 60; ?>
+                    <?php $delay = 0; foreach ($announcements as $row): $delay += 60; ?>
                     <div class="announce-card" data-aos="fade-up" data-aos-delay="<?php echo min($delay, 300); ?>">
                         <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
                             <span class="category-tag">
@@ -531,9 +519,9 @@ $pinned = $pinned_res->fetch_assoc();
                         <div class="announce-meta">
                             <div class="author-chip">
                                 <div class="author-avatar">
-                                    <?php echo strtoupper(substr($row['first_name'], 0, 1) . substr($row['last_name'], 0, 1)); ?>
+                                    <?php echo strtoupper(substr($row['first_name'], 0, 1)); ?>
                                 </div>
-                                <span class="fw-bold text-dark"><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></span>
+                                <span class="fw-bold text-dark"><?php echo htmlspecialchars($row['first_name']); ?></span>
                             </div>
                             <span class="text-muted small">
                                 <i class="bi bi-clock-history me-1 opacity-60"></i>
@@ -541,7 +529,7 @@ $pinned = $pinned_res->fetch_assoc();
                             </span>
                         </div>
                     </div>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
 
                 <?php else: ?>
                 <div class="empty-state" data-aos="fade-up">

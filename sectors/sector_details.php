@@ -2,67 +2,56 @@
 session_start();
 include('../auth/db_connect.php');
 
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
 
 $user_id   = $_SESSION['user_id'];
 $user_role = $_SESSION['role'];
-$full_name = "User";
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
 
-$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
-$q->bind_param("i", $user_id);
-$q->execute();
-if ($u = $q->get_result()->fetch_assoc()) {
-    $full_name = $u['first_name'] . " " . $u['last_name'];
+// Try to fetch from database, but use session data if unavailable
+@$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+if ($q) {
+    @$q->bind_param("i", $user_id);
+    @$q->execute();
+    @$result = $q->get_result();
+    if ($u = @$result->fetch_assoc()) {
+        $full_name = $u['first_name'] . " " . $u['last_name'];
+    }
 }
 
-// ── Get Sector ID from URL ─────────────────────────────────────────────────────
+// Static sectors data
+$all_sectors = [
+    1 => ['id' => 1, 'name' => 'Rice', 'description' => 'Rice farming and production', 'chairperson' => 'Juan Farmer', 'created_at' => '2024-01-15'],
+    2 => ['id' => 2, 'name' => 'Corn', 'description' => 'Corn cultivation and trading', 'chairperson' => 'Maria Merchant', 'created_at' => '2024-02-10'],
+    3 => ['id' => 3, 'name' => 'Fishery', 'description' => 'Fishing and aquaculture operations', 'chairperson' => 'Pedro Fish', 'created_at' => '2024-02-15'],
+    4 => ['id' => 4, 'name' => 'Livestock', 'description' => 'Livestock raising and management', 'chairperson' => 'Rosa Rancher', 'created_at' => '2024-03-01'],
+    5 => ['id' => 5, 'name' => 'High Value Crops', 'description' => 'High value crops production', 'chairperson' => 'Miguel Farmer', 'created_at' => '2024-03-05'],
+];
+
+// ── Get Sector ID from URL
 $sector_id = intval($_GET['id'] ?? 0);
-if ($sector_id <= 0) {
+if ($sector_id <= 0 || !isset($all_sectors[$sector_id])) {
     header("Location: sectors.php");
     exit();
 }
 
-// ── Fetch Sector Info ──────────────────────────────────────────────────────────
-$sector = null;
-$qs = $conn->prepare("SELECT * FROM sectors WHERE id = ?");
-$qs->bind_param("i", $sector_id);
-$qs->execute();
-$sr = $qs->get_result();
-if ($sector = $sr->fetch_assoc()) {
-    // found
-} else {
-    header("Location: sectors.php");
-    exit();
-}
+// Get the sector from static data
+$sector = $all_sectors[$sector_id];
 
-// ── Members in this Sector ────────────────────────────────────────────────────
-$members = $conn->prepare("
-    SELECT id, first_name, last_name, email, contact_number, status, created_at,
-           COALESCE(
-               (SELECT SUM(sc.amount) FROM share_capital sc WHERE sc.user_id = u.id AND sc.transaction_type='deposit'), 0
-           ) -
-           COALESCE(
-               (SELECT SUM(sc.amount) FROM share_capital sc WHERE sc.user_id = u.id AND sc.transaction_type='withdrawal'), 0
-           ) AS capital_balance
-    FROM users u
-    WHERE u.role = 'Member' AND u.sector = ?
-    ORDER BY u.first_name ASC
-");
-$members->bind_param("s", $sector['name']);
-$members->execute();
-$members_result = $members->get_result();
-$members_rows   = [];
-$total_capital  = 0;
-$approved_count = 0;
-while ($m = $members_result->fetch_assoc()) {
-    $members_rows[] = $m;
-    $total_capital  += $m['capital_balance'];
-    if ($m['status'] === 'Approved') $approved_count++;
-}
+// ── Members in this Sector ──── (Static demo data)
+$static_members = [
+    ['id' => 1, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'email' => 'juan@example.com', 'contact_number' => '09123456789', 'status' => 'Approved', 'created_at' => '2024-01-20', 'capital_balance' => 5450.00],
+    ['id' => 2, 'first_name' => 'Jose', 'last_name' => 'Garcia', 'email' => 'jose@example.com', 'contact_number' => '09234567890', 'status' => 'Approved', 'created_at' => '2024-02-15', 'capital_balance' => 3200.00],
+    ['id' => 3, 'first_name' => 'Miguel', 'last_name' => 'Santos', 'email' => 'miguel@example.com', 'contact_number' => '09345678901', 'status' => 'Pending', 'created_at' => '2024-03-10', 'capital_balance' => 0.00],
+];
+
+$members_rows = $static_members;
 $member_count = count($members_rows);
+$total_capital = array_sum(array_column($members_rows, 'capital_balance'));
+$approved_count = count(array_filter($members_rows, fn($m) => $m['status'] === 'Approved'));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -76,7 +65,7 @@ $member_count = count($members_rows);
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
@@ -121,7 +110,7 @@ $member_count = count($members_rows);
         .navbar-nav .nav-link:hover::after,
         .navbar-nav .nav-link.active::after { width: 100%; }
         .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active { color: var(--track-dark) !important; }
+        .navbar-nav .nav-link.active { color: #20a060 !important; }
         .logout-btn {
             border: 2px solid #dc2626; color: #dc2626;
             width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;

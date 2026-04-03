@@ -3,7 +3,7 @@ session_start();
 include('../auth/db_connect.php');
 
 // Security check: Admin and Bookkeeper only
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: announcements.php?error=unauthorized");
     exit();
 }
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_announcement']))
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
@@ -111,10 +111,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_announcement']))
         }
 
         .btn-track { background: var(--track-green); color: white; border-radius: 12px; padding: 14px 28px; font-weight: 700; border: none; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
+        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
         
-        .btn-cancel { background: #f8fafc; color: var(--text-muted); border-radius: 12px; padding: 14px 28px; font-weight: 600; text-decoration: none; border: 1px solid #e2e8f0; transition: 0.3s; }
-        .btn-cancel:hover { background: #fee2e2; color: #ef4444; border-color: #fee2e2; }
+        .btn-cancel { background: #206970; color: white; border-radius: 12px; padding: 14px 28px; font-weight: 600; text-decoration: none; transition: 0.3s; }
+        .btn-cancel:hover { background: #20a060; color: white; transform: translateY(-2px); }
 
         .btn-back { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; border: 1.5px solid #e5e5c0; background: white; color: var(--text-muted); text-decoration: none; transition: 0.3s; margin-right: 16px; }
         .btn-back:hover { border-color: var(--track-green); color: var(--track-green); background: var(--track-green-light); }

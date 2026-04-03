@@ -17,7 +17,7 @@ $base_path = '../';
 
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="<?php echo $dashboard_url; ?>">Track<span>COOP</span></a>
+        <a class="navbar-brand d-flex align-items-center" href="<?php echo $dashboard_url; ?>"><img src="<?php echo $base_path; ?>TrackCOOP Logo.svg" alt="TrackCOOP Logo" class="navbar-logo">Track<span>COOP</span></a>
         
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="bi bi-list fs-1 text-success"></span>
@@ -31,17 +31,23 @@ $base_path = '../';
                     </a>
                 </li>
                 
-                <?php if ($is_admin || $is_bookkeeper): ?>
+                <?php if ($is_admin): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($active_page == 'members') ? 'active' : ''; ?>" href="../membership/members.php">
                             <i class="bi bi-people"></i> Members
                         </a>
                     </li>
+                <?php endif; ?>
+
+                <?php if ($is_bookkeeper): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($active_page == 'share_capital') ? 'active' : ''; ?>" href="../share_capital/share_capital.php">
                             <i class="bi bi-wallet2"></i> Share Capital
                         </a>
                     </li>
+                <?php endif; ?>
+
+                <?php if ($is_admin): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($active_page == 'sectors') ? 'active' : ''; ?>" href="../sectors/sectors.php">
                             <i class="bi bi-diagram-3"></i> Sectors
@@ -54,11 +60,13 @@ $base_path = '../';
                     </li>
                 <?php endif; ?>
 
+                <?php if ($is_admin || $is_member): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo ($active_page == 'announcements') ? 'active' : ''; ?>" href="../announcements/announcements.php">
-                        <i class="bi bi-broadcast"></i> Announcements
+                        <i class="bi bi-bell-fill"></i> Announcements
                     </a>
                 </li>
+                <?php endif; ?>
 
                 <?php if ($is_member): ?>
                     <li class="nav-item">
@@ -71,13 +79,13 @@ $base_path = '../';
 
             <div class="d-flex align-items-center gap-3">
                 <div class="text-end d-none d-sm-block" style="line-height: 1.1;">
-                    <span class="d-block fw-bold small text-dark"><?php echo htmlspecialchars($full_name); ?></span>
-                    <small class="text-muted" style="font-size: 10px;"><?php echo htmlspecialchars($membership_type); ?></small>
+                    <span class="d-block fw-bold small text-white"><?php echo htmlspecialchars($full_name); ?></span>
+                    <small class="text-white" style="font-size: 10px; opacity: 0.85;"><?php echo htmlspecialchars($membership_type); ?></small>
                 </div>
 
                 <?php if ($is_member): ?>
                     <button class="btn btn-outline-success border-0 p-2 lh-1 rounded-circle" data-bs-toggle="modal" data-bs-target="#editProfileModal" title="Profile Settings">
-                        <i class="bi bi-gear-fill fs-5"></i>
+                        <i class="bi bi-gear-fill fs-5" style="color: white;"></i>
                     </button>
                 <?php endif; ?>
 
@@ -91,12 +99,12 @@ $base_path = '../';
 </nav>
 
 <!-- TRACKCOOP SYSTEM MODALS -->
-<?php if ($is_admin || $is_bookkeeper): ?>
+<?php if ($is_admin): ?>
 <!-- PREDICTIVE INSIGHTS HUB MODAL -->
 <div class="modal fade" id="dataCenterModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen-lg-down modal-xl animate-modal-zoom">
         <div class="modal-content overflow-hidden" style="border-radius: 28px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); background: #fdfdfd;">
-            <div class="modal-header border-0 p-3 px-4 d-flex align-items-center justify-content-between shadow-sm" style="z-index: 10; background-color: var(--track-beige); border-top-left-radius: 28px; border-top-right-radius: 28px;">
+            <div class="modal-header border-0 p-3 px-4 d-flex align-items-center justify-content-between shadow-sm" style="z-index: 10; background-color: rgba(22, 74, 54, 0.95); border-top-left-radius: 28px; border-top-right-radius: 28px; color: white;">
                 <div class="d-flex align-items-center">
                     <div class="live-dot-container me-3">
                         <span class="live-dot-pulse"></span>
@@ -107,12 +115,12 @@ $base_path = '../';
                         </h5>
                     </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
             </div>
             <div class="modal-body p-0 bg-light" style="height: 80vh; min-height: 550px;">
                 <iframe id="predictiveIframe" src="<?php echo $base_path; ?>predictive/predictive.php?view=modal" style="width:100%; height:100%; border:none;"></iframe>
             </div>
-            <div class="modal-footer border-0 p-3 px-4 d-flex justify-content-end align-items-center shadow-sm" style="z-index: 10; background-color: var(--track-beige); border-bottom-left-radius: 28px; border-bottom-right-radius: 28px;">
+            <div class="modal-footer border-0 p-3 px-4 d-flex justify-content-end align-items-center shadow-sm" style="z-index: 10; background-color: rgba(22, 74, 54, 0.95); border-bottom-left-radius: 28px; border-bottom-right-radius: 28px; color: white;">
                 <div class="small text-muted fw-bold">
                     <i class="bi bi-shield-check text-success me-1"></i> TrackCOOP Data Guardian Active
                 </div>

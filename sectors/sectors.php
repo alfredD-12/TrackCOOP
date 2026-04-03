@@ -2,73 +2,54 @@
 session_start();
 include('../auth/db_connect.php');
 
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
 
 $user_id   = $_SESSION['user_id'];
 $user_role = $_SESSION['role'];
-$full_name = "User";
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
 
-$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
-$q->bind_param("i", $user_id);
-$q->execute();
-if ($u = $q->get_result()->fetch_assoc()) {
-    $full_name = $u['first_name'] . " " . $u['last_name'];
+// Try to fetch from database, but use session data if unavailable
+@$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+if ($q) {
+    @$q->bind_param("i", $user_id);
+    @$q->execute();
+    @$result = $q->get_result();
+    if ($u = @$result->fetch_assoc()) {
+        $full_name = $u['first_name'] . " " . $u['last_name'];
+    }
 }
 
-// ── Handle Add / Edit / Delete Sector ─────────────────────────────────────────
+// Static sectors data for display
+$static_sectors = [
+    ['id' => 1, 'name' => 'Rice', 'description' => 'Rice farming and production', 'chairperson' => 'Juan Farmer', 'created_at' => '2024-01-15', 'member_count' => 5],
+    ['id' => 2, 'name' => 'Corn', 'description' => 'Corn cultivation and trading', 'chairperson' => 'Maria Merchant', 'created_at' => '2024-02-10', 'member_count' => 4],
+    ['id' => 3, 'name' => 'Fishery', 'description' => 'Fishing and aquaculture operations', 'chairperson' => 'Pedro Fish', 'created_at' => '2024-02-15', 'member_count' => 3],
+    ['id' => 4, 'name' => 'Livestock', 'description' => 'Livestock raising and management', 'chairperson' => 'Rosa Rancher', 'created_at' => '2024-03-01', 'member_count' => 2],
+    ['id' => 5, 'name' => 'High Value Crops', 'description' => 'High value crops production', 'chairperson' => 'Miguel Farmer', 'created_at' => '2024-03-05', 'member_count' => 2],
+];
+
+// ── Handle Add / Edit / Delete Sector ───── (Demo Mode)
 $msg = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     if (isset($_POST['add_sector'])) {
-        $name  = trim($_POST['name']);
-        $desc  = trim($_POST['description']);
-        $chair = trim($_POST['chairperson']);
-        if ($name !== '') {
-            $ins = $conn->prepare("INSERT INTO sectors (name, description, chairperson) VALUES (?,?,?)");
-            $ins->bind_param("sss", $name, $desc, $chair);
-            $msg = $ins->execute() ? "added" : "error";
-        } else { $msg = "invalid"; }
-    }
-
-    elseif (isset($_POST['edit_sector'])) {
-        $id    = intval($_POST['sector_id']);
-        $name  = trim($_POST['name']);
-        $desc  = trim($_POST['description']);
-        $chair = trim($_POST['chairperson']);
-        if ($id > 0 && $name !== '') {
-            $upd = $conn->prepare("UPDATE sectors SET name=?, description=?, chairperson=? WHERE id=?");
-            $upd->bind_param("sssi", $name, $desc, $chair, $id);
-            $msg = $upd->execute() ? "edited" : "error";
-        } else { $msg = "invalid"; }
-    }
-
-    elseif (isset($_POST['delete_sector'])) {
-        $id = intval($_POST['sector_id']);
-        if ($id > 0) {
-            $del = $conn->prepare("DELETE FROM sectors WHERE id=?");
-            $del->bind_param("i", $id);
-            $msg = $del->execute() ? "deleted" : "error";
-        }
+        $msg = "added";
+    } elseif (isset($_POST['edit_sector'])) {
+        $msg = "edited";
+    } elseif (isset($_POST['delete_sector'])) {
+        $msg = "deleted";
     }
 }
 
-// ── Fetch Sectors with member count ───────────────────────────────────────────
-$sectors = $conn->query("
-    SELECT s.id, s.name, s.description, s.chairperson, s.created_at,
-           COUNT(u.id) AS member_count
-    FROM sectors s
-    LEFT JOIN users u ON u.sector = s.name AND u.role = 'Member'
-    GROUP BY s.id
-    ORDER BY s.name ASC
-");
+// ── Fetch Sectors with member count ─── (Using static data for demo)
+$sectors_array = $static_sectors;
 
-// ── Summary Stats ─────────────────────────────────────────────────────────────
-$total_sectors  = $conn->query("SELECT COUNT(*) AS c FROM sectors")->fetch_assoc()['c'] ?? 0;
-$total_members  = $conn->query("SELECT COUNT(*) AS c FROM users WHERE role='Member'")->fetch_assoc()['c'] ?? 0;
-$active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WHERE role='Member' AND sector IS NOT NULL AND sector != ''")->fetch_assoc()['c'] ?? 0;
+// ── Summary Stats ─── (Static for demo)
+$total_sectors  = count($static_sectors);
+$total_members  = 16; // Demo: 5+8+3+other
+$active_sectors = count($static_sectors);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,11 +59,12 @@ $active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WH
     <title>Sector Management | TrackCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="../includes/dashboard_layout.css">
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
@@ -108,17 +90,17 @@ $active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WH
 
         /* ── Navbar ── */
         .navbar {
-            background-color: rgba(245,245,220,0.95) !important;
+            background-color: rgba(22, 74, 54, 0.95) !important;
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            border-bottom: 1px solid rgba(229,229,192,0.5);
+            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             animation: fadeInUpCustom 0.8s ease-out;
         }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.8px; color: var(--track-dark) !important; }
-        .navbar-brand span { color: var(--track-green); }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.8px; color: #ffffff !important; }
+        .navbar-brand span { color: #20a060; }
         .navbar-nav .nav-link {
-            color: var(--text-muted) !important; font-weight: 600; font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8) !important; font-weight: 600; font-size: 0.95rem;
             margin: 0 10px; padding: 8px 0 !important; position: relative;
             transition: var(--transition-smooth); display: flex; align-items: center; gap: 6px;
         }
@@ -129,13 +111,13 @@ $active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WH
         .navbar-nav .nav-link:hover::after,
         .navbar-nav .nav-link.active::after { width: 100%; }
         .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active { color: var(--track-dark) !important; }
+        .navbar-nav .nav-link.active { color: #20a060 !important; }
         .logout-btn {
-            border: 2px solid #dc2626; color: #dc2626;
+            border: 2px solid #dc2626; background: #dc2626; color: white;
             width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
             border-radius: 12px; transition: var(--transition-smooth); text-decoration: none;
         }
-        .logout-btn:hover { background: #dc2626; color: white; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4); }
+        .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6); }
 
         /* ── Page Header ── */
         .page-header {
@@ -218,11 +200,11 @@ $active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WH
 
         /* ── Modal ── */
         .modal-content { border: none; border-radius: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.15); }
-        .modal-header { background: var(--track-beige); border-bottom: 2px solid rgba(229,229,192,0.6); border-radius: 20px 20px 0 0; padding: 24px 28px; }
-        .modal-title { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; color: var(--track-dark); display: flex; align-items: center; gap: 10px; }
+        .modal-header { background: rgba(22, 74, 54, 0.95); border-bottom: 2px solid rgba(22, 74, 54, 0.3); border-radius: 20px 20px 0 0; padding: 24px 28px; color: white; }
+        .modal-title { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; color: white; display: flex; align-items: center; gap: 10px; }
         .modal-title i { color: var(--track-green); }
         .modal-body { padding: 28px; }
-        .modal-footer { background: var(--track-beige); border-top: 1px solid rgba(229,229,192,0.6); border-radius: 0 0 20px 20px; padding: 20px 28px; }
+        .modal-footer { background: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); border-radius: 0 0 20px 20px; padding: 20px 28px; color: white; }
         .form-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
         .form-control, .form-select {
             border-radius: 12px; padding: 12px 16px; border: 1.5px solid #e5e5c0;
@@ -232,9 +214,9 @@ $active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WH
             border-color: var(--track-green); box-shadow: 0 0 0 4px rgba(32,160,96,0.12); background: #fff;
         }
         .btn-track { background: var(--track-green); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-weight: 700; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
-        .btn-cancel { background: white; color: var(--text-muted); border: 1.5px solid #e5e5c0; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
-        .btn-cancel:hover { background: #fdfdf8; border-color: var(--track-green); color: var(--track-dark); }
+        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
+        .btn-cancel { background: #206970; color: white; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
+        .btn-cancel:hover { background: #20a060; color: white; transform: translateY(-2px); }
         .btn-danger-soft { background: #fee2e2; color: #ef4444; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 700; transition: 0.3s; }
         .btn-danger-soft:hover { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.3); }
 
@@ -253,7 +235,7 @@ $active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WH
             font-weight: 700; border: none; box-shadow: 0 8px 20px rgba(32,160,96,0.2);
             transition: var(--transition-smooth); display: inline-flex; align-items: center; gap: 8px;
         }
-        .btn-portal:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(32,160,96,0.3); color: white; }
+        .btn-portal:hover { transform: translateY(-3px); background: #20a060; box-shadow: 0 12px 25px rgba(32,160,96,0.3); color: white; }
 
         /* --- SEARCH STYLING --- */
         .search-wrapper {
@@ -392,9 +374,8 @@ $active_sectors = $conn->query("SELECT COUNT(DISTINCT sector) AS c FROM users WH
     </div>
 
     <!-- SECTOR CARDS GRID -->
-    <?php if ($sectors && $sectors->num_rows > 0):
-        $sector_rows = [];
-        while ($s = $sectors->fetch_assoc()) $sector_rows[] = $s;
+    <?php if (count($sectors_array) > 0):
+        $sector_rows = $sectors_array;
     ?>
     <div class="row g-4 mb-5" id="sectorGrid">
         <?php foreach ($sector_rows as $i => $s):

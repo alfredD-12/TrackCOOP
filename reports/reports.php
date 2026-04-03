@@ -3,7 +3,7 @@ session_start();
 include('../auth/db_connect.php');
 
 // Security check: Admin and Bookkeeper only
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
@@ -14,19 +14,32 @@ $filter_sector = isset($_GET['sector']) ? $_GET['sector'] : '';
 // ── GET CURRENT URL FOR MODAL TRACKING ──
 $current_view = isset($_GET['view']) ? $_GET['view'] : '';
 
-// ── FETCH MEMBERSHIP DATA ──
-$sql = "SELECT first_name, last_name, sector, status, created_at FROM users WHERE role='Member'";
-if ($filter_sector) $sql .= " AND sector = '" . mysqli_real_escape_string($conn, $filter_sector) . "'";
-$sql .= " ORDER BY created_at DESC";
-$report_data = $conn->query($sql);
+// ── FETCH MEMBERSHIP DATA ── (Static for demo)
+$static_report_data = [
+    ['first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'sector' => 'Rice', 'status' => 'Approved', 'created_at' => '2024-01-20'],
+    ['first_name' => 'Maria', 'last_name' => 'Santos', 'sector' => 'Corn', 'status' => 'Approved', 'created_at' => '2024-01-25'],
+    ['first_name' => 'Pedro', 'last_name' => 'Garcia', 'sector' => 'Fishery', 'status' => 'Pending', 'created_at' => '2024-02-15'],
+    ['first_name' => 'Rosa', 'last_name' => 'Lopez', 'sector' => 'Livestock', 'status' => 'Approved', 'created_at' => '2024-02-20'],
+];
+
+if ($filter_sector) {
+    $report_data = array_filter($static_report_data, function($r) use ($filter_sector) {
+        return $r['sector'] === $filter_sector;
+    });
+} else {
+    $report_data = $static_report_data;
+}
+
 $report_title = "Membership Masterlist";
 
 // Unified Nav Vars
-$full_name = "User";
-$q_u = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
-$q_u->bind_param("i", $_SESSION['user_id']);
-$q_u->execute();
-if ($u_inf = $q_u->get_result()->fetch_assoc()) $full_name = $u_inf['first_name'].' '.$u_inf['last_name'];
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
+@$q_u = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+if ($q_u) {
+    @$q_u->bind_param("i", $_SESSION['user_id']);
+    @$q_u->execute();
+    if ($u_inf = @$q_u->get_result()->fetch_assoc()) $full_name = $u_inf['first_name'].' '.$u_inf['last_name'];
+}
 $active_page = 'reports';
 $user_role = $_SESSION['role'];
 $membership_type = $user_role;
@@ -37,7 +50,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     header('Content-Disposition: attachment; filename="membership_report_'.date('Y-m-d').'.csv"');
     $output = fopen('php://output', 'w');
     fputcsv($output, ['First Name', 'Last Name', 'Sector', 'Status', 'Date Joined']);
-    while($row = $report_data->fetch_assoc()) fputcsv($output, $row);
+    foreach($report_data as $row) fputcsv($output, $row);
     fclose($output);
     exit();
 }
@@ -67,7 +80,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-bg: #f8fafc;
             --track-beige: #F5F5DC;
             --text-main: #1a202c;
@@ -101,8 +114,8 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
         .report-table tr:hover td { background: #fff; border-color: var(--track-green); }
 
         .btn-action { border-radius: 12px; padding: 10px 20px; font-weight: 600; font-size: 0.875rem; transition: 0.3s; }
-        .btn-csv { border: 1.5px solid #edf2f7; background: white; color: var(--text-main); }
-        .btn-csv:hover { background: #f8fafc; border-color: #cbd5e0; }
+        .btn-csv { border: none; background: #206970; color: white; }
+        .btn-csv:hover { background: #20a060; transform: translateY(-2px); }
         .btn-print { background: var(--track-green); border: none; font-weight: 700; color: white; box-shadow: 0 4px 12px rgba(32, 160, 96, 0.2); }
         .btn-print:hover { background: #1b8a52; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(32, 160, 96, 0.3); }
 
@@ -155,15 +168,15 @@ if (!(isset($_GET['view']) && $_GET['view'] === 'modal')) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if ($report_data && $report_data->num_rows > 0): ?>
-                        <?php while($row = $report_data->fetch_assoc()): ?>
+                    <?php if ($report_data && count($report_data) > 0): ?>
+                        <?php foreach($report_data as $row): ?>
                             <tr>
                                 <td class="fw-bold"><?php echo htmlspecialchars($row['first_name'].' '.$row['last_name']); ?></td>
                                 <td><span class="badge border text-dark bg-light"><?php echo htmlspecialchars($row['sector'] ?: 'General'); ?></span></td>
                                 <td><span class="badge <?php echo ($row['status']=='Approved') ? 'bg-success' : 'bg-warning'; ?>"><?php echo $row['status']; ?></span></td>
                                 <td class="text-muted small"><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
                             </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     <?php else: ?>
                         <tr><td colspan="4" class="text-center py-5 text-muted">No records found for this report.</td></tr>
                     <?php endif; ?>

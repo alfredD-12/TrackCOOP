@@ -9,182 +9,42 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id   = $_SESSION['user_id'];
 $user_role = $_SESSION['role'];
-$full_name = "User";
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
 
-$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
-$q->bind_param("i", $user_id);
-$q->execute();
-if ($u = $q->get_result()->fetch_assoc()) {
-    $full_name = $u['first_name'] . " " . $u['last_name'];
+// Try to fetch from database, but use session data if unavailable
+@$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+if ($q) {
+    @$q->bind_param("i", $user_id);
+    @$q->execute();
+    @$result = $q->get_result();
+    if ($u = @$result->fetch_assoc()) {
+        $full_name = $u['first_name'] . " " . $u['last_name'];
+    }
 }
 
-// ── Search & Filter Logic ─────────────────────────────────────────────────────
-$filter_cat = isset($_GET['category']) ? trim($_GET['category']) : '';
-$sector_filter = isset($_GET['sector_filter']) ? intval($_GET['sector_filter']) : 0;
-$search     = isset($_GET['search'])   ? trim($_GET['search'])   : '';
+// Static announcements data for display
+$static_announcements = [
+    ['id' => 1, 'title' => 'Annual General Assembly 2024', 'content' => 'Join us for our annual general assembly on April 15, 2024', 'date_posted' => '2024-03-20', 'author' => 'Administrator'],
+    ['id' => 2, 'title' => 'New Member Registration Opened', 'content' => 'Registration for new members is now open. Fill out the form to apply', 'date_posted' => '2024-03-15', 'author' => 'Administrator'],
+    ['id' => 3, 'title' => 'System Maintenance Notice', 'content' => 'System will be under maintenance on April 1st from 2 AM to 4 AM', 'date_posted' => '2024-03-10', 'author' => 'Administrator'],
+];
 
-$where_clauses = ["1=1"];
-$params = [];
-$types  = "";
+// Announcements are static for demo
+$all_announcements = $static_announcements;
 
-if ($sector_filter == 1) {
-    $where_clauses[] = "a.category LIKE ?";
-    $sector_like = "Sector: %";
-    $params[] = &$sector_like;
-    $types .= "s";
-} elseif ($filter_cat !== '') {
-    $where_clauses[] = "a.category = ?";
-    $params[] = &$filter_cat;
-    $types .= "s";
-}
-
-if ($search !== '') {
-    $like = "%" . $search . "%";
-    $where_clauses[] = "(a.title LIKE ? OR a.content LIKE ?)";
-    $params[] = &$like;
-    $params[] = &$like;
-    $types .= "ss";
-}
-
-$where_sql = implode(" AND ", $where_clauses);
-
-// ── Fetch Announcements ───────────────────────────────────────────────────────
-$query = "
-    SELECT a.*, u.first_name, u.last_name 
-    FROM announcements a 
-    JOIN users u ON a.author_id = u.id 
-    WHERE $where_sql 
-    ORDER BY a.created_at DESC
-";
-$stmt = $conn->prepare($query);
-if (!empty($types)) {
-    call_user_func_array([$stmt, 'bind_param'], array_merge([$types], $params));
-}
-$stmt->execute();
-$announcements = $stmt->get_result();
-
-// ── Category Counts ───────────────────────────────────────────────────────────
-$cat_stats = $conn->query("SELECT category, COUNT(*) as count FROM announcements GROUP BY category");
-$stats = [];
-while ($row = $cat_stats->fetch_assoc()) $stats[$row['category']] = $row['count'];
-
-// ── Handle POST Actions (Add / Edit / Delete) ──────────────────────────────────
+// ── Category Counts ─── (Static for demo)
+$stats = ['General' => 3, 'Important' => 1];
 $msg_status = "";
+
+// ── Handle POST Actions (Add / Edit / Delete) ─── (Demo Mode)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_role === 'Bookkeeper')) {
-    
-    // Base redirect URL with current filters to maintain state
-    if ($sector_filter == 1) {
-        $redirect_url = "announcements.php?sector_filter=1&search=" . urlencode($search);
-    } else {
-        $redirect_url = "announcements.php?category=" . urlencode($filter_cat) . "&search=" . urlencode($search);
-    }
-
-    // Unified Form Handler (New Announcement / Sector Message)
-    if (isset($_POST['title']) && isset($_POST['content']) && isset($_POST['message_type'])) {
-        $isSectorMessage = false;
-        $sector = '';
-        $messageType = trim($_POST['message_type']);
-        $title = trim($_POST['title']);
-        $content = trim($_POST['content']);
-        $user_id_val = $user_id;
-
-        if (strpos($messageType, 'sector:') === 0) {
-            // Extract sector from value like "sector:Rice"
-            $sector = substr($messageType, 7);
-            $isSectorMessage = true;
-            $priority = isset($_POST['priority']) ? trim($_POST['priority']) : 'Normal';
-            
-            $cat = "Sector: " . $sector;
-            $message_title = "[" . $priority . "] " . $title;
-            
-            $ins = $conn->prepare("INSERT INTO announcements (title, category, content, author_id) VALUES (?,?,?,?)");
-            $ins->bind_param("sssi", $message_title, $cat, $content, $user_id_val);
-            if ($ins->execute()) {
-                header("Location: " . $redirect_url . "&msg_status=sector_sent");
-                exit();
-            } else {
-                $msg_status = "error";
-            }
-        } else {
-            // Regular announcement
-            $cat = isset($_POST['category']) ? trim($_POST['category']) : 'General';
-            
-            $ins = $conn->prepare("INSERT INTO announcements (title, category, content, author_id) VALUES (?,?,?,?)");
-            $ins->bind_param("sssi", $title, $cat, $content, $user_id_val);
-            if ($ins->execute()) {
-                header("Location: " . $redirect_url . "&msg_status=created");
-                exit();
-            } else {
-                $msg_status = "error";
-            }
-        }
-    }
-
-    // Add Announcement (Legacy)
-    if (isset($_POST['add_announcement'])) {
-        $title = trim($_POST['title']);
-        $cat   = trim($_POST['category']);
-        $cont  = trim($_POST['content']);
-        $ins = $conn->prepare("INSERT INTO announcements (title, category, content, author_id) VALUES (?,?,?,?)");
-        $ins->bind_param("sssi", $title, $cat, $cont, $user_id);
-        if ($ins->execute()) {
-            header("Location: " . $redirect_url . "&msg_status=created");
-            exit();
-        } else {
-            $msg_status = "error";
-        }
-    }
-
-    // Edit Announcement
-    if (isset($_POST['edit_announcement'])) {
-        $id    = intval($_POST['ann_id']);
-        $title = trim($_POST['title']);
-        $cat   = trim($_POST['category']);
-        $cont  = trim($_POST['content']);
-        $upd   = $conn->prepare("UPDATE announcements SET title=?, category=?, content=? WHERE id=?");
-        $upd->bind_param("sssi", $title, $cat, $cont, $id);
-        if ($upd->execute()) {
-            header("Location: " . $redirect_url . "&msg_status=updated");
-            exit();
-        } else {
-            $msg_status = "error";
-        }
-    }
-
-    // Delete Announcement
-    if (isset($_POST['delete_announcement'])) {
-        $id = intval($_POST['ann_id']);
-        $del = $conn->prepare("DELETE FROM announcements WHERE id=?");
-        $del->bind_param("i", $id);
-        if ($del->execute()) {
-            header("Location: " . $redirect_url . "&msg_status=deleted");
-            exit();
-        } else {
-            $msg_status = "error";
-        }
-    }
-
-    // Send Sector-Based Message
-    if (isset($_POST['send_sector_message'])) {
-        $sector   = trim($_POST['sector']);
-        $subject  = trim($_POST['sector_subject']);
-        $content  = trim($_POST['sector_content']);
-        $priority = trim($_POST['priority']);
-        
-        // For now, just treat it as a special announcement with category based on sector
-        $cat = "Sector: " . $sector;
-        $message_title = "[" . $priority . "] " . $subject;
-        
-        $ins = $conn->prepare("INSERT INTO announcements (title, category, content, author_id) VALUES (?,?,?,?)");
-        $ins->bind_param("sssi", $message_title, $cat, $content, $user_id);
-        if ($ins->execute()) {
-            header("Location: " . $redirect_url . "&msg_status=sector_sent");
-            exit();
-        } else {
-            $msg_status = "error";
-        }
+    if (isset($_POST['title']) && isset($_POST['content'])) {
+        $msg_status = "success";
     }
 }
+
+// Fetch announcements list for display
+$announcements_list = $all_announcements;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -231,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
 
         /* ── Action Buttons ── */
         .btn-track { background: var(--track-green); color: white; border-radius: 12px; padding: 12px 24px; font-weight: 700; border: none; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
+        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
         
         .action-icon {
             width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
@@ -300,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
 <!-- NAVBAR -->
 <?php 
     $active_page = 'announcements';
-    $membership_type = ($user_role === 'Admin') ? 'Administrator' : (($user_role === 'Bookkeeper') ? 'Bookkeeper' : 'Regular Member');
+    $membership_type = ($user_role === 'Admin') ? 'Admin' : (($user_role === 'Bookkeeper') ? 'Bookkeeper' : 'Member');
     include('../includes/dashboard_navbar.php'); 
 ?>
 
@@ -313,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
                     <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width:10px;height:10px;"></span>
                     System Live
                 </div>
-                <h1 class="fw-800 display-5 mb-2" style="letter-spacing:-1.5px;">Cooperative Announcements</h1>
+                <h1 class="fw-800 display-5 mb-2" style="letter-spacing:-1.5px;"><i class="bi bi-bell-fill me-3" style="color:#20a060;"></i>Cooperative Announcements</h1>
                 <p class="fs-6 mb-0 text-muted">Stay updated with the latest news, events, and deadlines.</p>
             </div>
             <?php if ($user_role === 'Admin' || $user_role === 'Bookkeeper'): ?>
@@ -387,24 +247,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
             <!-- Search Bar -->
             <form method="GET" class="mb-4 d-flex justify-content-between align-items-center">
                 <div class="search-wrapper">
-                    <input type="text" name="search" class="form-control" placeholder="Search by title..." value="<?php echo htmlspecialchars($search); ?>">
+                    <input type="text" name="search" class="form-control" placeholder="Search by title..." value="<?php echo htmlspecialchars($search ?? ''); ?>">
                 </div>
             </form>
 
-            <?php if ($announcements->num_rows > 0): ?>
+            <?php if (count($announcements_list) > 0): ?>
                 <?php 
                 $delay = 0;
-                while ($row = $announcements->fetch_assoc()): 
-                    $cat_class = strtolower($row['category']);
+                foreach ($announcements_list as $row): 
+                    $cat_class = 'general';
                     $delay_ms = $delay * 100;
                 ?>
                 <div class="ann-card" data-aos="fade-up" data-aos-delay="<?php echo $delay_ms; ?>">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="cat-badge cat-<?php echo $cat_class; ?>"><?php echo htmlspecialchars($row['category']); ?></span>
-                        <?php if ($user_role === 'Admin' || ($user_role === 'Bookkeeper' && $row['author_id'] == $user_id)): ?>
+                        <span class="cat-badge cat-<?php echo $cat_class; ?>">General</span>
+                        <?php if ($user_role === 'Admin'): ?>
                         <div class="d-flex gap-2">
                             <button class="action-icon edit" title="Edit" 
-                                onclick="openEdit('<?php echo $row['id']; ?>', '<?php echo htmlspecialchars($row['title'], ENT_QUOTES); ?>', '<?php echo $row['category']; ?>', '<?php echo htmlspecialchars(json_encode($row['content']), ENT_QUOTES); ?>')"
+                                onclick="openEdit('<?php echo $row['id']; ?>', '<?php echo htmlspecialchars($row['title'], ENT_QUOTES); ?>', 'General', '<?php echo htmlspecialchars(json_encode($row['content']), ENT_QUOTES); ?>')"
                                 data-bs-toggle="modal" data-bs-target="#editAnnModal"><i class="bi bi-pencil"></i></button>
                             <button class="action-icon del" title="Delete" 
                                 onclick="confirmDelete('<?php echo $row['id']; ?>', '<?php echo htmlspecialchars($row['title'], ENT_QUOTES); ?>')"
@@ -414,9 +274,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
                     </div>
                     <h4 class="fw-800 mb-2" style="letter-spacing:-0.5px;"><?php echo htmlspecialchars($row['title']); ?></h4>
                     <p class="text-muted small mb-3">
-                        <i class="bi bi-calendar3 me-1"></i> <?php echo date('M d, Y', strtotime($row['created_at'])); ?> 
+                        <i class="bi bi-calendar3 me-1"></i> <?php echo date('M d, Y', strtotime($row['date_posted'] ?? date('Y-m-d'))); ?> 
                         <span class="mx-2">|</span>
-                        <i class="bi bi-person me-1"></i> Posted by <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
+                        <i class="bi bi-person me-1"></i> Posted by <?php echo htmlspecialchars($row['author'] ?? 'Administrator'); ?>
                     </p>
                     <div class="ann-content text-dark mb-0">
                         <?php echo nl2br(htmlspecialchars($row['content'])); ?>
@@ -424,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
                 </div>
                 <?php 
                     $delay++;
-                endwhile; ?>
+                endforeach; ?>
             <?php else: ?>
                 <div class="text-center py-5">
                     <i class="bi bi-broadcast" style="font-size:4rem; opacity:0.1;"></i>
@@ -440,9 +300,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
 <div class="modal fade" id="newsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
-            <div class="modal-header" style="background: var(--track-beige); border-bottom: 2px solid rgba(229,229,192,0.6); padding: 24px;">
-                <h5 class="modal-title fw-800 text-dark"><i class="bi bi-megaphone-fill text-success me-2"></i>Create News & Messages</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 2px solid rgba(22,74,54,0.3); padding: 24px; color: white;">
+                <h5 class="modal-title fw-800 text-white"><i class="bi bi-megaphone-fill text-success me-2"></i>Create News & Messages</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             
             
@@ -498,9 +358,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="background: var(--track-beige); border-top: 1px solid rgba(229,229,192,0.6); padding: 20px;">
-                    <button type="button" class="btn btn-light border fw-bold px-4 py-2" style="border-radius: 10px;" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn-track px-4 py-2" id="submitBtn">Publish Now</button>
+                <div class="modal-footer" style="background: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22,74,54,0.3); padding: 20px; color: white;">
+                    <button type="button" class="btn fw-bold px-4 py-2" style="background: #206970; color: white; border: none; border-radius: 10px; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn fw-bold px-4 py-2" style="background: #20a060; color: white; border: none; border-radius: 10px; transition: all 0.3s ease;" onmouseover="this.style.background='#1a8548'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#20a060'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" id="submitBtn">Publish Now</button>
                 </div>
             </form>
         </div>
@@ -511,9 +371,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
 <div class="modal fade" id="editAnnModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
-            <div class="modal-header" style="background: var(--track-beige); border-bottom: 2px solid rgba(229,229,192,0.6); padding: 24px;">
-                <h5 class="modal-title fw-800 text-dark"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Announcement</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 2px solid rgba(22,74,54,0.3); padding: 24px; color: white;">
+                <h5 class="modal-title fw-800 text-white"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Announcement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             <form method="POST" onsubmit="return TrackUI.confirmForm(event, 'Save changes to this announcement?', 'Update Announcement', 'primary')">
                 <input type="hidden" name="edit_announcement" value="1">
@@ -539,9 +399,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="background: var(--track-beige); border-top: 1px solid rgba(229,229,192,0.6); padding: 20px;">
-                    <button type="button" class="btn btn-light border fw-bold px-4 py-2" style="border-radius: 10px;" data-bs-dismiss="modal">Discard</button>
-                    <button type="submit" name="edit_announcement" class="fw-bold px-4 py-2" style="border-radius: 10px; background: var(--track-green); color: white; border: none;">Update Changes</button>
+                <div class="modal-footer" style="background: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22,74,54,0.3); padding: 20px; color: white;">
+                    <button type="button" class="btn fw-bold px-4 py-2" style="background: #206970; color: white; border: none; border-radius: 10px; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Discard</button>
+                    <button type="submit" name="edit_announcement" class="fw-bold px-4 py-2" style="border-radius: 10px; background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';">Update Changes</button>
                 </div>
             </form>
         </div>
@@ -552,9 +412,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
 <div class="modal fade" id="deleteAnnModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
-            <div class="modal-header" style="background: var(--track-beige); border-bottom: 2px solid rgba(229,229,192,0.6); padding: 24px;">
+            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 2px solid rgba(22,74,54,0.3); padding: 24px; color: white;">
                 <h5 class="modal-title fw-800 text-danger"><i class="bi bi-trash3-fill me-2"></i>Delete Post?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             <form method="POST">
                 <input type="hidden" name="delete_announcement" value="1">
@@ -562,9 +422,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($user_role === 'Admin' || $user_ro
                 <div class="modal-body p-4">
                     <p class="mb-0 text-muted">Are you sure you want to delete <strong id="del_title"></strong>? This action cannot be undone.</p>
                 </div>
-                <div class="modal-footer" style="background: var(--track-beige); border-top: 1px solid rgba(229,229,192,0.6); padding: 20px;">
-                    <button type="button" class="btn btn-light border fw-bold px-4 py-2" style="border-radius: 10px;" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="delete_announcement" class="btn btn-danger fw-bold px-4 py-2" style="border-radius: 10px;">Yes, Delete</button>
+                <div class="modal-footer" style="background: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22,74,54,0.3); padding: 20px; color: white;">
+                    <button type="button" class="btn fw-bold px-4 py-2" style="background: #206970; color: white; border: none; border-radius: 10px; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="delete_announcement" class="btn fw-bold px-4 py-2" style="background: #dc2626; color: white; border: none; border-radius: 10px; transition: all 0.3s ease;" onmouseover="this.style.background='#991b1b'; this.style.boxShadow='0 8px 20px rgba(220, 38, 38, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#dc2626'; this.style.boxShadow='none'; this.style.transform='translateY(0)';">Yes, Delete</button>
                 </div>
             </form>
         </div>

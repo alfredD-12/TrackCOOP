@@ -8,21 +8,38 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Only Admin and Bookkeeper can access documents
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+// Only Admin can access documents
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
 
 // Get user info
 $user_id = $_SESSION['user_id'];
-$query = "SELECT first_name, last_name FROM users WHERE id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$full_name = $user['first_name'] . " " . $user['last_name'];
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
+
+// Try to fetch from database, but use session data if unavailable
+@$query = "SELECT first_name, last_name FROM users WHERE id = ?";
+@$stmt = $conn->prepare($query);
+if ($stmt) {
+    @$stmt->bind_param("i", $user_id);
+    @$stmt->execute();
+    @$result = $stmt->get_result();
+    if ($user = @$result->fetch_assoc()) {
+        $full_name = $user['first_name'] . " " . $user['last_name'];
+    }
+}
+
+// Static documents data for display
+$static_documents = [
+    ['id' => 1, 'name' => 'Bylaws and Constitution', 'type' => 'PDF', 'date_uploaded' => '2024-01-10', 'file_size' => '245 KB'],
+    ['id' => 2, 'name' => 'Member Handbook 2024', 'type' => 'PDF', 'date_uploaded' => '2024-02-01', 'file_size' => '512 KB'],
+    ['id' => 3, 'name' => 'Financial Report 2023', 'type' => 'PDF', 'date_uploaded' => '2024-03-15', 'file_size' => '870 KB'],
+    ['id' => 4, 'name' => 'Meeting Minutes Q1', 'type' => 'DOCX', 'date_uploaded' => '2024-04-02', 'file_size' => '156 KB'],
+];
+
+// Documents are static for demo
+$all_documents = $static_documents;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,11 +49,12 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
     <title>Documents | TrackCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../includes/dashboard_layout.css">
     
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
@@ -62,10 +80,10 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
 
         /* --- NAVBAR --- */
         .navbar {
-            background-color: rgba(245, 245, 220, 0.95) !important;
+            background-color: rgba(22, 74, 54, 0.95) !important;
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.5);
+            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             animation: fadeInUpCustom 0.8s ease-out;
         }
@@ -74,15 +92,15 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -0.8px;
-            color: var(--track-dark) !important;
+            color: #ffffff !important;
         }
 
         .navbar-brand span {
-            color: var(--track-green);
+            color: #20a060;
         }
 
         .navbar-nav .nav-link {
-            color: var(--text-muted) !important;
+            color: rgba(255, 255, 255, 0.8) !important;
             font-weight: 600;
             font-size: 0.95rem;
             margin: 0 12px;
@@ -112,12 +130,13 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
 
         .navbar-nav .nav-link:hover,
         .navbar-nav .nav-link.active {
-            color: var(--track-dark) !important;
+            color: #20a060 !important;
         }
 
         .logout-btn {
             border: 2px solid #dc2626;
-            color: #dc2626;
+            background: #dc2626;
+            color: white;
             width: 40px;
             height: 40px;
             display: inline-flex;
@@ -130,10 +149,8 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
         }
 
         .logout-btn:hover {
-            background: #dc2626;
-            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
         }
 
         /* --- HEADER --- */
@@ -436,22 +453,23 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
         }
 
         .modal-header {
-            border-bottom: 2px solid var(--track-beige);
+            border-bottom: 2px solid rgba(22,74,54,0.3);
             padding: 24px 28px;
-            background: var(--track-beige);
+            background: rgba(22, 74, 54, 0.95);
+            color: white;
         }
 
         .modal-header .btn-close {
-            filter: invert(0.5);
+            filter: invert(1);
         }
 
         .modal-header .btn-close:hover {
-            filter: invert(0.7);
+            filter: invert(0.8);
         }
 
         .modal-title {
             font-weight: 700;
-            color: var(--track-dark);
+            color: white;
             font-size: 1.5rem;
             display: flex;
             align-items: center;
@@ -468,9 +486,10 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
         }
 
         .modal-footer {
-            border-top: 2px solid var(--track-beige);
+            border-top: 2px solid rgba(22,74,54,0.3);
             padding: 20px 28px;
-            background: var(--track-beige);
+            background: rgba(22, 74, 54, 0.95);
+            color: white;
         }
 
         /* Form Styles */
@@ -517,9 +536,9 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
         }
 
         .btn-modal-cancel {
-            background: #ffffff;
-            color: var(--text-muted);
-            border: 2px solid var(--track-beige);
+            background: #206970;
+            color: white;
+            border: none;
             border-radius: 10px;
             padding: 12px 28px;
             font-weight: 600;
@@ -527,9 +546,10 @@ $full_name = $user['first_name'] . " " . $user['last_name'];
         }
 
         .btn-modal-cancel:hover {
-            background: var(--track-beige);
-            border-color: var(--track-green);
-            color: var(--track-dark);
+            background: #20a060;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.3);
         }
 
         /* File Upload Area */

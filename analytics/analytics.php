@@ -3,59 +3,39 @@ session_start();
 include('../auth/db_connect.php');
 
 // Security check: Admin and Bookkeeper only
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
 
 /** ── DATA FETCHING ── **/
 
-// 1. Total Members and Pending
-$total_members = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='Member'")->fetch_assoc()['cnt'];
-$approved_members = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='Member' AND status='Approved'")->fetch_assoc()['cnt'];
-$pending_members = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='Member' AND status='Pending'")->fetch_assoc()['cnt'];
+// Static demo data for analytics
+$total_members = 16;
+$approved_members = 13;
+$pending_members = 3;
+$total_capital = 185750.00;
 
-// 2. Total Share Capital
-$total_capital_res = $conn->query("SELECT SUM(amount) as total FROM share_capital");
-$total_capital = $total_capital_res ? ($total_capital_res->fetch_assoc()['total'] ?? 0) : 0;
+// Sector distribution (static for demo)
+$sector_labels = ['Rice', 'Corn', 'Fishery', 'Livestock', 'High Value Crops'];
+$sector_data = [5, 8, 3];
 
-// 3. Sector Distribution (Pie Chart)
-$sector_dist = $conn->query("SELECT sector, COUNT(*) as count FROM users WHERE role='Member' AND status='Approved' GROUP BY sector");
-$sector_labels = [];
-$sector_data = [];
-while($row = $sector_dist->fetch_assoc()) {
-    $sector_labels[] = $row['sector'] ?: 'Not Assigned';
-    $sector_data[] = $row['count'];
-}
+// 4. Monthly Growth (Line Chart - Last 6 Months) - Static demo data
+$growth_labels = ['October', 'November', 'December', 'January', 'February', 'March'];
+$growth_data = [2, 3, 4, 5, 7, 13];
 
-// 4. Monthly Growth (Line Chart - Last 6 Months)
-$growth_labels = [];
-$growth_data = [];
-for ($i = 5; $i >= 0; $i--) {
-    $month = date('Y-m', strtotime("-$i months"));
-    $month_display = date('M Y', strtotime("-$i months"));
-    $res = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='Member' AND created_at LIKE '$month%'");
-    $growth_labels[] = $month_display;
-    $growth_data[] = $res->fetch_assoc()['cnt'];
-}
-
-// 5. Capital Over Time (Bar Chart)
-$capital_labels = [];
-$capital_data = [];
-for ($i = 5; $i >= 0; $i--) {
-    $month = date('Y-m', strtotime("-$i months"));
-    $month_display = date('M Y', strtotime("-$i months"));
-    $res = $conn->query("SELECT SUM(amount) as total FROM share_capital WHERE created_at LIKE '$month%'");
-    $capital_labels[] = $month_display;
-    $capital_data[] = $res ? ($res->fetch_assoc()['total'] ?? 0) : 0;
-}
+// 5. Capital Over Time (Bar Chart) - Static demo data
+$capital_labels = ['October', 'November', 'December', 'January', 'February', 'March'];
+$capital_data = [15000, 22500, 31250, 45000, 62500, 185750];
 
 // Unified Nav Vars
-$full_name = "User";
-$q_u = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
-$q_u->bind_param("i", $_SESSION['user_id']);
-$q_u->execute();
-if ($u_inf = $q_u->get_result()->fetch_assoc()) $full_name = $u_inf['first_name'].' '.$u_inf['last_name'];
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
+@$q_u = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+if ($q_u) {
+    @$q_u->bind_param("i", $_SESSION['user_id']);
+    @$q_u->execute();
+    if ($u_inf = @$q_u->get_result()->fetch_assoc()) $full_name = $u_inf['first_name'].' '.$u_inf['last_name'];
+}
 $active_page = 'analytics';
 $user_role = $_SESSION['role'];
 $membership_type = $user_role;
@@ -84,7 +64,7 @@ $membership_type = $user_role;
     
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
             --track-beige: #F5F5DC;

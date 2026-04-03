@@ -2,8 +2,8 @@
 session_start();
 include '../auth/db_connect.php';
 
-// Security: Only Admin and Bookkeeper can manage media
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+// Security: Only Admin can manage media
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }

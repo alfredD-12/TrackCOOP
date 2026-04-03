@@ -3,60 +3,22 @@ session_start();
 include('../auth/db_connect.php');
 
 // Security check: Admin and Bookkeeper only
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
 
 /** ── MEMBER RISK DASHBOARD ENGINE ── **/
 
-// Fetch live member intelligence data
-$sql = "SELECT u.id, u.first_name, u.last_name, u.sector, 
-               MAX(sc.created_at) as last_contribution,
-               COUNT(sc.id) as contribution_count
-        FROM users u
-        LEFT JOIN share_capital sc ON u.id = sc.user_id
-        WHERE u.role = 'Member' AND u.status = 'Approved'
-        GROUP BY u.id";
+// Static member risk intelligence data
+$static_members_intel = [
+    ['id' => 1, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'sector' => 'Rice', 'days_since' => 5, 'contribution_count' => 3, 'risk_level' => 'Low', 'predicted_status' => 'Likely Active', 'interpretation' => 'Stable participation trend.', 'intervention' => false],
+    ['id' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos', 'sector' => 'Corn', 'days_since' => 15, 'contribution_count' => 8, 'risk_level' => 'Low', 'predicted_status' => 'Likely Active', 'interpretation' => 'Stable participation trend.', 'intervention' => false],
+    ['id' => 3, 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'sector' => 'Fishery', 'days_since' => 45, 'contribution_count' => 2, 'risk_level' => 'Medium', 'predicted_status' => 'Retention Risk', 'interpretation' => 'Developing delay pattern (>45 days).', 'intervention' => true],
+    ['id' => 4, 'first_name' => 'Rosa', 'last_name' => 'Lopez', 'sector' => 'Livestock', 'days_since' => 60, 'contribution_count' => 1, 'risk_level' => 'High', 'predicted_status' => 'Dormancy Forecast', 'interpretation' => 'Critical gap in activity (>60 days).', 'intervention' => true],
+];
 
-$result = $conn->query($sql);
-$members_intel = [];
-
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $days_since = -1;
-        if ($row['last_contribution']) {
-            $last_date = new DateTime($row['last_contribution']);
-            $now = new DateTime();
-            $interval = $now->diff($last_date);
-            $days_since = $interval->days;
-        }
-
-        // Behavior Logic (Prescriptive)
-        $risk_level = "Low";
-        $predicted_status = "Likely Active";
-        $interpretation = "Stable participation trend.";
-        $intervention = false;
-
-        if ($days_since === -1) {
-            $risk_level = "High"; $predicted_status = "Initial Dormancy"; 
-            $interpretation = "No contributions since account opening."; $intervention = true;
-        } elseif ($days_since > 90) {
-            $risk_level = "High"; $predicted_status = "Dormancy Forecast"; 
-            $interpretation = "Critical gap in activity (>90 days)."; $intervention = true;
-        } elseif ($days_since > 45) {
-            $risk_level = "Medium"; $predicted_status = "Retention Risk"; 
-            $interpretation = "Developing delay pattern (>45 days)."; $intervention = true;
-        }
-
-        $row['risk_level'] = $risk_level;
-        $row['predicted_status'] = $predicted_status;
-        $row['interpretation'] = $interpretation;
-        $row['intervention'] = $intervention;
-        
-        $members_intel[] = $row;
-    }
-}
+$members_intel = $static_members_intel;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,7 +33,7 @@ if ($result && $result->num_rows > 0) {
     
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-dark: #1e293b;
             --track-bg: #f8fafc;
             --white: #ffffff;
@@ -121,7 +83,10 @@ if ($result && $result->num_rows > 0) {
             padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.75rem;
             text-transform: uppercase; transition: var(--transition);
         }
-        .risk-card:hover .btn-view, .risk-card.active .btn-view { background: var(--track-green); color: #fff; }
+        .btn-view:hover {
+            background: #20a060; color: #fff; border-color: #20a060;
+        }
+        .risk-card:hover .btn-view, .risk-card.active .btn-view { background: #20a060; color: #fff; border-color: #20a060; }
 
         /* Workspace Pane */
         #workspacePane { opacity: 0; transform: translateY(20px); transition: var(--transition); }

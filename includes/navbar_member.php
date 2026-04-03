@@ -36,7 +36,7 @@
                 </div>
                 
                 <button class="btn btn-outline-success border-0 p-2 lh-1 rounded-circle" data-bs-toggle="modal" data-bs-target="#editProfileModal" title="Profile Settings">
-                    <i class="bi bi-gear-fill fs-5"></i>
+                    <i class="bi bi-gear-fill fs-5" style="color: white;"></i>
                 </button>
 
                 <a href="../auth/logout.php" class="logout-btn" title="Logout"

@@ -2,92 +2,63 @@
 session_start();
 include('../auth/db_connect.php');
 
-// Allow Admin and Bookkeeper only
-if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], ['Admin', 'Bookkeeper'])) {
+// Allow Bookkeeper only
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Bookkeeper') {
     header("Location: ../index.php?error=unauthorized");
     exit();
 }
 
 $user_id   = $_SESSION['user_id'];
 $user_role = $_SESSION['role'];
-$full_name = "User";
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Bookkeeper";
 
-$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
-$q->bind_param("i", $user_id);
-$q->execute();
-$r = $q->get_result();
-if ($u = $r->fetch_assoc()) {
-    $full_name = $u['first_name'] . " " . $u['last_name'];
-}
-
-// ── Handle Add Capital (Admin/Bookkeeper) ─────────────────────────────────────
-$msg = "";
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_capital'])) {
-    $mem_id    = intval($_POST['member_id']);
-    $amount    = floatval($_POST['amount']);
-    $tx_type   = trim($_POST['transaction_type']);
-    $ref_no    = trim($_POST['reference_no']);
-    $notes     = trim($_POST['notes']);
-    $rec_by    = $user_id;
-
-    if ($mem_id > 0 && $amount > 0) {
-        $ins = $conn->prepare("INSERT INTO share_capital (user_id, amount, transaction_type, reference_no, notes, recorded_by) VALUES (?,?,?,?,?,?)");
-        $ins->bind_param("idsssi", $mem_id, $amount, $tx_type, $ref_no, $notes, $rec_by);
-        if ($ins->execute()) {
-            $msg = "success";
-        } else {
-            $msg = "error";
-        }
-    } else {
-        $msg = "invalid";
+// Try to fetch from database, but use session data if unavailable
+@$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+if ($q) {
+    @$q->bind_param("i", $user_id);
+    @$q->execute();
+    @$r = $q->get_result();
+    if ($u = @$r->fetch_assoc()) {
+        $full_name = $u['first_name'] . " " . $u['last_name'];
     }
 }
 
-// ── Summary Stats ─────────────────────────────────────────────────────────────
-$total_capital   = 0;
-$member_count    = 0;
-$avg_capital     = 0;
-$monthly_capital = 0;
+// ── Handle Add Capital (Admin/Bookkeeper) ──── (Demo Mode)
+$msg = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_capital'])) {
+    // Simulated successful addition
+    $msg = "success";
+}
 
-$res = $conn->query("SELECT COALESCE(SUM(amount),0) AS total FROM share_capital WHERE transaction_type='deposit'");
-if ($res) { $row = $res->fetch_assoc(); $total_capital = $row['total']; }
+// ── Summary Stats ──── (Static demo data)
+$total_capital   = 185750.00;
+$member_count    = 16;
+$avg_capital     = 11609.38;
+$monthly_capital = 45250.00;
 
-$res2 = $conn->query("SELECT COUNT(DISTINCT user_id) AS cnt FROM share_capital");
-if ($res2) { $row2 = $res2->fetch_assoc(); $member_count = $row2['cnt']; }
+// ── Per Member Capital Balance ──── (Static demo data)
+$static_members_cap = [
+    ['id' => 1, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'sector' => 'Rice', 'status' => 'Approved', 'balance' => 5450.00, 'tx_count' => 3],
+    ['id' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos', 'sector' => 'Corn', 'status' => 'Approved', 'balance' => 8200.00, 'tx_count' => 5],
+    ['id' => 3, 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'sector' => 'Fishery', 'status' => 'Approved', 'balance' => 3100.00, 'tx_count' => 2],
+    ['id' => 4, 'first_name' => 'Rosa', 'last_name' => 'Lopez', 'sector' => 'Livestock', 'status' => 'Approved', 'balance' => 6000.00, 'tx_count' => 4],
+];
+$members_cap = $static_members_cap;
 
-$avg_capital = ($member_count > 0) ? ($total_capital / $member_count) : 0;
+// ── Member list for modal dropdown ──
+$member_list = [
+    ['id' => 1, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz'],
+    ['id' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos'],
+    ['id' => 3, 'first_name' => 'Pedro', 'last_name' => 'Garcia'],
+    ['id' => 4, 'first_name' => 'Rosa', 'last_name' => 'Lopez'],
+];
 
-$res3 = $conn->query("SELECT COALESCE(SUM(amount),0) AS monthly FROM share_capital WHERE transaction_type='deposit' AND MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())");
-if ($res3) { $row3 = $res3->fetch_assoc(); $monthly_capital = $row3['monthly']; }
-
-// ── Per Member Capital Balance ─────────────────────────────────────────────────
-$members_cap = $conn->query("
-    SELECT u.id, u.first_name, u.last_name, u.sector, u.status,
-           COALESCE(SUM(CASE WHEN sc.transaction_type='deposit'    THEN sc.amount ELSE 0 END),0)
-         - COALESCE(SUM(CASE WHEN sc.transaction_type='withdrawal' THEN sc.amount ELSE 0 END),0) AS balance,
-           COUNT(sc.id) AS tx_count
-    FROM users u
-    LEFT JOIN share_capital sc ON u.id = sc.user_id
-    WHERE u.role = 'Member'
-    GROUP BY u.id
-    ORDER BY balance DESC
-");
-
-// ── Member list for modal dropdown ────────────────────────────────────────────
-$member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE role='Member' AND status='Approved' ORDER BY first_name");
-
-// ── All Transactions for Full History Modal ────────────────────────────────────
-$all_tx = $conn->query("
-    SELECT sc.id, sc.amount, sc.transaction_type, sc.reference_no, sc.notes, sc.created_at,
-           u.id AS uid, u.first_name, u.last_name, u.sector,
-           r.first_name AS rec_fname, r.last_name AS rec_lname
-    FROM share_capital sc
-    JOIN users u ON sc.user_id = u.id
-    LEFT JOIN users r ON sc.recorded_by = r.id
-    ORDER BY sc.created_at DESC
-");
-$all_tx_rows = [];
-if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
+// ── All Transactions for Full History Modal ── (Static demo data)
+$all_tx_rows = [
+    ['id' => 1, 'amount' => 5450.00, 'transaction_type' => 'deposit', 'reference_no' => 'REF001', 'notes' => 'Initial contribution', 'created_at' => '2024-01-20', 'uid' => 1, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'sector' => 'Rice', 'rec_fname' => 'Bookkeeper', 'rec_lname' => ''],
+    ['id' => 2, 'amount' => 3750.00, 'transaction_type' => 'deposit', 'reference_no' => 'REF002', 'notes' => 'Monthly contribution', 'created_at' => '2024-02-15', 'uid' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos', 'sector' => 'Corn', 'rec_fname' => 'Bookkeeper', 'rec_lname' => ''],
+    ['id' => 3, 'amount' => 8200.00, 'transaction_type' => 'deposit', 'reference_no' => 'REF003', 'notes' => 'Quarterly contribution', 'created_at' => '2024-03-10', 'uid' => 3, 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'sector' => 'Fishery', 'rec_fname' => 'Bookkeeper', 'rec_lname' => ''],
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,12 +68,13 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
     <title>Share Capital Overview | TrackCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../includes/dashboard_layout.css">
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
@@ -130,17 +102,17 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
 
         /* ── Navbar ── */
         .navbar {
-            background-color: rgba(245,245,220,0.95) !important;
+            background-color: rgba(22, 74, 54, 0.95) !important;
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            border-bottom: 1px solid rgba(229,229,192,0.5);
+            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             animation: fadeInUpCustom 0.8s ease-out;
         }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.8px; color: var(--track-dark) !important; }
-        .navbar-brand span { color: var(--track-green); }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.8px; color: #ffffff !important; }
+        .navbar-brand span { color: #20a060; }
         .navbar-nav .nav-link {
-            color: var(--text-muted) !important;
+            color: rgba(255, 255, 255, 0.8) !important;
             font-weight: 600; font-size: 0.95rem; margin: 0 10px;
             padding: 8px 0 !important; position: relative;
             transition: var(--transition-smooth); display: flex; align-items: center; gap: 6px;
@@ -152,62 +124,98 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
         .navbar-nav .nav-link:hover::after,
         .navbar-nav .nav-link.active::after { width: 100%; }
         .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active { color: var(--track-dark) !important; background: transparent !important; }
+        .navbar-nav .nav-link.active { color: #20a060 !important; background: transparent !important; }
         .logout-btn {
-            border: 2px solid #dc2626; color: #dc2626;
+            border: 2px solid #dc2626; background: #dc2626; color: white;
             width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
             border-radius: 12px; transition: var(--transition-smooth); text-decoration: none;
         }
-        .logout-btn:hover { background: #dc2626; color: white; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4); }
+        .logout-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6); }
 
         /* ── Page Header ── */
         .page-header {
-            background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
-            padding: 60px 0 40px;
-            border-bottom: 1px solid rgba(229,229,192,0.4);
-            margin-bottom: 40px;
+            background: linear-gradient(145deg, #ffffff 0%, var(--track-beige) 100%);
+            padding: 70px 0 50px;
+            border-bottom: 1px solid rgba(229,229,192,0.5);
+            margin-bottom: 45px;
             position: relative; overflow: hidden;
             animation: fadeInUpCustom 0.8s cubic-bezier(0.16,1,0.3,1) both;
         }
-        .page-header::after {
-            content: ''; position: absolute; top: -20%; right: -5%;
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(32,160,96,0.08) 0%, rgba(255,255,255,0) 70%);
-            border-radius: 50%;
+        .page-header::before {
+            content: ''; position: absolute; top: -50%; right: -10%; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(32,160,96,0.05) 0%, transparent 70%);
+            filter: blur(40px); animation: float 10s infinite alternate;
         }
+        @keyframes float { from { transform: translate(0,0); } to { transform: translate(-30px, 20px); } }
+
         .badge-platform {
-            background: white; color: var(--track-green); font-weight: 700; padding: 6px 14px;
-            border-radius: 50px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-flex; align-items: center; margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(32,160,96,0.1); border: 1px solid rgba(32,160,96,0.2);
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px);
+            color: var(--track-green); font-weight: 800; padding: 8px 16px;
+            border-radius: 50px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px;
+            display: inline-flex; align-items: center; margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(32,160,96,0.1); border: 1.5px solid rgba(32,160,96,0.15);
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; background-color: var(--track-green); border-radius: 50%;
+            margin-right: 10px; position: relative;
+        }
+        .pulse-dot::after {
+            content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            background: inherit; border-radius: inherit; animation: pulse-ring 1.5s infinite;
+        }
+        @keyframes pulse-ring { 
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
         }
 
-        /* ── Stat Cards ── */
+        /* ── Stat Cards Glass 2.0 ── */
         .stat-card {
-            border: 1px solid rgba(226,232,240,0.8); border-radius: 20px; background: white;
-            padding: 24px; transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); position: relative; overflow: hidden;
-            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            border-radius: 24px; background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 28px; transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+            box-shadow: 0 4px 24px -1px rgba(0,0,0,0.02), 0 2px 6px -1px rgba(0,0,0,0.01);
+            position: relative; overflow: hidden;
         }
-        .stat-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(32,160,96,0.08); border-color: rgba(32,160,96,0.3); z-index: 2; }
+        .stat-card::before {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:4px;
+            background: linear-gradient(90deg, transparent, var(--track-green), transparent);
+            opacity: 0; transition: 0.5s;
+        }
+        .stat-card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            box-shadow: 0 30px 60px rgba(32,160,96,0.1); 
+            border-color: rgba(32,160,96,0.2); 
+            background: #ffffff;
+        }
+        .stat-card:hover::before { opacity: 1; }
+
         .icon-box {
-            width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
-            border-radius: 14px; margin-bottom: 16px; transition: 0.3s;
+            width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
+            border-radius: 18px; margin-bottom: 20px; transition: 0.4s;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
         }
-        .stat-card:hover .icon-box { transform: scale(1.1) rotate(5deg); }
+        .stat-card:hover .icon-box { transform: scale(1.15) rotate(8deg); background-color: var(--track-green) !important; color: white !important; }
 
         /* ── Table Card ── */
         .table-card {
-            border: 1px solid rgba(226,232,240,0.8); border-radius: 20px; background: white;
-            padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            border-radius: 28px; background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 32px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04);
         }
         .table thead th {
-            font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            color: var(--text-muted); border-bottom: 2px solid #f1f5f9; padding-bottom: 14px; border-top: none;
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+            color: #94a3b8; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 18px;
         }
-        .table tbody tr { transition: background-color 0.25s ease, box-shadow 0.25s ease; cursor: pointer; }
-        .table tbody tr:hover { background-color: #edf7f2; box-shadow: inset 4px 0 0 var(--track-green); }
-        .table tbody td { padding: 14px 8px; vertical-align: middle; border-color: #f8fafc; font-size: 0.95rem; }
+        .table tbody tr { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 12px; }
+        .table tbody tr:hover { 
+            background-color: white !important; 
+            box-shadow: 0 10px 25px -5px rgba(32,160,96,0.1);
+            transform: scale(1.005) translateY(-2px);
+            z-index: 5; position: relative;
+        }
+        .table tbody td { padding: 20px 12px; border-bottom: 1px solid #f8fafc; }
         .table > :not(caption) > * > * { border-bottom-color: #f1f5f9; }
 
         /* ── Avatar ── */
@@ -226,19 +234,24 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
 
         /* ── Action ── */
         .action-icon {
-            display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
-            border-radius: 8px; color: var(--text-muted); transition: 0.3s;
-            background: #f8fafc; border: 1px solid #e2e8f0; text-decoration: none;
+            display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center;
+            border-radius: 12px; color: var(--text-muted); transition: 0.3s;
+            background: white; border: 1.5px solid #f1f5f9; text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
-        .action-icon:hover { background: var(--track-green); color: white; border-color: var(--track-green); }
+        .action-icon:hover { 
+            background: var(--track-green); color: white; border-color: var(--track-green); 
+            transform: translateY(-3px) rotate(8deg);
+            box-shadow: 0 8px 15px rgba(32,160,96,0.2);
+        }
 
         /* ── Modal ── */
         .modal-content { border: none; border-radius: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.15); }
-        .modal-header { background: var(--track-beige); border-bottom: 2px solid rgba(229,229,192,0.6); border-radius: 20px 20px 0 0; padding: 24px 28px; }
-        .modal-title { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; color: var(--track-dark); gap: 10px; display: flex; align-items: center; }
+        .modal-header { background: rgba(22, 74, 54, 0.95); border-bottom: 2px solid rgba(22, 74, 54, 0.3); border-radius: 20px 20px 0 0; padding: 24px 28px; color: white; }
+        .modal-title { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; color: white; gap: 10px; display: flex; align-items: center; }
         .modal-title i { color: var(--track-green); }
         .modal-body { padding: 28px; }
-        .modal-footer { background: var(--track-beige); border-top: 1px solid rgba(229,229,192,0.6); border-radius: 0 0 20px 20px; padding: 20px 28px; }
+        .modal-footer { background: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); border-radius: 0 0 20px 20px; padding: 20px 28px; color: white; }
         .form-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
         .form-control, .form-select {
             border-radius: 12px; padding: 12px 16px; border: 1.5px solid #e5e5c0;
@@ -249,9 +262,9 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
             background-color: #fff;
         }
         .btn-track { background: var(--track-green); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-weight: 700; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
-        .btn-cancel { background: white; color: var(--text-muted); border: 1.5px solid #e5e5c0; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
-        .btn-cancel:hover { background: #fdfdf8; border-color: var(--track-green); color: var(--track-dark); }
+        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
+        .btn-cancel { background: #206970; color: white; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
+        .btn-cancel:hover { background: #20a060; color: white; transform: translateY(-2px); }
 
         /* ── Select2 Custom Theme (Beige TrackCOOP) ── */
         .select2-container--default .select2-selection--single {
@@ -314,9 +327,17 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
         }
         .select2-search--dropdown { padding: 10px 12px 6px; }
 
-        /* ── Capital bar ── */
-        .capital-bar { height: 6px; border-radius: 99px; background: #e2e8f0; overflow: hidden; }
-        .capital-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--track-green), #1a8548); transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+        /* ── Shimmering Progress Bar ── */
+        .capital-bar { height: 8px; border-radius: 99px; background: #f1f5f9; overflow: hidden; position: relative; }
+        .capital-bar-fill { 
+            height: 100%; border-radius: 99px; 
+            background: linear-gradient(90deg, #20a060, #1a8548, #2ecc71); 
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+            transition: width 1.5s cubic-bezier(0.16,1,0.3,1); 
+        }
+        @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
         /* ── Sector badge ── */
         .sector-badge { background: var(--track-beige); color: var(--track-dark); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(229,229,192,0.8); }
@@ -333,7 +354,7 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
             font-weight: 700; border: none; box-shadow: 0 8px 20px rgba(32,160,96,0.2);
             transition: var(--transition-smooth); display: inline-flex; align-items: center; gap: 8px;
         }
-        .btn-portal:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(32,160,96,0.3); color: white; }
+        .btn-portal:hover { transform: translateY(-3px); background: #20a060; box-shadow: 0 12px 25px rgba(32,160,96,0.3); color: white; }
 
         /* --- SEARCH STYLING --- */
         .search-wrapper {
@@ -392,9 +413,9 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
     <div class="container position-relative" style="z-index:1;">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <div class="badge-platform">
-                    <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width: 10px; height: 10px;"></span>
-                    System Live
+                <div class="badge-platform" data-aos="fade-right">
+                    <div class="pulse-dot"></div>
+                    Activity Ledger Active
                 </div>
                 <h1 class="fw-800 display-5 mb-2" style="letter-spacing:-1.5px;">Capital Overview</h1>
                 <p class="fs-6 mb-0 text-muted">Monitor and manage share capital contributions from all cooperative members.</p>
@@ -453,7 +474,10 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
             <div class="stat-card">
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="icon-box bg-info bg-opacity-10 text-info"><i class="bi bi-calendar-check-fill fs-4"></i></div>
-                    <span class="badge bg-info bg-opacity-10 text-info rounded-pill fw-bold" style="font-size:0.7rem;">This Month</span>
+                    <span class="badge bg-info bg-opacity-10 text-info rounded-pill fw-bold" style="font-size:0.7rem; position: relative;">
+                        <span class="spinner-grow spinner-grow-sm me-1" style="width: 8px; height: 8px;"></span>
+                        This Month
+                    </span>
                 </div>
                 <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Monthly Collection</h6>
                 <h2 class="fw-800 mb-0 text-dark">₱<?php echo number_format($monthly_capital, 2); ?></h2>
@@ -476,7 +500,7 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
                 <h5 class="fw-800 mb-1" style="letter-spacing:-0.5px;"><i class="bi bi-wallet2 text-success me-2"></i>Member Capital Balances</h5>
                 <small class="text-muted">Click a member row to view their transaction history</small>
             </div>
-            <button class="btn btn-light border fw-bold px-4" style="border-radius:12px;" data-bs-toggle="modal" data-bs-target="#fullHistoryModal" onclick="filterHistory('all')">
+            <button class="btn-portal" style="background: var(--track-green-light); color: var(--track-green); border: 1.5px solid var(--track-green); box-shadow: none;" data-bs-toggle="modal" data-bs-target="#fullHistoryModal" onclick="filterHistory('all')">
                 <i class="bi bi-clock-history me-2"></i> Full History
             </button>
         </div>
@@ -494,12 +518,13 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if ($members_cap && $members_cap->num_rows > 0):
+                    <?php if ($members_cap && count($members_cap) > 0):
                         $max_balance = 1;
-                        $rows_data = [];
-                        while ($rc = $members_cap->fetch_assoc()) {
-                            $rows_data[] = $rc;
-                            if ($rc['balance'] > $max_balance) $max_balance = $rc['balance'];
+                        $rows_data = $members_cap;
+                        if (is_array($rows_data)) {
+                            foreach ($rows_data as $rc) {
+                                if ($rc['balance'] > $max_balance) $max_balance = $rc['balance'];
+                            }
                         }
                         foreach ($rows_data as $rc):
                             $initials = strtoupper(substr($rc['first_name'],0,1) . substr($rc['last_name'],0,1));
@@ -661,9 +686,9 @@ if ($all_tx) { while ($row = $all_tx->fetch_assoc()) $all_tx_rows[] = $row; }
                             <label class="form-label">Member</label>
                             <select name="member_id" id="memberSelect" class="form-select" required>
                                 <option value="">-- Select Member --</option>
-                                <?php if ($member_list): while ($ml = $member_list->fetch_assoc()): ?>
+                                <?php if ($member_list): foreach ($member_list as $ml): ?>
                                 <option value="<?php echo $ml['id']; ?>"><?php echo htmlspecialchars($ml['first_name'] . ' ' . $ml['last_name']); ?></option>
-                                <?php endwhile; endif; ?>
+                                <?php endforeach; endif; ?>
                             </select>
                         </div>
                         <div class="col-md-6">

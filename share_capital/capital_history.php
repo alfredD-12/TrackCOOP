@@ -134,7 +134,7 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
@@ -178,7 +178,7 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
         .navbar-nav .nav-link:hover::after,
         .navbar-nav .nav-link.active::after { width: 100%; }
         .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active { color: var(--track-dark) !important; background: transparent !important; }
+        .navbar-nav .nav-link.active { color: #20a060 !important; background: transparent !important; }
         .logout-btn {
             border: 2px solid #dc2626; color: #dc2626;
             width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
@@ -260,11 +260,11 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
 
         /* ── Modal ── */
         .modal-content { border: none; border-radius: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.15); }
-        .modal-header { background: var(--track-beige); border-bottom: 2px solid rgba(229,229,192,0.6); border-radius: 20px 20px 0 0; padding: 24px 28px; }
-        .modal-title { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; color: var(--track-dark); gap: 10px; display: flex; align-items: center; }
+        .modal-header { background: rgba(22, 74, 54, 0.95); border-bottom: 2px solid rgba(22, 74, 54, 0.3); border-radius: 20px 20px 0 0; padding: 24px 28px; color: white; }
+        .modal-title { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; color: white; gap: 10px; display: flex; align-items: center; }
         .modal-title i { color: var(--track-green); }
         .modal-body { padding: 28px; }
-        .modal-footer { background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 20px 20px; padding: 20px 28px; }
+        .modal-footer { background: rgba(22, 74, 54, 0.95); color: white; border-top: 1px solid rgba(22, 74, 54, 0.3); border-radius: 0 0 20px 20px; padding: 20px 28px; }
         .form-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
         .form-control, .form-select {
             border-radius: 12px; padding: 12px 16px; border: 1.5px solid #e2e8f0;
@@ -274,9 +274,9 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
             border-color: var(--track-green); box-shadow: 0 0 0 4px rgba(32,160,96,0.12); background-color: #fff;
         }
         .btn-track { background: var(--track-green); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-weight: 700; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
-        .btn-cancel { background: white; color: var(--text-muted); border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
-        .btn-cancel:hover { background: #f8fafc; border-color: var(--track-green); color: var(--track-dark); }
+        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
+        .btn-cancel { background: #206970; color: white; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
+        .btn-cancel:hover { background: #20a060; color: white; transform: translateY(-2px); }
 
         /* ── Stagger ── */
         .fade-in-up { opacity: 0; animation: fadeInUpCustom 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }

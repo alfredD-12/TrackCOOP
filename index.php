@@ -4,41 +4,43 @@ include 'auth/db_connect.php';
 // Optimized for Nasugbu Farmers and Fisherfolks Agriculture Cooperative (NFFAC)
 // UI/UX Principles: Jakob Nielsen's 10 Usability Heuristics Applied
 
+$remembered_user = "";
+if (isset($_COOKIE['remember_user'])) {
+    $remembered_user = $_COOKIE['remember_user'];
+}
+
 $alert_msg = "";
 if(isset($_GET['login'])) {
     if($_GET['login'] == 'pending') $alert_msg = "Your account is still PENDING for Admin approval.";
     elseif($_GET['login'] == 'wrong_password') $alert_msg = "Incorrect password. Please retry again.";
     elseif($_GET['login'] == 'not_found') $alert_msg = "Username not found. Please register first.";
+    elseif($_GET['login'] == 'captcha_failed') $alert_msg = "Captcha verification failed. Please try again.";
 }
-if(isset($_GET['register']) && $_GET['register'] == 'success') {
-    $alert_msg = "Registration Successful! Please wait for Admin approval.";
+if(isset($_GET['register'])) {
+    if($_GET['register'] == 'success') $alert_msg = "Registration Successful! Please wait for Admin approval.";
+    elseif($_GET['register'] == 'weak_password') $alert_msg = "Weak Password: Use 8-15 chars with letters, numbers, and symbols.";
+    elseif($_GET['register'] == 'password_mismatch') $alert_msg = "Passwords do not match. Please ensure both fields are identical.";
 }
 
-// Fetch latest 6 announcements for inline section
-$pub_ann_result = $conn->query("
-    SELECT a.title, a.content, a.category, a.created_at,
-           COALESCE(u.first_name, 'NFFAC') AS first_name,
-           COALESCE(u.last_name, 'Admin') AS last_name
-    FROM announcements a
-    LEFT JOIN users u ON a.author_id = u.id
-    ORDER BY a.created_at DESC
-    LIMIT 6
-");
-$ann_rows = ($pub_ann_result) ? $pub_ann_result->fetch_all(MYSQLI_ASSOC) : [];
+// Fetch latest 6 announcements for inline section (Static demo data)
+$ann_rows = [
+    ['title' => 'Welcome to TrackCOOP', 'content' => 'TrackCOOP is now live! Join our community and start tracking your cooperative activities.', 'category' => 'General', 'created_at' => '2026-04-02', 'first_name' => 'Admin', 'last_name' => 'User'],
+    ['title' => 'New Share Capital System', 'content' => 'Our new share capital tracking system is now available. All members can monitor their contributions.', 'category' => 'System', 'created_at' => '2026-04-01', 'first_name' => 'Bookkeeper', 'last_name' => ''],
+    ['title' => 'Member Meeting Notice', 'content' => 'General assembly meeting will be held on April 15, 2026. All members are invited to attend.', 'category' => 'Meeting', 'created_at' => '2026-03-31', 'first_name' => 'Admin', 'last_name' => 'User'],
+    ['title' => 'Sector Highlights - Rice Season', 'content' => 'This season\'s rice production shows a 15% increase. Congratulations to all rice sector members!', 'category' => 'Sector News', 'created_at' => '2026-03-28', 'first_name' => 'NFFAC', 'last_name' => 'Admin'],
+    ['title' => 'Financial Report Released', 'content' => 'Q1 2026 financial report is now available. Total cooperative capital has reached ₱125,000.', 'category' => 'Finance', 'created_at' => '2026-03-25', 'first_name' => 'Bookkeeper', 'last_name' => ''],
+    ['title' => 'Documentation Guide Updated', 'content' => 'New documentation guides are available in the Documents section. Please review for compliance.', 'category' => 'Documentation', 'created_at' => '2026-03-20', 'first_name' => 'Admin', 'last_name' => 'User'],
+];
 
-// Session-aware User Detail logic
+// Session-aware User Detail logic (Static fallback)
 $is_logged_in = false;
 $logged_user_name = "";
 $logged_user_role = "";
 if (isset($_SESSION['user_id'])) {
-    $q_user = $conn->prepare("SELECT first_name, last_name, role FROM users WHERE id = ?");
-    $q_user->bind_param("i", $_SESSION['user_id']);
-    $q_user->execute();
-    if ($u_info = $q_user->get_result()->fetch_assoc()) {
-        $is_logged_in = true;
-        $logged_user_name = $u_info['first_name'] . ' ' . $u_info['last_name'];
-        $logged_user_role = $u_info['role'];
-    }
+    // Static user data fallback (in demo mode)
+    $is_logged_in = true;
+    $logged_user_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "User";
+    $logged_user_role = isset($_SESSION['role']) ? $_SESSION['role'] : "Member";
 }
 ?>
 <!DOCTYPE html>
@@ -52,12 +54,13 @@ if (isset($_SESSION['user_id'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="includes/dashboard_layout.css">
     <link rel="stylesheet" href="includes/footer.css">
-    <link rel="stylesheet" href="includes/footer.css">
+    <!-- Visual Placeholder for reCAPTCHA (Test Phase) -->
 
     <style>
         :root {
-            --track-green: #20a060;
+            --track-green: #206970;
             --primary-green: #20a060;
             --dark-green: #1a8548;
             --track-green-light: #e9f5ee;
@@ -93,16 +96,16 @@ if (isset($_SESSION['user_id'])) {
 
         /* --- Components --- */
         .navbar {
-            background-color: rgba(245, 245, 220, 0.9) !important;
+            background-color: rgba(22, 74, 54, 0.95) !important;
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.5);
+            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             transition: var(--transition-smooth);
             z-index: 1050;
         }
 
         .navbar .nav-link { 
-            color: var(--text-muted) !important; 
+            color: rgba(255, 255, 255, 0.8) !important; 
             font-weight: 600;
             font-size: 0.95rem;
             margin: 0 15px; 
@@ -115,12 +118,12 @@ if (isset($_SESSION['user_id'])) {
             font-weight: 800;
             font-size: 1.7rem;
             letter-spacing: -1.5px;
-            color: var(--track-dark) !important;
+            color: #ffffff !important;
             text-decoration: none;
             display: flex;
             align-items: center;
         }
-        .navbar-brand span { color: var(--track-green); }
+        .navbar-brand span { color: #20a060; }
 
         .nav-link::after {
             content: '';
@@ -140,27 +143,28 @@ if (isset($_SESSION['user_id'])) {
 
         .nav-link:hover,
         .nav-link.active { 
-            color: var(--track-dark) !important;
+            color: #20a060 !important;
         }
 
         .btn-nav-login {
-            background: var(--track-green);
+            background: #206970;
             color: white !important;
             padding: 10px 24px !important;
             border-radius: 12px;
             font-weight: 700;
             transition: var(--transition-smooth);
             border: none;
-            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.2);
+            box-shadow: 0 8px 20px rgba(32, 126, 112, 0.2);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
         .btn-nav-login:hover {
+            background: #20a060;
             transform: translateY(-2px);
             box-shadow: 0 12px 25px rgba(32, 160, 96, 0.3);
-            background: var(--dark-green);
+            color: white !important;
         }
 
         /* --- Password Toggle Styling --- */
@@ -191,10 +195,10 @@ if (isset($_SESSION['user_id'])) {
 
         /* --- Footer --- */
         footer {
-            background: var(--track-beige) !important;
+            background: rgba(22, 74, 54, 0.95) !important;
             padding: 100px 0 40px !important;
-            border-top: 1.5px solid rgba(229, 229, 192, 0.8) !important;
-            color: var(--text-dark);
+            border-top: 1px solid rgba(22, 74, 54, 0.3) !important;
+            color: #ffffff !important;
             position: relative;
             z-index: 10;
         }
@@ -248,39 +252,53 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .stat-card-modern {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(32, 160, 96, 0.2);
-            padding: 35px 25px;
-            border-radius: 25px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(32, 160, 96, 0.03) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(32, 160, 96, 0.35);
+            padding: 40px 30px;
+            border-radius: 28px;
             text-align: center;
-            transition: var(--transition-smooth);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 35px rgba(32, 160, 96, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card-modern::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(32, 160, 96, 0.08) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .stat-card-modern:hover {
-            transform: translateY(-10px);
-            background: rgba(32, 160, 96, 0.05);
+            transform: translateY(-12px) scale(1.02);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(32, 160, 96, 0.06) 100%);
             border-color: var(--primary-green);
-            box-shadow: 0 20px 40px rgba(32, 160, 96, 0.1);
+            box-shadow: 0 20px 60px rgba(32, 160, 96, 0.3);
         }
 
         .stat-val { 
-            font-size: 2.8rem; 
-            font-weight: 800; 
+            font-size: 3.2rem; 
+            font-weight: 900; 
             display: block; 
             color: var(--primary-green);
             line-height: 1;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
         }
         
         .stat-desc { 
-            font-size: 0.75rem; 
+            font-size: 0.8rem; 
             color: var(--text-muted); 
             text-transform: uppercase; 
-            letter-spacing: 2px; 
-            font-weight: 600;
+            letter-spacing: 2.5px; 
+            font-weight: 700;
         }
 
         .status-badge {
@@ -291,28 +309,58 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .feature-card {
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 2px solid rgba(32, 160, 96, 0.25);
             background: #fff;
-            padding: 45px 35px;
-            border-radius: 28px;
-            transition: var(--transition-smooth);
+            padding: 50px 40px;
+            border-radius: 32px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             height: 100%;
+            box-shadow: 0 10px 35px rgba(32, 160, 96, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-green), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
         .feature-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            transform: translateY(-18px);
+            box-shadow: 0 25px 60px rgba(32, 160, 96, 0.2);
             border-color: var(--primary-green);
         }
-        .icon-box {
-            width: 70px; height: 70px; background: #eef7f2; color: var(--primary-green);
-            border-radius: 20px; display: flex; align-items: center; justify-content: center;
-            font-size: 32px; margin-bottom: 30px; transition: 0.5s ease;
+        .feature-card:hover::before {
+            opacity: 1;
         }
-        .feature-card:hover .icon-box { background: var(--primary-green); color: white; }
+        .icon-box {
+            width: 80px; height: 80px; background: linear-gradient(135deg, #eef7f2 0%, #e0f0e8 100%); color: var(--primary-green);
+            border-radius: 24px; display: flex; align-items: center; justify-content: center;
+            font-size: 36px; margin-bottom: 35px; transition: all 0.4s ease; box-shadow: 0 8px 20px rgba(32, 160, 96, 0.1);
+        }
+        .feature-card:hover .icon-box { 
+            background: linear-gradient(135deg, var(--primary-green) 0%, #1a8a6e 100%); 
+            color: white; 
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 12px 35px rgba(32, 160, 96, 0.3);
+        }
 
         .contact-card {
-            background: #fff; padding: 45px; border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            background: linear-gradient(135deg, #fff 0%, rgba(32, 160, 96, 0.02) 100%); 
+            padding: 50px; 
+            border-radius: 32px;
+            border: 2px solid rgba(32, 160, 96, 0.15);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+        }
+        .contact-card:hover {
+            box-shadow: 0 20px 60px rgba(32, 160, 96, 0.15);
+            border-color: rgba(32, 160, 96, 0.3);
         }
         .form-control, .form-select {
             background: #f8f9fa; border: 1px solid #eee; height: 55px;
@@ -321,20 +369,20 @@ if (isset($_SESSION['user_id'])) {
         .form-control:focus, .form-select:focus { background: #fff; border-color: var(--primary-green); box-shadow: 0 0 0 4px rgba(32, 160, 96, 0.1); }
 
         footer { 
-            background: var(--track-beige); 
-            color: var(--text-dark); 
+            background: rgba(22, 74, 54, 0.95); 
+            color: #ffffff !important; 
             padding: 80px 0 40px; 
-            border-top: 1px solid rgba(0,0,0,0.05);
+            border-top: 1px solid rgba(22, 74, 54, 0.3);
         }
-        .footer-brand { color: var(--text-dark); font-size: 1.5rem; font-weight: 800; text-decoration: none; }
-        .footer-link { color: var(--text-muted); text-decoration: none; transition: 0.3s; display: block; margin-bottom: 12px; font-size: 0.9rem; }
-        .footer-link:hover { color: var(--primary-green); transform: translateX(5px); }
+        .footer-brand { color: #ffffff !important; font-size: 1.5rem; font-weight: 800; text-decoration: none; }
+        .footer-link { color: #ffffff !important; text-decoration: none; transition: 0.3s; display: block; margin-bottom: 12px; font-size: 0.9rem; }
+        .footer-link:hover { color: #20a060; transform: translateX(5px); }
 
         /* --- Modal Styling --- */
         .modal-content { border-radius: 30px; border: none; overflow: hidden; }
         
         .modal-header-beige {
-            background-color: var(--track-beige);
+            background-color: rgba(22, 74, 54, 0.95);
             padding: 20px 25px;
             border-bottom: 1px solid rgba(0,0,0,0.05);
             position: relative;
@@ -342,12 +390,14 @@ if (isset($_SESSION['user_id'])) {
             align-items: center;
             justify-content: center;
             gap: 15px;
+            color: white;
         }
 
         .modal-header-beige .btn-close {
             position: absolute;
             top: 20px;
             right: 20px;
+            filter: invert(1);
         }
 
         .nav-tabs-auth { 
@@ -385,9 +435,9 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .btn-cancel-modal {
-            background: #f8fafc;
-            color: #64748b;
-            border: 1px solid #e2e8f0;
+            background: #206970;
+            color: white;
+            border: none;
             padding: 12px 24px;
             border-radius: 14px;
             font-weight: 700;
@@ -396,14 +446,33 @@ if (isset($_SESSION['user_id'])) {
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);
         }
         .btn-cancel-modal:hover {
-            background: #f1f5f9;
-            color: #1e293b;
+            background: #20a060;
+            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(32, 160, 96, 0.3);
         }
 
         .sticky-alert { z-index: 1100; position: fixed; width: 100%; top: 0; background: var(--accent-gold); border-radius: 0; border: none; font-weight: 600; }
+
+        /* --- Password Strength Bar --- */
+        .strength-container { margin-top: 8px; }
+        .strength-bar { 
+            height: 6px; width: 100%; background: #e2e8f0; border-radius: 10px; 
+            overflow: hidden; display: flex; transition: var(--transition-smooth);
+        }
+        .strength-segment { height: 100%; transition: width 0.4s ease, background-color 0.4s ease; width: 0%; }
+        .strength-text { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; display: block; }
+        
+        .strength-weak { background-color: #ef4444; width: 33.33%; }
+        .strength-fair { background-color: #f59e0b; width: 66.66%; }
+        .strength-strong { background-color: #22c55e; width: 100%; }
+        
+        .text-weak { color: #ef4444; }
+        .text-fair { color: #f59e0b; }
+        .text-strong { color: #22c55e; }
     </style>
 </head>
 <body>
@@ -412,9 +481,7 @@ if (isset($_SESSION['user_id'])) {
 
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#home">
-                Track<span>COOP</span>
-            </a>
+            <a class="navbar-brand d-flex align-items-center" href="#home"><img src="TrackCOOP Logo.svg" alt="TrackCOOP Logo" class="navbar-logo">TRACK<span>COOP</span></a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="bi bi-list fs-1 text-success"></span>
             </button>
@@ -437,7 +504,7 @@ if (isset($_SESSION['user_id'])) {
                     </li>
                     <li class="nav-item">
                         <a class="nav-link mx-2" href="#announcements">
-                            <i class="bi bi-megaphone me-1"></i> Announcements
+                            <i class="bi bi-bell-fill me-1" style="color:#ffffff;"></i> Announcements
                         </a>
                     </li>
                     <li class="nav-item">
@@ -491,8 +558,8 @@ if (isset($_SESSION['user_id'])) {
                 </div>
                 <div class="col-lg-5 text-center" data-aos="fade-left" data-aos-delay="300">
                     <div class="d-flex flex-column gap-3 align-items-center justify-content-center">
-                        <button class="btn btn-lg px-5 py-3 shadow-lg rounded-4 fw-bold w-75" style="background:var(--primary-green); color:white; border:none;" data-bs-toggle="modal" data-bs-target="#authModal">Explore Portal</button>
-                        <a href="#announcements" class="btn btn-lg px-4 py-3 rounded-4 fw-bold w-75" style="border: 2px solid var(--primary-green); color:var(--primary-green);">Public Announcements</a>
+                        <button class="btn btn-lg px-5 py-3 shadow-lg rounded-4 fw-bold w-75 hero-btn-filled" data-bs-toggle="modal" data-bs-target="#authModal">Explore Portal</button>
+                        <a href="#announcements" class="btn btn-lg px-4 py-3 rounded-4 fw-bold w-75 hero-btn-outline">Public Announcements</a>
                     </div>
                 </div>
             </div>
@@ -540,13 +607,17 @@ if (isset($_SESSION['user_id'])) {
             <div class="row g-4">
                 <?php
                 // Fetch top 3 latest activities
-                $media_query = mysqli_query($conn, "SELECT * FROM media_activities ORDER BY activity_date DESC LIMIT 3");
-                if ($media_query && mysqli_num_rows($media_query) > 0): 
-                    while ($m = mysqli_fetch_assoc($media_query)): ?>
+                // Static media activities (Demo data)
+                $media_activities = [
+                    ['id' => 1, 'title' => 'Team Building Event 2026', 'category' => 'Events', 'activity_date' => '2026-03-15', 'file_path' => 'uploads/media/team_building.jpg'],
+                    ['id' => 2, 'title' => 'Harvest Season Activity', 'category' => 'Agriculture', 'activity_date' => '2026-03-10', 'file_path' => 'uploads/media/harvest.jpg'],
+                    ['id' => 4, 'title' => 'Member Conference 2026', 'category' => 'Meetings', 'activity_date' => '2026-02-28', 'file_path' => 'uploads/media/conference.jpg'],
+                ];
+                if (count($media_activities) > 0): 
+                    foreach ($media_activities as $m): ?>
                         <div class="col-lg-4" data-aos="zoom-in">
                             <div class="gallery-card-premium">
                                 <div class="card-img-wrapper">
-                                    <img src="<?php echo htmlspecialchars($m['file_path']); ?>" alt="<?php echo htmlspecialchars($m['title']); ?>">
                                     <span class="category-tag"><?php echo htmlspecialchars($m['category']); ?></span>
                                 </div>
                                 <div class="card-content">
@@ -555,7 +626,7 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                             </div>
                         </div>
-                    <?php endwhile; 
+                    <?php endforeach; 
                 else: 
                     // PROFESSIONAL PLACEHOLDER CARDS (Visible if no data yet)
                     for($i=1; $i<=3; $i++): ?>
@@ -580,27 +651,43 @@ if (isset($_SESSION['user_id'])) {
     <!-- CUSTOM GALLERY STYLING -->
     <style>
     .gallery-card-premium {
-        background: white; border-radius: 32px; border: 1px solid rgba(0,0,0,0.05); 
+        background: white; border-radius: 32px; border: 2px solid rgba(32, 160, 96, 0.25); 
         overflow: hidden; height: 100%; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex; flex-direction: column;
+        display: flex; flex-direction: column; box-shadow: 0 10px 35px rgba(32, 160, 96, 0.12); position: relative;
     }
-    .gallery-card-premium:hover { transform: translateY(-15px); box-shadow: 0 40px 80px rgba(0,0,0,0.1); border-color: rgba(32, 160, 96, 0.2); }
-    .card-img-wrapper { height: 260px; width: 100%; overflow: hidden; position: relative; }
-    .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: 0.8s ease; }
-    .gallery-card-premium:hover .card-img-wrapper img { transform: scale(1.15); }
-    .category-tag { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 6px 16px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; color: #20a060; border: 1px solid rgba(32, 160, 96, 0.1); }
-    .card-content { padding: 30px; }
+    .gallery-card-premium::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+        background: linear-gradient(90deg, var(--primary-green), transparent); opacity: 0; 
+        transition: opacity 0.4s ease; pointer-events: none;
+    }
+    .gallery-card-premium:hover { 
+        transform: translateY(-18px); 
+        box-shadow: 0 30px 70px rgba(32, 160, 96, 0.25); 
+        border-color: var(--primary-green); 
+    }
+    .gallery-card-premium:hover::before { opacity: 1; }
+    .card-img-wrapper { height: 260px; width: 100%; overflow: hidden; position: relative; background: linear-gradient(135deg, #f5f5f5, #e8e8e8); }
+    .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: brightness(0.95); }
+    .gallery-card-premium:hover .card-img-wrapper img { transform: scale(1.12); filter: brightness(1); }
+    .category-tag { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); padding: 8px 18px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; color: #20a060; border: 1.5px solid rgba(32, 160, 96, 0.2); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+    .card-content { padding: 35px; }
     .placeholder-style { border-style: dashed !important; border-width: 2px !important; background: rgba(32, 160, 96, 0.02) !important; }
-    .b-gallery-btn { transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(32, 160, 96, 0.1); }
-    .b-gallery-btn:hover { background: #20a060 !important; color: white !important; transform: scale(1.05); }
+    .b-gallery-btn { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: linear-gradient(135deg, #206970 0%, #1a5a55 100%) !important; color: white !important; border: none !important; box-shadow: 0 12px 30px rgba(32, 126, 112, 0.25) !important; font-weight: 700 !important; letter-spacing: 0.5px !important; }
+    .b-gallery-btn:hover { background: linear-gradient(135deg, #20a060 0%, #1a8a6e 100%) !important; color: white !important; transform: translateY(-3px); box-shadow: 0 18px 45px rgba(32, 160, 96, 0.4) !important; }
+    
+    .hero-btn-filled { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: linear-gradient(135deg, #206970 0%, #1a5a55 100%) !important; color: white !important; border: 2px solid rgba(32, 126, 112, 0.3) !important; box-shadow: 0 12px 30px rgba(32, 126, 112, 0.25) !important; font-weight: 700 !important; letter-spacing: 0.5px !important; }
+    .hero-btn-filled:hover { background: #20a060 !important; transform: translateY(-2px); box-shadow: 0 15px 30px rgba(32, 160, 96, 0.3) !important; }
+    
+    .hero-btn-outline { transition: all 0.3s ease; background: #206970 !important; color: white !important; border: none !important; box-shadow: 0 10px 20px rgba(32, 126, 112, 0.2) !important; }
+    .hero-btn-outline:hover { background: #20a060 !important; transform: translateY(-2px); box-shadow: 0 15px 30px rgba(32, 160, 96, 0.3) !important; }
     
     .py-100px { padding-top: 100px !important; padding-bottom: 100px !important; }
     .mb-lg-100px { margin-bottom: 100px !important; }
 
     /* Announcement V2 - Feature Style */
     .ann-card-v2 {
-        border: 1px solid rgba(0,0,0,0.05);
-        background: #fff;
+        border: 2px solid rgba(32, 160, 96, 0.4);
+        background: linear-gradient(135deg, #ffffff 0%, rgba(32, 160, 96, 0.04) 100%);
         padding: 40px 30px;
         border-radius: 28px;
         transition: var(--transition-smooth);
@@ -608,11 +695,13 @@ if (isset($_SESSION['user_id'])) {
         display: flex;
         flex-direction: column;
         position: relative;
+        box-shadow: 0 10px 30px rgba(32, 160, 96, 0.12);
     }
     .ann-card-v2:hover {
         transform: translateY(-12px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        box-shadow: 0 25px 50px rgba(32, 160, 96, 0.2);
         border-color: var(--primary-green);
+        background: linear-gradient(135deg, #ffffff 0%, rgba(32, 160, 96, 0.08) 100%);
     }
     .ann-icon-box {
         width: 60px; height: 60px; background: #eef7f2; color: var(--primary-green);
@@ -751,8 +840,8 @@ if (isset($_SESSION['user_id'])) {
             <div class="modal-content shadow-lg border-0">
                 <div class="modal-header-beige">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="top: 25px; right: 25px;"></button>
-                    <div class="modal-brand m-0" style="font-weight: 800; font-size: 1.3rem; letter-spacing: -1.2px; color: var(--track-dark);">
-                        Track<span style="color: var(--track-green);">COOP</span>
+                    <div class="modal-brand m-0" style="font-weight: 800; font-size: 1.3rem; letter-spacing: -1.2px; color: #ffffff;">
+                        TRACK<span style="color: #20a060;">COOP</span>
                     </div>
                     <div class="icon-box-small" style="width: 40px; height: 40px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 15px rgba(32, 160, 96, 0.1);">
                         <i class="bi bi-shield-lock-fill text-success fs-5"></i>
@@ -767,18 +856,49 @@ if (isset($_SESSION['user_id'])) {
 
                     <div class="tab-content">
                         <div class="tab-pane active" id="login-p">
-                            <form action="auth/login.php" method="POST" onsubmit="return TrackUI.confirmForm(event, 'Proceed to login to your cooperative account?', 'Authentication', 'primary', 'Log-In', 'Back')">
+                            <form action="auth/login.php" method="POST" onsubmit="return TrackUI.confirmForm(event, 'Proceed to login to your cooperative account?', 'Authentication', 'primary', 'Login', 'Back')">
                                 <div class="mb-3">
                                     <label class="small fw-bold mb-2">USERNAME</label>
-                                    <input type="text" name="username" class="form-control" placeholder="Enter username" required value="<?php echo isset($_GET['username']) ? htmlspecialchars($_GET['username']) : ''; ?>">
+                                    <input type="text" id="loginUsername" name="username" class="form-control" placeholder="Enter username" required value="<?php echo !empty($remembered_user) ? htmlspecialchars($remembered_user) : (isset($_GET['username']) ? htmlspecialchars($_GET['username']) : ''); ?>">
                                 </div>
                                 <div class="mb-4">
                                     <label class="small fw-bold mb-2">PASSWORD</label>
                                     <div class="password-toggle-wrapper">
-                                        <input type="password" id="loginPassword" name="password" class="form-control" placeholder="Enter password" required style="padding-right: 45px;">
+                                        <input type="password" id="loginPassword" name="password" class="form-control" placeholder="Enter password" required maxlength="15" style="padding-right: 45px;">
                                         <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('loginPassword', 'loginEye')">
                                             <i id="loginEye" class="bi bi-eye"></i>
                                         </button>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between mt-2 px-1">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="remember-me" id="rememberMe" <?php echo !empty($remembered_user) ? 'checked' : ''; ?>>
+                                            <label class="form-check-label small fw-bold text-muted" for="rememberMe" style="cursor: pointer;">Remember Me</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="small fw-bold mb-2">SELECT ROLE</label>
+                                    <select id="loginRole" name="selected_role" class="form-select form-control" required onchange="autoFillCredentials(this.value)">
+                                        <option value="">-- Choose Role --</option>
+                                        <option value="Admin">Administrator</option>
+                                        <option value="Bookkeeper">Bookkeeper</option>
+                                        <option value="Member">Member</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4 d-flex justify-content-center">
+                                    <!-- Visual Mockup of reCAPTCHA -->
+                                    <div class="fake-recaptcha d-flex align-items-center justify-content-between p-3 border-1 rounded-1 shadow-sm" style="width: 300px; background: #f9f9f9; border: 1px solid #d3d3d3;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="form-check m-0">
+                                                <input class="form-check-input" type="checkbox" id="fakeRobotCheck" required style="width: 24px; height: 24px; cursor: pointer; border-color: #c1c1c1;">
+                                            </div>
+                                            <span class="small fw-bold" style="color: #555; font-size: 0.8rem;">I'm not a robot</span>
+                                        </div>
+                                        <div class="text-center" style="line-height: 1;">
+                                            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA" style="width: 24px; opacity: 0.8;">
+                                            <div class="text-muted" style="font-size: 0.5rem; font-weight: 700;">reCAPTCHA</div>
+                                            <div class="text-muted" style="font-size: 0.4rem;">Privacy - Terms</div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="d-flex gap-3 mt-4">
@@ -786,7 +906,7 @@ if (isset($_SESSION['user_id'])) {
                                         <i class="bi bi-x-circle me-2"></i>Cancel
                                     </button>
                                     <button type="submit" class="btn btn-nav-login w-100 py-3 fw-bold">
-                                        <i class="bi bi-box-arrow-in-right me-2"></i>Log-In
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
                                     </button>
                                 </div>
                             </form>
@@ -794,7 +914,7 @@ if (isset($_SESSION['user_id'])) {
 
                         <div class="tab-pane" id="reg-p">
                             <form action="auth/register.php" method="POST" onsubmit="return TrackUI.confirmForm(event, 'Proceed with your account registration? Please verify your details first.', 'New Account Registry', 'primary', 'Register Now', 'Review')">
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label class="small fw-bold mb-2">FULL NAME</label>
                                     <div class="row g-2">
                                         <div class="col-4"><input type="text" name="fname" class="form-control" placeholder="First" required></div>
@@ -803,17 +923,45 @@ if (isset($_SESSION['user_id'])) {
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="small fw-bold mb-2">ACCOUNT DETAILS</label>
-                                    <div class="row g-2">
-                                        <div class="col-6"><input type="text" name="username" class="form-control" placeholder="Username" required></div>
-                                        <div class="col-6">
+                                <div class="mb-4">
+                                    <label class="small fw-bold mb-3">ACCOUNT DETAILS</label>
+                                    <div class="d-flex flex-column gap-3">
+                                        <div>
+                                            <input type="text" name="username" class="form-control" placeholder="Username" required>
+                                        </div>
+                                        <div>
                                             <div class="password-toggle-wrapper">
-                                                <input type="password" id="regPassword" name="password" class="form-control" placeholder="Password" required style="padding-right: 45px;">
+                                                <input type="password" id="regPassword" name="password" class="form-control" 
+                                                       placeholder="Password" required 
+                                                       pattern="(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,15}"
+                                                       title="8-15 chars: must include letters, numbers, and symbols."
+                                                       maxlength="15"
+                                                       oninput="checkPasswordStrength(this.value); checkPasswordMatch();"
+                                                       style="padding-right: 45px;">
                                                 <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('regPassword', 'regEye')">
                                                     <i id="regEye" class="bi bi-eye"></i>
                                                 </button>
                                             </div>
+                                            <div class="strength-container" id="strengthContainer" style="display: none;">
+                                                <div class="strength-bar"><div id="strengthBar" class="strength-segment"></div></div>
+                                                <span id="strengthText" class="strength-text"></span>
+                                            </div>
+                                            <div class="mt-2 ps-1" id="passReqText" style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">
+                                                <i class="bi bi-shield-lock-fill me-1 text-success"></i> 
+                                                8-15 Characters (Letters, Numbers, & Symbols)
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="password-toggle-wrapper">
+                                                <input type="password" id="regConfirmPassword" name="confirm_password" class="form-control" 
+                                                       placeholder="Confirm" required maxlength="15"
+                                                       oninput="checkPasswordMatch()"
+                                                       style="padding-right: 45px;">
+                                                <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('regConfirmPassword', 'regConfirmEye')">
+                                                    <i id="regConfirmEye" class="bi bi-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div id="matchStatus" class="mt-1 ps-1 fw-bold" style="font-size: 0.65rem; display: none;"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -835,7 +983,7 @@ if (isset($_SESSION['user_id'])) {
                                         <i class="bi bi-x-circle me-2"></i>Cancel
                                     </button>
                                     <button type="submit" class="btn btn-nav-login w-100 py-3 fw-bold">
-                                        <i class="bi bi-person-plus-fill me-2"></i>Create
+                                        <i class="bi bi-person-plus-fill me-2"></i>Register
                                     </button>
                                 </div>
                             </form>
@@ -866,12 +1014,18 @@ if (isset($_SESSION['user_id'])) {
 #trackGlobalConfirmModal .modal-body { padding: 60px 24px 32px !important; }
 #trackGlobalConfirmModal .btn-confirm {
     padding: 14px 20px !important; border-radius: 18px !important;
-    font-weight: 800 !important; background: linear-gradient(135deg, var(--primary-green), #1a8548) !important;
-    border: none !important; box-shadow: 0 10px 20px rgba(32, 160, 96, 0.2) !important;
+    font-weight: 800 !important; background: #206970 !important; color: white !important;
+    border: none !important; box-shadow: 0 10px 20px rgba(32, 126, 112, 0.2) !important; transition: all 0.3s ease !important;
+}
+#trackGlobalConfirmModal .btn-confirm:hover {
+    background: #20a060 !important; transform: translateY(-3px); box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3) !important;
 }
 #trackGlobalConfirmModal .btn-cancel {
     padding: 14px 20px !important; border-radius: 18px !important;
-    font-weight: 700 !important; color: #64748b !important; background: #f1f5f9 !important; border: none !important;
+    font-weight: 700 !important; color: white !important; background: #206970 !important; border: none !important; transition: all 0.3s ease !important; box-shadow: 0 10px 20px rgba(32, 126, 112, 0.2) !important;
+}
+#trackGlobalConfirmModal .btn-cancel:hover {
+    background: #20a060 !important; color: white !important; transform: translateY(-3px); box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3) !important;
 }
 </style>
 
@@ -897,10 +1051,10 @@ if (isset($_SESSION['user_id'])) {
 <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" style="border-radius: 40px; border: none; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.2);">
-            <div class="modal-header border-0 pb-3 px-4 pt-4 text-center d-block" style="background: var(--track-beige) !important; border-bottom: 1px solid rgba(229, 229, 192, 0.8) !important;">
-                <h2 class="fw-800 mb-0" style="color: #1e272e; letter-spacing: -2px;">Cooperative Gallery</h2>
+            <div class="modal-header border-0 pb-3 px-4 pt-4 text-center d-block" style="background: rgba(22, 74, 54, 0.95) !important; border-bottom: 1px solid rgba(22, 74, 54, 0.3) !important; color: white;">
+                <h2 class="fw-800 mb-0" style="color: white; letter-spacing: -2px;">Cooperative Gallery</h2>
                 <p class="text-muted small mb-0">Our shared milestones and activities archive</p>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 30px; top: 30px;"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 30px; top: 30px; filter: invert(1);"></button>
             </div>
             <div class="modal-body px-4 pb-5">
                 <!-- MODAL FILTER BUTTONS -->
@@ -914,14 +1068,19 @@ if (isset($_SESSION['user_id'])) {
 
                 <div class="row g-4 mt-2" id="modalGalleryGrid">
                     <?php
-                    // Fetch ALL activities for the modal
-                    $archive_query = mysqli_query($conn, "SELECT * FROM media_activities ORDER BY activity_date DESC");
-                    if ($archive_query && mysqli_num_rows($archive_query) > 0):
-                        while ($row = mysqli_fetch_assoc($archive_query)): ?>
+                    // Static archive activities (Demo data)
+                    $archive_activities = [
+                        ['id' => 1, 'title' => 'Team Building Event 2026', 'category' => 'Events', 'activity_date' => '2026-03-15', 'file_path' => 'uploads/media/team_building.jpg'],
+                        ['id' => 2, 'title' => 'Harvest Season Activity', 'category' => 'Agriculture', 'activity_date' => '2026-03-10', 'file_path' => 'uploads/media/harvest.jpg'],
+                        ['id' => 4, 'title' => 'Member Conference 2026', 'category' => 'Meetings', 'activity_date' => '2026-02-28', 'file_path' => 'uploads/media/conference.jpg'],
+                        ['id' => 5, 'title' => 'Sector Launch - Fishery', 'category' => 'Sector News', 'activity_date' => '2026-02-20', 'file_path' => 'uploads/media/fishery.jpg'],
+                        ['id' => 6, 'title' => 'Annual General Meeting', 'category' => 'Meetings', 'activity_date' => '2026-02-10', 'file_path' => 'uploads/media/agm.jpg'],
+                    ];
+                    if (count($archive_activities) > 0):
+                        foreach ($archive_activities as $row): ?>
                             <div class="col-lg-4 col-md-6 modal-gallery-item" data-category="<?php echo htmlspecialchars($row['category']); ?>">
                                 <div class="gallery-card-premium">
                                     <div class="card-img-wrapper" style="height: 180px;">
-                                        <img src="<?php echo htmlspecialchars($row['file_path']); ?>" alt="<?php echo htmlspecialchars($row['title']); ?>">
                                         <span class="category-tag"><?php echo htmlspecialchars($row['category']); ?></span>
                                     </div>
                                     <div class="card-content p-3">
@@ -930,7 +1089,7 @@ if (isset($_SESSION['user_id'])) {
                                     </div>
                                 </div>
                             </div>
-                        <?php endwhile;
+                        <?php endforeach;
                     else: ?>
                         <div class="text-center py-5 w-100">
                             <i class="bi bi-images fs-1 opacity-25 d-block mb-3"></i>
@@ -1067,6 +1226,64 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize active state on load
         window.dispatchEvent(new Event('scroll'));
 
+        // --- PASSWORD STRENGTH LOGIC ---
+        function checkPasswordStrength(password) {
+            const container = document.getElementById('strengthContainer');
+            const bar = document.getElementById('strengthBar');
+            const text = document.getElementById('strengthText');
+            const reqText = document.getElementById('passReqText');
+
+            if (password.length > 0) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                return;
+            }
+
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-zA-Z]/.test(password) && /\d/.test(password)) strength++;
+            if (/[\W_]/.test(password)) strength++;
+
+            // Reset classes
+            bar.className = 'strength-segment';
+            text.className = 'strength-text';
+
+            if (strength === 1 || password.length < 8) {
+                bar.classList.add('strength-weak');
+                text.textContent = 'Bad Password';
+                text.classList.add('text-weak');
+            } else if (strength === 2) {
+                bar.classList.add('strength-fair');
+                text.textContent = 'Good Password';
+                text.classList.add('text-fair');
+            } else if (strength === 3) {
+                bar.classList.add('strength-strong');
+                text.textContent = 'Strong Password';
+                text.classList.add('text-strong');
+            }
+        }
+
+        function checkPasswordMatch() {
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirmPassword').value;
+            const status = document.getElementById('matchStatus');
+
+            if (confirm.length === 0) {
+                status.style.display = 'none';
+                return;
+            }
+
+            status.style.display = 'block';
+            if (pass === confirm) {
+                status.textContent = 'Passwords Match';
+                status.style.color = '#22c55e';
+            } else {
+                status.textContent = 'Passwords do not match';
+                status.style.color = '#ef4444';
+            }
+        }
+
         // --- PASSWORD TOGGLE LOGIC ---
         function togglePassVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -1082,6 +1299,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon.classList.add("bi-eye");
             }
         }
+
+        // --- AUTO-FILL CREDENTIALS BASED ON ROLE ---
+        function autoFillCredentials(role) {
+            const usernameField = document.getElementById('loginUsername');
+            const passwordField = document.getElementById('loginPassword');
+            
+            const credentials = {
+                'Admin': { username: 'admin', password: '123456789' },
+                'Bookkeeper': { username: 'bookkeeper', password: '123456789' },
+                'Member': { username: 'member', password: '123456789' }
+            };
+            
+            if (credentials[role]) {
+                usernameField.value = credentials[role].username;
+                passwordField.value = credentials[role].password;
+            } else {
+                usernameField.value = '';
+                passwordField.value = '';
+            }
+        }
+
+        function switchAuthTab(targetId) {
+            const sideBtn = document.getElementById('sideAuthBtn');
+            const sideText = document.getElementById('sideAuthText');
+            
+            if (sideBtn && sideText) {
+                if(targetId === '#register-v') {
+                    sideBtn.textContent = 'Back to Login';
+                    sideText.textContent = 'Already have an account? Access here.';
+                } else {
+                    sideBtn.textContent = 'Create an Account';
+                    sideText.textContent = 'New to the Cooperative? Join us today.';
+                }
+            }
+
+            const triggerEl = document.querySelector(`.nav-tabs-auth button[data-bs-target="${targetId}"]`);
+            if (triggerEl) {
+                const tab = new bootstrap.Tab(triggerEl);
+                tab.show();
+            }
+        }
+
+        // Global Helper for side button
+        function toggleAuthMode() {
+            const regPane = document.getElementById('register-v');
+            if(regPane && regPane.classList.contains('active')) {
+                switchAuthTab('#login-v');
+            } else {
+                switchAuthTab('#register-v');
+            }
+        }
     </script>
 </body>
+</html>
 </html>

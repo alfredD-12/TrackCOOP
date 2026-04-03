@@ -1,26 +1,31 @@
 /* ===== FOOTER STYLES ===== */
 .footer-track {
-    background-color: var(--track-beige, var(--beige-bg, var(--coop-beige, #F5F5DC)));
-    border-top: 1px solid #E2E2C7;
+    background-color: rgba(22, 74, 54, 0.95);
+    border-top: 1px solid rgba(22, 74, 54, 0.3);
     padding: 60px 0;
     margin-top: auto;
     text-align: center;
+    color: #ffffff !important;
 }
 
 .footer-track .navbar-brand {
     font-weight: 800;
     font-size: 1.5rem;
     letter-spacing: -0.8px;
-    color: var(--track-dark, var(--deep-black, var(--coop-black, #1a1a1a))) !important;
+    color: #ffffff !important;
     text-decoration: none;
 }
 
-.footer-track .navbar-brand span {
-    color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
+.footer-track .navbar-brand span:first-child {
+    color: #ffffff !important;
+}
+
+.footer-track .navbar-brand span:last-child {
+    color: #20a060 !important;
 }
 
 .footer-description {
-    color: var(--text-muted, #636e72);
+    color: #ffffff !important;
     max-width: 400px;
 }
 
@@ -31,22 +36,29 @@
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    background: white;
-    color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
-    border: 1px solid #E2E2C7;
+    background: rgba(255, 255, 255, 0.15);
+    color: #20a060;
+    border: 1px solid rgba(32, 160, 96, 0.3);
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .social-btn:hover {
-    background-color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
+    background-color: #20a060;
     color: white;
     transform: translateY(-3px);
-    border-color: var(--track-green, var(--primary-green, var(--coop-light-green, #20a060)));
+    border-color: #20a060;
 }
 
 .footer-track .small {
-    color: var(--text-muted, #636e72);
+    color: #ffffff !important;
+}
+
+/* Override Bootstrap text utilities */
+.footer-track .text-muted,
+.footer-track .text-secondary,
+.footer-track .text-dark {
+    color: #ffffff !important;
 }
 
 @media (max-width: 992px) {

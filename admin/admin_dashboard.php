@@ -9,21 +9,27 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
 
 // --- ADDITIONAL CODE FOR FULL NAME ---
 $user_id = $_SESSION['user_id']; // Ensure this is set in your login script
-$full_name = "Admin Jakob"; // Fallback text
+$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator"; // Use session name or fallback
 
-$query = "SELECT first_name, last_name FROM users WHERE id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($user = $result->fetch_assoc()) {
-    // Concatenate First Name and Last Name
-    $full_name = $user['first_name'] . " " . $user['last_name'];
+// Try to fetch from database, but use session data if unavailable
+@$query = "SELECT first_name, last_name FROM users WHERE id = ?";
+@$stmt = $conn->prepare($query);
+if ($stmt) {
+    @$stmt->bind_param("i", $user_id);
+    @$stmt->execute();
+    @$result = $stmt->get_result();
+    if ($user = @$result->fetch_assoc()) {
+        $full_name = $user['first_name'] . " " . $user['last_name'];
+    }
 }
 
-// Fetch media activities for management modal
-$media_activities_query = mysqli_query($conn, "SELECT id, title, description, category, activity_date, file_path FROM media_activities ORDER BY activity_date DESC");
+// Fetch media activities for management modal (Static demo data)
+$static_media_activities = [
+    ['id' => 1, 'title' => 'Team Building Event 2024', 'description' => 'Annual team building activity at the cooperative', 'category' => 'Events', 'activity_date' => '2024-03-15', 'file_path' => 'uploads/media/team_building.jpg'],
+    ['id' => 2, 'title' => 'Member Conference', 'description' => 'Quarterly member conference and discussion', 'category' => 'Meetings', 'activity_date' => '2024-03-10', 'file_path' => 'uploads/media/conference.jpg'],
+    ['id' => 3, 'title' => 'Harvest Season 2024', 'description' => 'Documentation of harvest season activities', 'category' => 'Events', 'activity_date' => '2024-03-05', 'file_path' => 'uploads/media/harvest.jpg'],
+];
+$media_activities_query = $static_media_activities;
 
 ?>
 <!DOCTYPE html>
@@ -34,11 +40,12 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
     <title>Admin Portal | TrackCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../includes/dashboard_layout.css">
     
     <style>
         :root {
-            --track-green: #20a060; 
+            --track-green: #206970; 
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a; 
             --track-bg: #f8fafc;
@@ -61,7 +68,8 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 
         .logout-btn {
             border: 2px solid #dc2626;
-            color: #dc2626;
+            background: #dc2626;
+            color: white;
             width: 40px;
             height: 40px;
             display: inline-flex;
@@ -74,18 +82,16 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
         }
 
         .logout-btn:hover {
-            background: #dc2626;
-            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6);
         }
 
         /* --- Updated Navbar Styles --- */
         .navbar {
-            background-color: rgba(245, 245, 220, 0.9) !important;
+            background-color: rgba(22, 74, 54, 0.95) !important;
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.5);
+            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             animation: fadeInUpCustom 0.8s ease-out;
             z-index: 1050;
         }
@@ -94,12 +100,12 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
             font-weight: 800;
             font-size: 1.5rem;
             letter-spacing: -1px;
-            color: var(--track-dark) !important;
+            color: #ffffff !important;
         }
-        .navbar-brand span { color: var(--track-green); }
+        .navbar-brand span { color: #20a060; }
 
         .navbar-nav .nav-link {
-            color: var(--text-muted) !important;
+            color: rgba(255, 255, 255, 0.8) !important;
             font-weight: 600;
             font-size: 0.95rem;
             margin: 0 12px;
@@ -129,7 +135,7 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 
         .navbar-nav .nav-link:hover,
         .navbar-nav .nav-link.active { 
-            color: var(--track-dark) !important;
+            color: #20a060 !important;
             background: transparent !important; 
         }
 
@@ -216,7 +222,7 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
             font-weight: 700; border: none; box-shadow: 0 8px 20px rgba(32, 160, 96, 0.2);
             transition: var(--transition-smooth);
         }
-        .btn-portal:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(32, 160, 96, 0.3); color: white; }
+        .btn-portal:hover { transform: translateY(-3px); background: #20a060; box-shadow: 0 12px 25px rgba(32, 160, 96, 0.3); color: white; }
 
         .activity-item { padding: 12px; margin-bottom: 10px; border-radius: 14px; transition: var(--transition-smooth); border: 1px solid transparent; background: #fff; cursor: pointer; }
         .activity-item:hover { background: var(--track-bg); border-color: #e2e8f0; transform: translateX(5px); box-shadow: 4px 0 0 var(--track-green); }
@@ -365,6 +371,75 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                 width: 95vw;
             }
         }
+        
+        /* Gallery Modal Button Styles */
+        #uploadMediaModal .btn-sm {
+            transition: all 0.3s ease !important;
+        }
+        
+        #uploadMediaModal .btn-sm.edit-btn {
+            background: #206970 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        #uploadMediaModal .btn-sm.edit-btn:hover {
+            background: #20a060 !important;
+            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        #uploadMediaModal .btn-sm.delete-btn {
+            background: #206970 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        #uploadMediaModal .btn-sm.delete-btn:hover {
+            background: #dc2626 !important;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        #uploadMediaModal .modal-footer .btn {
+            transition: all 0.3s ease !important;
+        }
+        
+        #uploadMediaModal .modal-footer .btn.cancel-btn {
+            background: #206970 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        #uploadMediaModal .modal-footer .btn.cancel-btn:hover {
+            background: #20a060 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.3) !important;
+        }
+        
+        #uploadMediaModal .modal-footer .btn.upload-btn {
+            background: #206970 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        #uploadMediaModal .modal-footer .btn.upload-btn:hover {
+            background: #20a060 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.3) !important;
+        }
+        
+        #uploadMediaModal .modal-footer .btn.close-btn {
+            background: #206970 !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        #uploadMediaModal .modal-footer .btn.close-btn:hover {
+            background: #20a060 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.3) !important;
+        }
     </style>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="../includes/footer.css">
@@ -374,7 +449,7 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <?php 
     $user_role = 'Admin';
     $active_page = 'dashboard';
-    $membership_type = 'Administrator';
+    $membership_type = 'Admin';
     include('../includes/dashboard_navbar.php'); 
 ?>
 
@@ -597,9 +672,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <div class="modal fade" id="toolDashboardModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: #F5F5DC; border-bottom: 1px solid rgba(229, 229, 192, 0.5); padding: 24px;">
-                <h5 class="modal-title fw-bold text-dark mb-0"><i class="bi bi-speedometer2 text-primary me-2"></i> Access Dashboard</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
+                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-speedometer2 text-primary me-2"></i> Access Dashboard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             <div class="modal-body" style="padding: 24px; background: #f8fafc;">
                 <div class="mb-3">
@@ -623,9 +698,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <div class="modal fade" id="toolEngagementModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: #F5F5DC; border-bottom: 1px solid rgba(229, 229, 192, 0.5); padding: 24px;">
-                <h5 class="modal-title fw-bold text-dark mb-0"><i class="bi bi-bar-chart-line text-success me-2"></i> Interpret Engagement Graphs</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
+                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-bar-chart-line text-success me-2"></i> Interpret Engagement Graphs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             <div class="modal-body" style="padding: 24px; background: #f8fafc;">
                 <div class="row g-2 mb-3">
@@ -657,9 +732,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <div class="modal fade" id="toolMembersModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: #F5F5DC; border-bottom: 1px solid rgba(229, 229, 192, 0.5); padding: 24px;">
-                <h5 class="modal-title fw-bold text-dark mb-0"><i class="bi bi-people-fill text-warning me-2"></i> Identify Active/At-Risk Members</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
+                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-people-fill text-warning me-2"></i> Identify Active/At-Risk Members</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             <div class="modal-body" style="padding: 24px; background: #f8fafc;">
                 <div class="mb-3">
@@ -682,9 +757,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <div class="modal fade" id="toolHeatmapModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: #F5F5DC; border-bottom: 1px solid rgba(229, 229, 192, 0.5); padding: 24px;">
-                <h5 class="modal-title fw-bold text-dark mb-0"><i class="bi bi-diagram-3 text-danger me-2"></i> View Sector Engagement Heatmap</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
+                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-diagram-3 text-danger me-2"></i> View Sector Engagement Heatmap</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             <div class="modal-body" style="padding: 24px; background: #f8fafc;">
                 <div class="mb-3">
@@ -711,9 +786,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <div class="modal fade" id="uploadMediaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header d-flex align-items-center" style="background-color: #f5f5dc; border-bottom: 1px solid rgba(229, 229, 192, 0.5); padding: 20px 24px;">
-                <h5 class="modal-title fw-bold text-dark mb-0"><i class="bi bi-images text-success me-2"></i> Manage Gallery</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header d-flex align-items-center" style="background-color: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 20px 24px; color: white;">
+                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-images text-success me-2"></i> Manage Gallery</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             
             <div class="modal-body" style="padding: 24px; background: white;">
@@ -768,9 +843,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                                 </div>
                             </div>
                             
-                            <div class="modal-footer mt-4" style="background-color: #f5f5dc; border-top: 1px solid rgba(229, 229, 192, 0.5); padding: 16px 24px; margin: 0 -24px -24px -24px; border-radius: 0 0 24px 24px;">
-                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn px-4 fw-bold" style="background:var(--track-green);color:white;border-radius:50px;">
+                            <div class="modal-footer mt-4" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; margin: 0 -24px -24px -24px; border-radius: 0 0 24px 24px; color: white;">
+                                <button type="button" class="btn cancel-btn rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn upload-btn px-4 fw-bold rounded-pill">
                                     <i class="bi bi-cloud-upload-fill me-2"></i> Upload Photo
                                 </button>
                             </div>
@@ -790,8 +865,8 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if(mysqli_num_rows($media_activities_query) > 0): ?>
-                                        <?php while($m = mysqli_fetch_assoc($media_activities_query)): ?>
+                                    <?php if(count($media_activities_query) > 0): ?>
+                                        <?php foreach($media_activities_query as $m): ?>
                                         <tr class="manage-row bg-white" style="border: 1px solid #f1f5f9; border-radius: 16px;">
                                             <td class="ps-3 py-2" style="border-top-left-radius: 16px; border-bottom-left-radius: 16px;">
                                                 <div class="manage-photo-wrapper">
@@ -809,7 +884,7 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                                             </td>
                                             <td class="text-end pe-3 py-2" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
                                                 <div class="d-flex justify-content-end gap-2 action-btns">
-                                                    <button type="button" class="btn btn-sm btn-light text-primary rounded-circle" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Edit"
+                                                    <button type="button" class="btn btn-sm edit-btn rounded-circle" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Edit"
                                                         onclick="openGalleryEditModal(
                                                             <?php echo $m['id']; ?>,
                                                             '<?php echo addslashes(htmlspecialchars($m['title'])); ?>',
@@ -819,14 +894,14 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                                                         )">
                                                         <i class="bi bi-pencil-fill"></i>
                                                     </button>
-                                                    <a href="../media/media_actions.php?delete_id=<?php echo $m['id']; ?>" class="btn btn-sm btn-light text-danger rounded-circle" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Delete"
+                                                    <a href="../media/media_actions.php?delete_id=<?php echo $m['id']; ?>" class="btn btn-sm delete-btn rounded-circle" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Delete"
                                                        onclick="return TrackUI.confirmLink(event, 'Permanently delete this activity photo?', 'Delete Media', 'danger', 'Delete Now', 'Keep It')">
                                                         <i class="bi bi-trash-fill"></i>
                                                     </a>
                                                 </div>
                                             </td>
                                         </tr>
-                                        <?php endwhile; ?>
+                                        <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
                                             <td colspan="4" class="text-center py-5 text-muted">
@@ -839,8 +914,8 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                                 </tbody>
                             </table>
                         </div>
-                        <div class="modal-footer mt-4" style="background-color: #f5f5dc; border-top: 1px solid rgba(229, 229, 192, 0.5); padding: 16px 24px; margin: 0 -24px -24px -24px; border-radius: 0 0 24px 24px;">
-                            <button type="button" class="btn rounded-pill px-4 fw-bold" style="background:var(--track-green);color:white;box-shadow: 0 4px 12px rgba(32, 160, 96, 0.2);" data-bs-dismiss="modal">Close Gallery</button>
+                        <div class="modal-footer mt-4" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; margin: 0 -24px -24px -24px; border-radius: 0 0 24px 24px; color: white;">
+                            <button type="button" class="btn close-btn rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Close Gallery</button>
                         </div>
                     </div>
                 </div>
@@ -853,9 +928,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <div class="modal fade" id="dataCenterModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header d-flex align-items-center" style="background: linear-gradient(135deg, #f5f5dc 0%, #ffffff 100%); border-bottom: 1px solid rgba(229, 229, 192, 0.5); padding: 24px;">
-                <h5 class="modal-title fw-bold text-dark mb-0">Predictive Insights</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header d-flex align-items-center" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
+                <h5 class="modal-title fw-bold text-white mb-0">Predictive Insights</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             
             <div class="modal-body" style="padding: 24px; background: #f8fafc;">
@@ -977,19 +1052,19 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                                     <td><strong class="text-dark">Maria Santos</strong><br><small class="text-muted">Rice Farming</small></td>
                                     <td class="text-center"><span class="badge bg-danger rounded-pill">HIGH</span></td>
                                     <td class="text-center"><small class="text-muted">137 days ago</small></td>
-                                    <td class="text-end"><button class="btn btn-sm btn-light text-primary rounded-2" style="font-size: 0.75rem;">Contact</button></td>
+                                    <td class="text-end"><button class="btn btn-sm rounded-2" style="font-size: 0.75rem; background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 4px 12px rgba(32, 160, 96, 0.3)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none';">Contact</button></td>
                                 </tr>
                                 <tr class="intervention-row" style="animation: fadeIn 0.4s ease-out 0.3s both;">
                                     <td><strong class="text-dark">Juan dela Cruz</strong><br><small class="text-muted">Corn Production</small></td>
                                     <td class="text-center"><span class="badge bg-warning rounded-pill">MEDIUM</span></td>
                                     <td class="text-center"><small class="text-muted">68 days ago</small></td>
-                                    <td class="text-end"><button class="btn btn-sm btn-light text-warning rounded-2" style="font-size: 0.75rem;">Monitor</button></td>
+                                    <td class="text-end"><button class="btn btn-sm rounded-2" style="font-size: 0.75rem; background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 4px 12px rgba(32, 160, 96, 0.3)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none';">Monitor</button></td>
                                 </tr>
                                 <tr class="intervention-row" style="animation: fadeIn 0.4s ease-out 0.4s both;">
                                     <td><strong class="text-dark">Rosa Gonzales</strong><br><small class="text-muted">Fishery</small></td>
                                     <td class="text-center"><span class="badge bg-success rounded-pill">LOW</span></td>
                                     <td class="text-center"><small class="text-muted">12 days ago</small></td>
-                                    <td class="text-end"><button class="btn btn-sm btn-light text-success rounded-2" style="font-size: 0.75rem;">Active</button></td>
+                                    <td class="text-end"><button class="btn btn-sm rounded-2" style="font-size: 0.75rem; background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 4px 12px rgba(32, 160, 96, 0.3)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none';">Active</button></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -997,8 +1072,8 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                 </div>
             </div>
 
-            <div class="modal-footer" style="background-color: #f5f5dc; border-top: 1px solid rgba(229, 229, 192, 0.5); padding: 16px 24px;">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; color: white;">
+                <button type="button" class="btn rounded-pill px-4 fw-bold" style="background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn px-4 fw-bold rounded-pill" style="background:var(--track-green);color:white;box-shadow: 0 4px 12px rgba(32, 160, 96, 0.2);">
                     <i class="bi bi-download me-2"></i> Generate Report
                 </button>
@@ -1011,9 +1086,9 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
 <div class="modal fade" id="editGalleryMediaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header d-flex align-items-center" style="background-color: #f5f5dc; border-bottom: 1px solid rgba(229, 229, 192, 0.5); padding: 20px 24px;">
-                <h5 class="modal-title fw-bold text-dark mb-0"><i class="bi bi-pencil-square text-primary me-2"></i> Edit Activity</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header d-flex align-items-center" style="background-color: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 20px 24px; color: white;">
+                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-pencil-square text-primary me-2"></i> Edit Activity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
             </div>
             
             <form action="../media/media_actions.php" method="POST">
@@ -1048,8 +1123,8 @@ $media_activities_query = mysqli_query($conn, "SELECT id, title, description, ca
                     </div>
                 </div>
 
-                <div class="modal-footer" style="background-color: #f5f5dc; border-top: 1px solid rgba(229, 229, 192, 0.5); padding: 16px 24px;">
-                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                <div class="modal-footer" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; color: white;">
+                    <button type="button" class="btn rounded-pill px-4 fw-bold" style="background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary px-4 fw-bold rounded-pill">
                         <i class="bi bi-check-circle-fill me-2"></i> Save Changes
                     </button>
