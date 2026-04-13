@@ -149,25 +149,28 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        body {
-            background-color: var(--track-bg);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+        body { 
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             color: var(--text-main);
-            min-height: 100vh; display: flex; flex-direction: column;
+            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('../Home.jpeg') top center / 100% 100% no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* ── Navbar ── */
         .navbar {
-            background-color: rgba(245,245,220,0.95) !important;
-            backdrop-filter: blur(10px); padding: 15px 0;
-            border-bottom: 1px solid rgba(229,229,192,0.5);
+            background-color: #164a36 !important;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             animation: fadeInUpCustom 0.8s ease-out;
         }
-        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.8px; color: var(--track-dark) !important; }
-        .navbar-brand span { color: var(--track-green); }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.8px; color: #ffffff !important; }
+        .navbar-brand span { color: #20a060; }
         .navbar-nav .nav-link {
-            color: var(--text-muted) !important; font-weight: 600; font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8) !important; font-weight: 600; font-size: 0.95rem;
             margin: 0 10px; padding: 8px 0 !important; position: relative;
             transition: var(--transition-smooth); display: flex; align-items: center; gap: 6px;
         }
@@ -188,11 +191,14 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
 
         /* ── Page Header ── */
         .page-header {
-            background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
-            padding: 60px 0 40px; border-bottom: 1px solid rgba(229,229,192,0.4); margin-bottom: 40px;
+            background: transparent;
+            padding: 60px 0 40px; border-bottom: none; margin-bottom: 40px;
             position: relative; overflow: hidden;
             animation: fadeInUpCustom 0.8s cubic-bezier(0.16,1,0.3,1) both;
+            color: #ffffff !important;
         }
+        .page-header h1 { color: #20a060 !important; font-weight: 900 !important; }
+        .page-header p { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .page-header::after {
             content: ''; position: absolute; top: -20%; right: -5%;
             width: 400px; height: 400px;
@@ -273,8 +279,8 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
         .form-control:focus, .form-select:focus {
             border-color: var(--track-green); box-shadow: 0 0 0 4px rgba(32,160,96,0.12); background-color: #fff;
         }
-        .btn-track { background: var(--track-green); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-weight: 700; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
+        .btn-track { background: #20a060; color: white; border: none; border-radius: 12px; padding: 12px 28px; font-weight: 700; transition: var(--transition-smooth); box-shadow: 0 4px 14px rgba(32, 160, 96, 0.3); }
+        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32, 160, 96, 0.4); color: white; }
         .btn-cancel { background: #206970; color: white; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
         .btn-cancel:hover { background: #20a060; color: white; transform: translateY(-2px); }
 
@@ -564,7 +570,7 @@ $member_list = $conn->query("SELECT id, first_name, last_name FROM users WHERE r
     </div>
 </div>
 
-<?php include('../includes/footer.php'); ?>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>

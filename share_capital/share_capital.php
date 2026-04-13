@@ -1,27 +1,11 @@
 <?php
 session_start();
-include('../auth/db_connect.php');
+include('../auth/db_connect.php'); // Inclusion kept for path consistency but connection not used below
 
-// Allow Bookkeeper only
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Bookkeeper') {
-    header("Location: ../index.php?error=unauthorized");
-    exit();
-}
-
-$user_id   = $_SESSION['user_id'];
-$user_role = $_SESSION['role'];
-$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Bookkeeper";
-
-// Try to fetch from database, but use session data if unavailable
-@$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
-if ($q) {
-    @$q->bind_param("i", $user_id);
-    @$q->execute();
-    @$r = $q->get_result();
-    if ($u = @$r->fetch_assoc()) {
-        $full_name = $u['first_name'] . " " . $u['last_name'];
-    }
-}
+// Static Identity for Full-Static Demo
+$user_id   = 101; 
+$user_role = 'Bookkeeper';
+$full_name = "Bookkeeper";
 
 // ── Handle Add Capital (Admin/Bookkeeper) ──── (Demo Mode)
 $msg = "";
@@ -31,17 +15,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_capital'])) {
 }
 
 // ── Summary Stats ──── (Static demo data)
-$total_capital   = 185750.00;
+$total_capital   = 180200.00;
 $member_count    = 16;
-$avg_capital     = 11609.38;
+$avg_capital     = 11262.50;
 $monthly_capital = 45250.00;
 
-// ── Per Member Capital Balance ──── (Static demo data)
+// ── Per Member Capital Balance ──── (Standardized 5-Sector Static Data)
 $static_members_cap = [
-    ['id' => 1, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'sector' => 'Rice', 'status' => 'Approved', 'balance' => 5450.00, 'tx_count' => 3],
-    ['id' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos', 'sector' => 'Corn', 'status' => 'Approved', 'balance' => 8200.00, 'tx_count' => 5],
-    ['id' => 3, 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'sector' => 'Fishery', 'status' => 'Approved', 'balance' => 3100.00, 'tx_count' => 2],
-    ['id' => 4, 'first_name' => 'Rosa', 'last_name' => 'Lopez', 'sector' => 'Livestock', 'status' => 'Approved', 'balance' => 6000.00, 'tx_count' => 4],
+    ['id' => 1, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'username' => 'juan123', 'sector' => 'Rice', 'status' => 'Approved', 'balance' => 5450.00, 'tx_count' => 3],
+    ['id' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos', 'username' => 'maria456', 'sector' => 'Corn', 'status' => 'Approved', 'balance' => 8200.00, 'tx_count' => 5],
+    ['id' => 3, 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'username' => 'pedro789', 'sector' => 'Fishery', 'status' => 'Approved', 'balance' => 3100.00, 'tx_count' => 2],
+    ['id' => 4, 'first_name' => 'Rosa', 'last_name' => 'Lopez', 'username' => 'rosa101', 'sector' => 'Livestock', 'status' => 'Approved', 'balance' => 6000.00, 'tx_count' => 4],
+    ['id' => 5, 'first_name' => 'Alex', 'last_name' => 'Reyes', 'username' => 'alexreyes', 'sector' => 'High Value Crops', 'status' => 'Approved', 'balance' => 12400.00, 'tx_count' => 8],
+    ['id' => 6, 'first_name' => 'Elena', 'last_name' => 'Bautista', 'username' => 'elenab', 'sector' => 'Rice', 'status' => 'Approved', 'balance' => 15400.00, 'tx_count' => 12],
+    ['id' => 7, 'first_name' => 'Roberto', 'last_name' => 'Mendoza', 'username' => 'robert_m', 'sector' => 'Corn', 'status' => 'Approved', 'balance' => 9200.00, 'tx_count' => 6],
+    ['id' => 8, 'first_name' => 'Liza', 'last_name' => 'Pascual', 'username' => 'lizap', 'sector' => 'Fishery', 'status' => 'Approved', 'balance' => 4300.00, 'tx_count' => 3],
+    ['id' => 9, 'first_name' => 'Fernando', 'last_name' => 'Villanueva', 'username' => 'fernandv', 'sector' => 'Livestock', 'status' => 'Approved', 'balance' => 18500.00, 'tx_count' => 15],
+    ['id' => 10, 'first_name' => 'Carmen', 'last_name' => 'Gonzales', 'username' => 'carmeng', 'sector' => 'High Value Crops', 'status' => 'Approved', 'balance' => 7200.00, 'tx_count' => 4],
+    ['id' => 11, 'first_name' => 'Antonio', 'last_name' => 'Torres', 'username' => 'antoniot', 'sector' => 'Rice', 'status' => 'Approved', 'balance' => 3300.00, 'tx_count' => 2],
+    ['id' => 12, 'first_name' => 'Sofia', 'last_name' => 'Aquino', 'username' => 'sofia_a', 'sector' => 'Corn', 'status' => 'Approved', 'balance' => 21000.00, 'tx_count' => 18],
+    ['id' => 13, 'first_name' => 'Miguel', 'last_name' => 'Dizon', 'username' => 'migueld', 'sector' => 'Fishery', 'status' => 'Approved', 'balance' => 11000.00, 'tx_count' => 9],
+    ['id' => 14, 'first_name' => 'Gina', 'last_name' => 'Castro', 'username' => 'ginac', 'sector' => 'Livestock', 'status' => 'Approved', 'balance' => 15400.00, 'tx_count' => 10],
+    ['id' => 15, 'first_name' => 'Andres', 'last_name' => 'Soriano', 'username' => 'andress', 'sector' => 'High Value Crops', 'status' => 'Approved', 'balance' => 25000.00, 'tx_count' => 22],
+    ['id' => 16, 'first_name' => 'Isabel', 'last_name' => 'Flores', 'username' => 'isabelf', 'sector' => 'Rice', 'status' => 'Approved', 'balance' => 14750.00, 'tx_count' => 11],
 ];
 $members_cap = $static_members_cap;
 
@@ -51,6 +47,9 @@ $member_list = [
     ['id' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos'],
     ['id' => 3, 'first_name' => 'Pedro', 'last_name' => 'Garcia'],
     ['id' => 4, 'first_name' => 'Rosa', 'last_name' => 'Lopez'],
+    ['id' => 5, 'first_name' => 'Alex', 'last_name' => 'Reyes'],
+    ['id' => 12, 'first_name' => 'Sofia', 'last_name' => 'Aquino'],
+    ['id' => 15, 'first_name' => 'Andres', 'last_name' => 'Soriano'],
 ];
 
 // ── All Transactions for Full History Modal ── (Static demo data)
@@ -65,7 +64,7 @@ $all_tx_rows = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Share Capital Overview | TrackCOOP</title>
+    <title>Share Capital Overview | TRACKCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -91,19 +90,19 @@ $all_tx_rows = [
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        body {
-            background-color: var(--track-bg);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+        body { 
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             color: var(--text-main);
+            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('../Home.jpeg') top center / 100% 100% no-repeat fixed;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* ── Navbar ── */
         .navbar {
-            background-color: rgba(22, 74, 54, 0.95) !important;
-            backdrop-filter: blur(10px);
+            background-color: #164a36 !important;
             padding: 15px 0;
             border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -134,13 +133,16 @@ $all_tx_rows = [
 
         /* ── Page Header ── */
         .page-header {
-            background: linear-gradient(145deg, #ffffff 0%, var(--track-beige) 100%);
-            padding: 70px 0 50px;
-            border-bottom: 1px solid rgba(229,229,192,0.5);
-            margin-bottom: 45px;
+            background: transparent;
+            padding: 10px 0 10px;
+            border-bottom: none;
+            margin-bottom: 10px;
             position: relative; overflow: hidden;
             animation: fadeInUpCustom 0.8s cubic-bezier(0.16,1,0.3,1) both;
+            color: #ffffff !important;
         }
+        .page-header h1 { color: #20a060 !important; font-weight: 900 !important; }
+        .page-header p { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .page-header::before {
             content: ''; position: absolute; top: -50%; right: -10%; width: 500px; height: 500px;
             background: radial-gradient(circle, rgba(32,160,96,0.05) 0%, transparent 70%);
@@ -168,82 +170,160 @@ $all_tx_rows = [
             100% { transform: scale(3); opacity: 0; }
         }
 
-        /* ── Stat Cards Glass 2.0 ── */
+        /* ── Elite 3.0 Stat Cards ── */
         .stat-card {
             border: 1px solid rgba(255, 255, 255, 0.4); 
-            border-radius: 24px; background: rgba(255, 255, 255, 0.8);
+            border-radius: 24px; 
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
-            padding: 28px; transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
-            box-shadow: 0 4px 24px -1px rgba(0,0,0,0.02), 0 2px 6px -1px rgba(0,0,0,0.01);
-            position: relative; overflow: hidden;
-        }
-        .stat-card::before {
-            content: ''; position: absolute; top:0; left:0; width:100%; height:4px;
-            background: linear-gradient(90deg, transparent, var(--track-green), transparent);
-            opacity: 0; transition: 0.5s;
+            padding: 20px; 
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+            position: relative; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
         .stat-card:hover { 
-            transform: translateY(-10px) scale(1.02); 
-            box-shadow: 0 30px 60px rgba(32,160,96,0.1); 
-            border-color: rgba(32,160,96,0.2); 
+            transform: translateY(-12px) scale(1.03); 
+            box-shadow: 0 40px 80px -15px rgba(32,160,96,0.15); 
+            border-color: rgba(32,160,96,0.3); 
             background: #ffffff;
         }
-        .stat-card:hover::before { opacity: 1; }
+        .stat-card::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
+            background: var(--card-brand, var(--track-green));
+            opacity: 0.1;
+        }
 
         .icon-box {
-            width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;
-            border-radius: 18px; margin-bottom: 20px; transition: 0.4s;
-            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
+            width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+            border-radius: 18px; margin-bottom: 24px; transition: all 0.5s ease;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05);
         }
-        .stat-card:hover .icon-box { transform: scale(1.15) rotate(8deg); background-color: var(--track-green) !important; color: white !important; }
+        .stat-card:hover .icon-box { 
+            transform: scale(1.2) rotate(12deg); 
+            box-shadow: 0 15px 30px -5px rgba(0,0,0,0.1);
+        }
 
-        /* ── Table Card ── */
+        .stat-label {
+            font-size: 0.75rem; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1.2px; 
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 1.85rem; 
+            font-weight: 900; 
+            color: #1e293b;
+            letter-spacing: -1px;
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* ── Inspiration Design System ── */
         .table-card {
-            border: 1px solid rgba(255, 255, 255, 0.4); 
-            border-radius: 28px; background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            padding: 32px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04);
+            border: 1px solid rgba(226, 232, 240, 0.8); 
+            border-radius: 28px; background: #ffffff;
+            padding: 32px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
         }
-        .table thead th {
-            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
-            color: #94a3b8; border-bottom: 1.5px solid #f1f5f9; padding-bottom: 18px;
+        
+        .table-elite { border-collapse: separate; border-spacing: 0 0; margin-top: 0; width: 100%; }
+        .table-elite thead th { 
+            background: transparent; border: none; padding: 15px 20px; 
+            font-size: 0.7rem; font-weight: 800; color: #1a1a1a; 
+            text-transform: uppercase; letter-spacing: 1.5px;
+            border-bottom: 2px solid #f1f5f9;
         }
-        .table tbody tr { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 12px; }
-        .table tbody tr:hover { 
-            background-color: white !important; 
-            box-shadow: 0 10px 25px -5px rgba(32,160,96,0.1);
-            transform: scale(1.005) translateY(-2px);
-            z-index: 5; position: relative;
+        .table-elite tbody tr { 
+            background: white; transition: all 0.2s ease;
+            border-bottom: 1px solid #f1f5f9;
         }
-        .table tbody td { padding: 20px 12px; border-bottom: 1px solid #f8fafc; }
-        .table > :not(caption) > * > * { border-bottom-color: #f1f5f9; }
-
-        /* ── Avatar ── */
-        .member-avatar {
-            width: 40px; height: 40px; border-radius: 12px;
-            background: linear-gradient(135deg, var(--track-green), #1a8548);
-            color: white; font-weight: 800; font-size: 0.85rem;
+        .table-elite tbody tr:hover { 
+            background: #f8fafc !important;
+        }
+        .table-elite tbody td { 
+            padding: 20px 20px; border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle; color: var(--text-main); font-weight: 500;
+        }
+        
+        /* Member/Document column icon */
+        .icon-box-doc {
+            width: 42px; height: 42px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; font-weight: 800; margin-right: 18px; flex-shrink: 0;
+            background: #20a060; color: #ffffff; /* Solid Green High-Contrast */
+            box-shadow: 0 4px 10px rgba(32, 160, 96, 0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
+        
+        /* Pills from Inspiration */
+        .badge-status-pill {
+            padding: 6px 14px; border-radius: 8px; font-size: 0.7rem; 
+            font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .badge-green-elite { background: #dcfce7; color: #15803d; }
+        .badge-yellow-elite { background: #fef9c3; color: #854d0e; }
+        .badge-red-elite    { background: #fee2e2; color: #b91c1c; }
 
-        /* ── Badges ── */
-        .badge-status { padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
-        .badge-approved { background: #eefdf5; color: #27ae60; }
-        .badge-pending  { background: #fff9e6; color: #d97706; }
-        .badge-inactive { background: #fee2e2; color: #ef4444; }
+        /* Created By / Sector style */
+        .avatar-box-elite {
+            width: 36px; height: 36px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.85rem; margin-right: 12px;
+            background: #10b981; color: white;
+        }
+        .info-dual { display: flex; flex-direction: column; line-height: 1.2; }
+        .info-dual .primary { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+        .info-dual .secondary { font-size: 0.78rem; color: #94a3b8; font-weight: 600; }
 
-        /* ── Action ── */
-        .action-icon {
-            display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center;
-            border-radius: 12px; color: var(--text-muted); transition: 0.3s;
-            background: white; border: 1.5px solid #f1f5f9; text-decoration: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        /* Action Buttons (Minimalist) */
+        .btn-doc-action {
+            width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 8px; transition: 0.2s;
+            background: transparent; border: none; color: #3b82f6;
+            font-size: 0.9rem; cursor: pointer;
         }
-        .action-icon:hover { 
-            background: var(--track-green); color: white; border-color: var(--track-green); 
-            transform: translateY(-3px) rotate(8deg);
-            box-shadow: 0 8px 15px rgba(32,160,96,0.2);
+        .btn-doc-action:hover { background: #eff6ff; transform: scale(1.1); }
+        .btn-doc-action.btn-delete { color: #ef4444; }
+        .btn-doc-action.btn-delete:hover { background: #fff1f2; }
+        .btn-doc-action.btn-contribute { color: #20a060; }
+        .btn-doc-action.btn-contribute:hover { background: #f0fdf4; }
+        
+        /* Pagination Footer */
+        .pagination-footer-elite {
+            display: flex; align-items: center; justify-content: flex-end;
+            padding-top: 30px; margin-top: 10px;
+            gap: 35px; font-size: 0.85rem; color: #64748b; font-weight: 700;
         }
+        .rows-per-page { display: flex; align-items: center; gap: 12px; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; }
+        .rows-per-page select {
+            border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 10px;
+            background: white; font-weight: 800; outline: none; cursor: pointer; color: #1e293b;
+        }
+        .page-chevrons { display: flex; gap: 8px; }
+
+        /* Hide Horizontal Scrollbar but keep functionality */
+        .table-responsive::-webkit-scrollbar { display: none; }
+        .table-responsive {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        .btn-chevron {
+            width: 35px; height: 35px; border: 1px solid #e2e8f0; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            background: white; color: #64748b; transition: 0.2s;
+        }
+        .btn-chevron:hover:not(:disabled) { background: #f8fafc; color: #1e293b; border-color: #cbd5e1; }
+        .btn-chevron:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* ── Progress Indicators ── */
+        .capital-bar { height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .capital-bar-fill { height: 100%; background: var(--track-green); border-radius: 10px; transition: width 1s ease-out; }
 
         /* ── Modal ── */
         .modal-content { border: none; border-radius: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.15); }
@@ -261,8 +341,8 @@ $all_tx_rows = [
             border-color: var(--track-green); box-shadow: 0 0 0 4px rgba(32,160,96,0.12);
             background-color: #fff;
         }
-        .btn-track { background: var(--track-green); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-weight: 700; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
+        .btn-track { background: #20a060; color: white; border: none; border-radius: 12px; padding: 12px 28px; font-weight: 700; transition: var(--transition-smooth); box-shadow: 0 4px 14px rgba(32, 160, 96, 0.3); }
+        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32, 160, 96, 0.4); color: white; }
         .btn-cancel { background: #206970; color: white; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 600; transition: 0.3s; }
         .btn-cancel:hover { background: #20a060; color: white; transform: translateY(-2px); }
 
@@ -350,25 +430,85 @@ $all_tx_rows = [
 
         /* ── Button portal style (matches admin) ── */
         .btn-portal {
-            background: var(--track-green); color: white; border-radius: 12px; padding: 12px 24px;
+            background: #20a060; color: white; border-radius: 12px; padding: 12px 24px;
             font-weight: 700; border: none; box-shadow: 0 8px 20px rgba(32,160,96,0.2);
             transition: var(--transition-smooth); display: inline-flex; align-items: center; gap: 8px;
         }
-        .btn-portal:hover { transform: translateY(-3px); background: #20a060; box-shadow: 0 12px 25px rgba(32,160,96,0.3); color: white; }
+        .btn-portal:hover { transform: translateY(-3px); background: #1a8548; box-shadow: 0 12px 25px rgba(32,160,96,0.3); color: white; }
 
-        /* --- SEARCH STYLING --- */
-        .search-wrapper {
-            position: relative;
-            display: block;
-            margin-bottom: 30px;
-            max-width: 600px;
-            animation: fadeInUpCustom 0.8s ease-out 0.2s both;
+        /* --- Elite 3.0 Pagination Design --- */
+        .pagination-elite-3 {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 20px;
+            padding: 16px 24px;
+            border-top: 1px solid #f1f5f9;
+            background: #ffffff;
+            border-radius: 0 0 24px 24px;
+        }
+        .pagination-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .pagination-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pagination-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 4px 32px 4px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1e293b;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            min-width: 65px;
+        }
+        .pagination-select:hover { border-color: var(--track-green); }
+
+        .pagination-range {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #64748b;
+            min-width: 100px;
+            text-align: center;
         }
 
-        .search-input-group {
-            position: relative;
-            flex: 1;
+        .pagination-nav {
+            display: flex;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ffffff;
         }
+        .pagination-nav-btn {
+            width: 42px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        .pagination-nav-btn:first-child { border-right: 1.5px solid #e2e8f0; }
+        .pagination-nav-btn:hover:not(:disabled) { background: #f8fafc; color: var(--track-green); }
+        .pagination-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .search-input-group i {
             position: absolute;
@@ -395,126 +535,60 @@ $all_tx_rows = [
         .search-input:focus {
             outline: none;
             border-color: var(--track-green);
-            box-shadow: 0 6px 15px rgba(32, 160, 96, 0.1);
+            box-shadow: 0 8px 25px rgba(32, 160, 96, 0.15) !important;
+            transform: translateY(-2px);
         }
     </style>
-    <link rel="stylesheet" href="../includes/footer.css">
 </head>
-<body>
+<div class="sidebar-layout">
+    <?php 
+        $active_page = 'share_capital';
+        $user_role = $_SESSION['role'];
+        $membership_type = $user_role;
+        $full_name = htmlspecialchars($full_name);
+        include('../includes/dashboard_sidebar.php'); 
+    ?>
 
-<?php 
-    $active_page = 'share_capital';
-    $membership_type = $user_role;
-    include('../includes/dashboard_navbar.php'); 
-?>
+    <div class="main-content-wrapper">
+
 
 <!-- PAGE HEADER -->
 <div class="page-header">
     <div class="container position-relative" style="z-index:1;">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <div class="badge-platform" data-aos="fade-right">
-                    <div class="pulse-dot"></div>
-                    Activity Ledger Active
+            <div class="col-md-12 d-flex flex-column flex-md-row justify-content-end align-items-md-center gap-3">
+                <div class="search-input-group mb-0 position-relative" style="max-width: 400px; width: 100%;">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="memberCapitalSearch" class="search-input" placeholder="Search">
                 </div>
-                <h1 class="fw-800 display-5 mb-2" style="letter-spacing:-1.5px;">Capital Overview</h1>
-                <p class="fs-6 mb-0 text-muted">Monitor and manage share capital contributions from all cooperative members.</p>
-            </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <button class="btn-portal" data-bs-toggle="modal" data-bs-target="#addCapitalModal">
                     <i class="bi bi-plus-circle-fill"></i> Record Capital
                 </button>
             </div>
-        </div>
     </div>
 </div>
 
-<div class="container pb-5">
+<div class="container pb-3">
 
     <!-- Flash Message -->
     <?php if ($msg === 'success'): ?>
-        <div class="alert alert-success fw-bold rounded-4 mb-4" role="alert"><i class="bi bi-check-circle-fill me-2"></i> Capital contribution recorded successfully.</div>
+        <div class="alert alert-success fw-bold rounded-4 mb-2" role="alert"><i class="bi bi-check-circle-fill me-2"></i> Capital contribution recorded successfully.</div>
     <?php elseif ($msg === 'error'): ?>
-        <div class="alert alert-danger fw-bold rounded-4 mb-4" role="alert"><i class="bi bi-exclamation-octagon-fill me-2"></i> Error saving record. Please try again.</div>
+        <div class="alert alert-danger fw-bold rounded-4 mb-2" role="alert"><i class="bi bi-exclamation-octagon-fill me-2"></i> Error saving record. Please try again.</div>
     <?php elseif ($msg === 'invalid'): ?>
-        <div class="alert alert-warning fw-bold rounded-4 mb-4" role="alert"><i class="bi bi-exclamation-triangle-fill me-2"></i> Invalid data submitted. Please check the form.</div>
+        <div class="alert alert-warning fw-bold rounded-4 mb-2" role="alert"><i class="bi bi-exclamation-triangle-fill me-2"></i> Invalid data submitted. Please check the form.</div>
     <?php endif; ?>
 
-    <!-- STAT CARDS -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3 fade-in-up delay-1">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-cash-coin fs-4"></i></div>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill fw-bold" style="font-size:0.7rem;">Total</span>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Total Capital</h6>
-                <h2 class="fw-800 mb-0 text-dark">₱<?php echo number_format($total_capital, 2); ?></h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-2">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary"><i class="bi bi-people-fill fs-4"></i></div>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Contributing Members</h6>
-                <h2 class="fw-800 mb-0 text-dark"><?php echo number_format($member_count); ?></h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-3">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="bi bi-bar-chart-line-fill fs-4"></i></div>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Avg. per Member</h6>
-                <h2 class="fw-800 mb-0 text-dark">₱<?php echo number_format($avg_capital, 2); ?></h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-4">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-info bg-opacity-10 text-info"><i class="bi bi-calendar-check-fill fs-4"></i></div>
-                    <span class="badge bg-info bg-opacity-10 text-info rounded-pill fw-bold" style="font-size:0.7rem; position: relative;">
-                        <span class="spinner-grow spinner-grow-sm me-1" style="width: 8px; height: 8px;"></span>
-                        This Month
-                    </span>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Monthly Collection</h6>
-                <h2 class="fw-800 mb-0 text-dark">₱<?php echo number_format($monthly_capital, 2); ?></h2>
-            </div>
-        </div>
-    </div>
-
-    <!-- SEARCH TOOLBAR -->
-    <div class="search-wrapper">
-        <div class="search-input-group">
-            <i class="bi bi-search"></i>
-            <input type="text" id="memberCapitalSearch" class="search-input" placeholder="Search members by name or sector...">
-        </div>
-    </div>
 
     <!-- MEMBER CAPITAL TABLE -->
     <div class="table-card" data-aos="fade-up" data-aos-delay="100">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-            <div>
-                <h5 class="fw-800 mb-1" style="letter-spacing:-0.5px;"><i class="bi bi-wallet2 text-success me-2"></i>Member Capital Balances</h5>
-                <small class="text-muted">Click a member row to view their transaction history</small>
-            </div>
-            <button class="btn-portal" style="background: var(--track-green-light); color: var(--track-green); border: 1.5px solid var(--track-green); box-shadow: none;" data-bs-toggle="modal" data-bs-target="#fullHistoryModal" onclick="filterHistory('all')">
-                <i class="bi bi-clock-history me-2"></i> Full History
-            </button>
-        </div>
-
         <div class="table-responsive">
-            <table class="table align-middle mb-0">
+            <table class="table table-elite align-middle">
                 <thead>
                     <tr>
-                        <th class="border-0">Member</th>
-                        <th class="border-0">Sector</th>
-                        <th class="border-0">Status</th>
-                        <th class="border-0">Capital Balance</th>
-                        <th class="border-0">Transactions</th>
-                        <th class="border-0 text-end">Actions</th>
+                        <th style="min-width: 250px;">NAME</th>
+                        <th style="min-width: 200px;">SECTOR</th>
+                        <th style="min-width: 150px;">BALANCE</th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -530,51 +604,72 @@ $all_tx_rows = [
                             $initials = strtoupper(substr($rc['first_name'],0,1) . substr($rc['last_name'],0,1));
                             $bar_pct  = ($max_balance > 0) ? round(($rc['balance'] / $max_balance) * 100) : 0;
                     ?>
-                    <tr onclick="showMemberHistory(<?php echo $rc['id']; ?>, '<?php echo htmlspecialchars($rc['first_name'] . ' ' . $rc['last_name'], ENT_QUOTES); ?>')" style="cursor:pointer;">
+                    <tr class="member-capital-row" data-search-matched="true" onclick="showMemberHistory(<?php echo $rc['id']; ?>, '<?php echo htmlspecialchars($rc['first_name'] . ' ' . $rc['last_name'], ENT_QUOTES); ?>')" style="cursor:pointer;">
                         <td>
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="member-avatar"><?php echo $initials; ?></div>
-                                <div>
-                                    <div class="fw-700 member-name" style="color:var(--track-dark);"><?php echo htmlspecialchars($rc['first_name'] . ' ' . $rc['last_name']); ?></div>
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box-doc">
+                                    <?php echo strtoupper(substr($rc['first_name'], 0, 1)); ?>
+                                </div>
+                                <div class="info-dual">
+                                    <span class="primary member-name"><?php echo htmlspecialchars($rc['first_name'] . ' ' . $rc['last_name']); ?></span>
                                 </div>
                             </div>
                         </td>
-                        <td><span class="sector-badge member-sector"><?php echo htmlspecialchars($rc['sector'] ?: '—'); ?></span></td>
                         <td>
-                            <?php
-                                if ($rc['status'] === 'Approved')  echo '<span class="badge-status badge-approved">Approved</span>';
-                                elseif ($rc['status'] === 'Pending') echo '<span class="badge-status badge-pending">Pending</span>';
-                                else echo '<span class="badge-status badge-inactive">Inactive</span>';
-                            ?>
+                            <div class="info-dual">
+                                <span class="primary member-sector"><?php echo htmlspecialchars($rc['sector']); ?></span>
+                            </div>
                         </td>
-                        <td style="min-width:180px;">
-                            <div class="fw-700 mb-1" style="color:var(--track-dark);">₱<?php echo number_format($rc['balance'], 2); ?></div>
-                            <div class="capital-bar"><div class="capital-bar-fill" style="width:<?php echo $bar_pct; ?>%"></div></div>
+                        <td>
+                            <div class="fw-800 text-dark" style="font-size: 1.05rem;">₱<?php echo number_format($rc['balance'], 2); ?></div>
                         </td>
-                        <td><span class="badge bg-secondary bg-opacity-10 text-secondary fw-bold"><?php echo $rc['tx_count']; ?> txn<?php echo $rc['tx_count'] != 1 ? 's' : ''; ?></span></td>
                         <td class="text-end" onclick="event.stopPropagation();">
-                            <button class="action-icon me-1" title="View History"
-                                onclick="event.stopPropagation(); showMemberHistory(<?php echo $rc['id']; ?>, '<?php echo htmlspecialchars($rc['first_name'] . ' ' . $rc['last_name'], ENT_QUOTES); ?>')"
-                                data-bs-toggle="modal" data-bs-target="#fullHistoryModal">
-                                <i class="bi bi-clock-history"></i>
-                            </button>
-                            <button class="action-icon ms-1" title="Quick Add Capital"
-                                onclick="quickAdd(<?php echo $rc['id']; ?>, '<?php echo htmlspecialchars($rc['first_name'] . ' ' . $rc['last_name']); ?>')"
-                                data-bs-toggle="modal" data-bs-target="#addCapitalModal">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
+                            <div class="d-flex gap-1 justify-content-end align-items-center">
+                                <button class="btn-doc-action" title="View History">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn-doc-action btn-contribute" title="Quick Add Capital">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                                <button class="btn-doc-action btn-delete" title="Delete record">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; else: ?>
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
-                            <i class="bi bi-wallet2" style="font-size:3rem;opacity:0.1;display:block;margin-bottom:10px;"></i>
-                            No share capital records found. Start recording contributions above.
+                        <td colspan="4" class="text-center py-5 text-muted small">
+                            <i class="bi bi-wallet2 d-block fs-1 opacity-25 mb-3"></i>
+                            No share capital records found.
                         </td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- ELITE 3.0 PAGINATION -->
+        <div class="pagination-elite-3">
+            <div class="pagination-select-wrapper">
+                <span class="pagination-label">ROWS PER PAGE</span>
+                <select id="rowsPerPageSelect" class="pagination-select" onchange="changePageSize()">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
+            <div class="pagination-range" id="paginationRangeDisplay">
+                1-5 of 15
+            </div>
+            <div class="pagination-nav">
+                <button class="pagination-nav-btn" id="prevPageBtn" onclick="prevPage()">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="pagination-nav-btn" id="nextPageBtn" onclick="nextPage()">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -663,9 +758,10 @@ $all_tx_rows = [
                     </table>
                 </div>
             </div>
-            <div class="modal-footer justify-content-between">
-                <small class="text-muted">Showing all capital transactions across all members.</small>
-                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close</button>
+                <div class="p-3 text-end" style="border-top:1px solid #f1f5f9; background:#f8fafc;">
+                    <small class="text-muted float-start mt-2 ms-2">Total history records shown above.</small>
+                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close History</button>
+                </div>
             </div>
         </div>
     </div>
@@ -710,11 +806,10 @@ $all_tx_rows = [
                             <label class="form-label">Notes / Remarks</label>
                             <textarea name="notes" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
                         </div>
+                        <div class="col-12 mt-4 text-end pe-3 pb-2">
+                            <button type="submit" name="add_capital" class="btn-track"><i class="bi bi-check-circle me-2"></i> Save Record</button>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="add_capital" class="btn-track"><i class="bi bi-check-circle me-2"></i> Save Record</button>
                 </div>
             </form>
         </div>
@@ -797,24 +892,20 @@ $all_tx_rows = [
     // ── Real-Time Capital Search ─────────────────────────────────────────────
     function performCapitalSearch() {
         const term = document.getElementById('memberCapitalSearch').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('tbody:not(#historyTableBody) tr:not(.no-results-row)');
+        const rows = document.querySelectorAll('.member-capital-row');
         let found = 0;
 
         rows.forEach(row => {
             const name = row.querySelector('.member-name').textContent.toLowerCase();
             const sector = row.querySelector('.member-sector').textContent.toLowerCase();
             
-            if (name.includes(term) || sector.includes(term)) {
-                row.style.display = '';
-                row.style.animation = 'fadeInUpCustom 0.4s ease forwards';
-                found++;
-            } else {
-                row.style.display = 'none';
-            }
+            const match = name.includes(term) || sector.includes(term);
+            row.dataset.searchMatched = match ? 'true' : 'false';
+            if (match) found++;
         });
 
         // Handle Empty State
-        const tbody = document.querySelector('tbody:not(#historyTableBody)');
+        const tbody = document.querySelector('.table-elite tbody');
         let noResults = document.getElementById('noCapitalResultsRow');
 
         if (found === 0) {
@@ -823,7 +914,7 @@ $all_tx_rows = [
                 noResults.id = 'noCapitalResultsRow';
                 noResults.className = 'no-results-row';
                 noResults.innerHTML = `
-                    <td colspan="6" class="text-center py-5">
+                    <td colspan="4" class="text-center py-5">
                         <div class="opacity-25 mb-3"><i class="bi bi-wallet2" style="font-size: 3rem;"></i></div>
                         <h5 class="fw-bold text-muted">No balances found</h5>
                         <p class="text-muted small mb-0">We couldn't find any member matching your search criteria.</p>
@@ -831,12 +922,85 @@ $all_tx_rows = [
                 `;
                 tbody.appendChild(noResults);
             }
-        } else {
-            if (noResults) noResults.remove();
+        } else if (noResults) {
+            noResults.remove();
+        }
+        
+        currentPage = 1; // Reset to page 1 on search
+        updatePagination();
+    }
+
+    // ── Pagination Logic ─────────────────────────────────────────────
+    let currentPage = 1;
+    let rowsPerPage = 5;
+
+    function updatePagination() {
+        const rows = document.querySelectorAll('.member-capital-row');
+        const visibleRows = Array.from(rows).filter(row => row.dataset.searchMatched !== 'false');
+        
+        const totalRows = visibleRows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage) || 1;
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = Math.min(start + rowsPerPage, totalRows);
+
+        // First, hide all rows
+        rows.forEach(r => r.style.display = 'none');
+
+        // Then show only the current page's matching rows
+        visibleRows.forEach((row, index) => {
+            if (index >= start && index < end) {
+                row.style.display = '';
+            }
+        });
+
+        // Update Range Display
+        const rangeDisplay = document.getElementById('paginationRangeDisplay');
+        if (rangeDisplay) {
+            const startDisplay = totalRows === 0 ? 0 : start + 1;
+            const endDisplay = end;
+            rangeDisplay.textContent = `${startDisplay}-${endDisplay} of ${totalRows}`;
+        }
+
+        // Disable/Enable Chevrons
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        if (prevBtn) prevBtn.disabled = (currentPage === 1);
+        if (nextBtn) nextBtn.disabled = (currentPage === totalPages || totalRows === 0);
+    }
+
+    function nextPage() {
+        currentPage++;
+        updatePagination();
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
         }
     }
+
+    function changePageSize() {
+        const rowsSelect = document.getElementById('rowsPerPageSelect');
+        if (rowsSelect) {
+            rowsPerPage = parseInt(rowsSelect.value);
+            currentPage = 1;
+            updatePagination();
+        }
+    }
+
+    // Initialization
+    document.getElementById('memberCapitalSearch').addEventListener('input', performCapitalSearch);
+    document.addEventListener('DOMContentLoaded', updatePagination);
 </script>
+    </div> <!-- .main-content-wrapper -->
+</div> <!-- .sidebar-layout -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<?php include('../includes/footer.php'); ?>
+
 </body>
 </html>

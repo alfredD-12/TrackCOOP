@@ -19,14 +19,15 @@ $user_id = $_SESSION['user_id'];
 $full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
 
 // Try to fetch from database, but use session data if unavailable
-@$query = "SELECT first_name, last_name FROM users WHERE id = ?";
-@$stmt = $conn->prepare($query);
-if ($stmt) {
-    @$stmt->bind_param("i", $user_id);
-    @$stmt->execute();
-    @$result = $stmt->get_result();
-    if ($user = @$result->fetch_assoc()) {
-        $full_name = $user['first_name'] . " " . $user['last_name'];
+if ($conn) {
+    @$q = $conn->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
+    if ($q) {
+        @$q->bind_param("i", $user_id);
+        @$q->execute();
+        @$result = $q->get_result();
+        if ($u = @$result->fetch_assoc()) {
+            $full_name = $u['first_name'] . " " . $u['last_name'];
+        }
     }
 }
 
@@ -36,6 +37,26 @@ $static_documents = [
     ['id' => 2, 'name' => 'Member Handbook 2024', 'type' => 'PDF', 'date_uploaded' => '2024-02-01', 'file_size' => '512 KB'],
     ['id' => 3, 'name' => 'Financial Report 2023', 'type' => 'PDF', 'date_uploaded' => '2024-03-15', 'file_size' => '870 KB'],
     ['id' => 4, 'name' => 'Meeting Minutes Q1', 'type' => 'DOCX', 'date_uploaded' => '2024-04-02', 'file_size' => '156 KB'],
+    ['id' => 5, 'name' => 'Annual General Assembly Notes', 'type' => 'PDF', 'date_uploaded' => '2024-05-20', 'file_size' => '1.2 MB'],
+    ['id' => 6, 'name' => 'New Member Application Form', 'type' => 'DOCX', 'date_uploaded' => '2024-06-12', 'file_size' => '88 KB'],
+    ['id' => 7, 'name' => 'Audit Report Q2 2024', 'type' => 'PDF', 'date_uploaded' => '2024-07-05', 'file_size' => '950 KB'],
+    ['id' => 8, 'name' => 'Official Seal Certificate', 'type' => 'PDF', 'date_uploaded' => '2024-07-28', 'file_size' => '2.1 MB'],
+    ['id' => 9, 'name' => 'Sector Management Guidelines', 'type' => 'PDF', 'date_uploaded' => '2024-08-14', 'file_size' => '340 KB'],
+    ['id' => 10, 'name' => 'Loan Application Template v2', 'type' => 'DOCX', 'date_uploaded' => '2024-09-01', 'file_size' => '120 KB'],
+    ['id' => 11, 'name' => 'Board Resolution 2024-08', 'type' => 'PDF', 'date_uploaded' => '2024-09-18', 'file_size' => '195 KB'],
+    ['id' => 12, 'name' => 'Insurance Policy Documents', 'type' => 'PDF', 'date_uploaded' => '2024-10-02', 'file_size' => '3.5 MB'],
+    ['id' => 13, 'name' => 'Registration Masterlist 2024', 'type' => 'XLSX', 'date_uploaded' => '2024-10-15', 'file_size' => '420 KB'],
+    ['id' => 14, 'name' => 'Cooperative Training Manual', 'type' => 'PDF', 'date_uploaded' => '2024-11-01', 'file_size' => '5.8 MB'],
+    ['id' => 15, 'name' => 'Emergency Contact Directory', 'type' => 'PDF', 'date_uploaded' => '2024-11-05', 'file_size' => '120 KB'],
+    ['id' => 16, 'name' => 'Equipment Inventory 2024', 'type' => 'XLSX', 'date_uploaded' => '2024-11-10', 'file_size' => '85 KB'],
+    ['id' => 17, 'name' => 'Irrigation Project Proposal', 'type' => 'DOCX', 'date_uploaded' => '2024-11-15', 'file_size' => '210 KB'],
+    ['id' => 18, 'name' => 'Monthly Sales Report - Oct', 'type' => 'PDF', 'date_uploaded' => '2024-11-18', 'file_size' => '650 KB'],
+    ['id' => 19, 'name' => 'Member Benefits Portfolio', 'type' => 'PDF', 'date_uploaded' => '2024-11-20', 'file_size' => '2.4 MB'],
+    ['id' => 20, 'name' => 'Health and Safety Guidelines', 'type' => 'PDF', 'date_uploaded' => '2024-11-22', 'file_size' => '1.1 MB'],
+    ['id' => 21, 'name' => 'Governance Reform Document', 'type' => 'DOCX', 'date_uploaded' => '2024-11-25', 'file_size' => '95 KB'],
+    ['id' => 22, 'name' => 'Strategic Plan 2025-2030', 'type' => 'PDF', 'date_uploaded' => '2024-11-28', 'file_size' => '4.2 MB'],
+    ['id' => 23, 'name' => 'Coop Museum History Photo', 'type' => 'JPG', 'date_uploaded' => '2024-12-01', 'file_size' => '8.5 MB'],
+    ['id' => 24, 'name' => 'Audit Response Letter', 'type' => 'PDF', 'date_uploaded' => '2024-12-05', 'file_size' => '130 KB'],
 ];
 
 // Documents are static for demo
@@ -46,36 +67,20 @@ $all_documents = $static_documents;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documents | TrackCOOP</title>
+    <title>Documents | TRACKCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../includes/dashboard_layout.css">
     
     <style>
-        :root {
-            --track-green: #206970;
-            --track-green-light: #e9f5ee;
-            --track-dark: #1a1a1a;
-            --track-bg: #f8fafc;
-            --track-beige: #F5F5DC;
-            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --text-main: #212529;
-            --text-muted: #555555;
-        }
-
-        @keyframes fadeInUpCustom {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         body {
-            background-color: var(--track-bg);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-main);
+            background-color: var(--track-bg);
+            overflow-x: hidden;
+            line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
         /* --- NAVBAR --- */
@@ -155,26 +160,7 @@ $all_documents = $static_documents;
 
         /* --- HEADER --- */
         .admin-header {
-            background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
-            padding: 60px 0 40px;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.4);
-            margin-bottom: 40px;
-            position: relative;
-            overflow: hidden;
-            animation: fadeInUpCustom 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-        .admin-header h1 { color: var(--track-dark); letter-spacing: -1.5px; }
-        .admin-header::after {
-            content: ''; position: absolute; top: -20%; right: -5%; width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(32,160,96,0.08) 0%, rgba(255,255,255,0) 70%);
-            border-radius: 50%; z-index: 0; pointer-events: none;
-        }
-
-        .badge-platform {
-            background: white; color: var(--track-green); font-weight: 700; padding: 6px 14px;
-            border-radius: 50px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-flex; align-items: center; margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.1); border: 1px solid rgba(32, 160, 96, 0.2);
+            display: none; /* Obsolete now */
         }
 
         /* --- TOOLBAR --- */
@@ -187,160 +173,18 @@ $all_documents = $static_documents;
             flex-wrap: wrap;
         }
 
-        .search-wrapper {
-            position: relative;
-            flex: 1;
-            max-width: 500px;
+
+        .doc-avatar {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--track-green-light);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--track-green); font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(32, 160, 96, 0.1);
         }
 
-        .search-input-group {
-            position: relative;
-            flex: 1;
-        }
-
-        .search-input-group i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--track-green);
-            font-size: 1.1rem;
-            z-index: 5;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0 20px 0 45px;
-            height: 52px;
-            border-radius: 14px;
-            border: 2px solid var(--track-beige);
-            background: white;
-            transition: var(--transition-smooth);
-            font-weight: 500;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--track-green);
-            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.1);
-        }
-
-        .btn-search-trigger {
-            background: var(--track-green);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            padding: 0 30px;
-            height: 52px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition-smooth);
-            box-shadow: 0 4px 14px rgba(32, 160, 96, 0.2);
-            white-space: nowrap;
-        }
-
-        .btn-search-trigger:hover {
-            background: #1a8548;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.3);
-            color: white;
-        }
 
         /* --- DOC CARDS --- */
-        .doc-card {
-            border: 2px solid var(--track-beige);
-            border-radius: 20px;
-            background: #ffffff;
-            padding: 24px;
-            transition: var(--transition-smooth);
-            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.08);
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-        }
 
-        .doc-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
-            border-color: var(--track-green);
-        }
-
-        .doc-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            background: var(--track-green-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--track-green);
-            font-size: 28px;
-            flex-shrink: 0;
-        }
-
-        .doc-info {
-            flex: 1;
-        }
-
-        .doc-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--track-dark);
-            margin-bottom: 8px;
-        }
-
-        .doc-meta {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .doc-meta-item {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .doc-meta-item strong {
-            color: var(--track-dark);
-        }
-
-        .doc-badges {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .badge-custom {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .badge-records {
-            background: #e9f5ee;
-            color: var(--track-green);
-        }
-
-        .badge-finance {
-            background: var(--track-beige);
-            color: var(--track-dark);
-        }
-
-        .badge-verified {
-            background: #e9f5ee;
-            color: var(--track-green);
-        }
-
-        .badge-pending {
-            background: #fff9e6;
-            color: #d97706;
-        }
 
         /* --- ACTION BUTTONS --- */
         .doc-actions {
@@ -349,13 +193,13 @@ $all_documents = $static_documents;
             flex-shrink: 0;
         }
 
-        .doc-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            border: 2px solid var(--track-beige);
-            background: #ffffff;
-            color: var(--text-muted);
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -365,20 +209,21 @@ $all_documents = $static_documents;
             font-size: 16px;
         }
 
-        .doc-btn:hover {
-            background: var(--track-green);
-            color: white;
-            border-color: var(--track-green);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.3);
-        }
+        .action-btn.view { color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); background: rgba(59, 130, 246, 0.05); }
+        .action-btn.view:hover { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+
+        .action-btn.edit { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); }
+        .action-btn.edit:hover { background: #f59e0b; color: white; border-color: #f59e0b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+
+        .action-btn.delete { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
+        .action-btn.delete:hover { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
 
         /* --- UPLOAD BUTTON --- */
         .btn-upload {
-            background: var(--track-green);
+            background: #20a060;
             color: white;
             border: none;
-            border-radius: 14px;
+            border-radius: 50px;
             padding: 0 30px;
             height: 52px;
             font-weight: 700;
@@ -423,7 +268,6 @@ $all_documents = $static_documents;
             margin-bottom: 30px;
         }
 
-        /* --- FOOTER --- */
         .footer-track {
             margin-top: auto;
         }
@@ -447,7 +291,8 @@ $all_documents = $static_documents;
         /* --- MODAL STYLES --- */
         .modal-content {
             border: none;
-            border-radius: 16px;
+            border-radius: 30px !important;
+            overflow: hidden !important;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
             background: #ffffff;
         }
@@ -459,12 +304,24 @@ $all_documents = $static_documents;
             color: white;
         }
 
+        /* ── Red Circle Close Button ── */
         .modal-header .btn-close {
-            filter: invert(1);
+            width: 36px !important; height: 36px !important; min-width: 36px !important;
+            background: #ef4444 !important; background-image: none !important;
+            border-radius: 50% !important; opacity: 1 !important; filter: none !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+            transition: all 0.2s ease !important; padding: 0 !important; position: relative !important;
         }
-
+        .modal-header .btn-close::before,
+        .modal-header .btn-close::after {
+            content: "" !important; position: absolute !important; top: 50% !important; left: 50% !important;
+            width: 14px !important; height: 2px !important; background-color: white !important; border-radius: 2px !important;
+        }
+        .modal-header .btn-close::before { transform: translate(-50%, -50%) rotate(45deg) !important; }
+        .modal-header .btn-close::after { transform: translate(-50%, -50%) rotate(-45deg) !important; }
         .modal-header .btn-close:hover {
-            filter: invert(0.8);
+            background-color: #dc2626 !important; transform: scale(1.1) !important; filter: none !important;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5) !important;
         }
 
         .modal-title {
@@ -519,13 +376,17 @@ $all_documents = $static_documents;
 
         /* Modal Buttons */
         .btn-modal-submit {
-            background: var(--track-green);
+            background: #20a060;
             color: white;
             border: none;
-            border-radius: 10px;
-            padding: 12px 28px;
-            font-weight: 700;
+            border-radius: 50px !important;
+            padding: 0 35px !important;
+            height: 50px !important;
+            font-weight: 700 !important;
             transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-modal-submit:hover {
@@ -536,25 +397,29 @@ $all_documents = $static_documents;
         }
 
         .btn-modal-cancel {
-            background: #206970;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 28px;
-            font-weight: 600;
+            background: #ef4444 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 50px !important;
+            padding: 0 30px !important;
+            height: 50px !important;
+            font-weight: 700 !important;
             transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-modal-cancel:hover {
-            background: #20a060;
-            color: white;
+            background: #dc2626 !important;
+            color: white !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.3);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
         }
 
         /* File Upload Area */
         .upload-area {
-            border: 3px dashed var(--track-green);
+            border: 2px dashed #e2e8f0;
             border-radius: 12px;
             padding: 40px 20px;
             text-align: center;
@@ -590,144 +455,164 @@ $all_documents = $static_documents;
     </style>
     <link rel="stylesheet" href="../includes/footer.css">
 </head>
-<body>
+<div class="sidebar-layout">
+    <?php 
+        $active_page = 'documents';
+        $user_role = $_SESSION['role'];
+        $membership_type = $user_role;
+        $full_name = htmlspecialchars($full_name);
+        include('../includes/dashboard_sidebar.php'); 
+    ?>
 
-<?php 
-    $active_page = 'documents';
-    $user_role = $_SESSION['role'];
-    $membership_type = $user_role;
-    include('../includes/dashboard_navbar.php'); 
-?>
+    <div class="main-content-wrapper">
 
-<!-- HEADER -->
-<div class="admin-header">
-    <div class="container position-relative" style="z-index: 1;">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <div class="badge-platform">
-                    <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width: 10px; height: 10px;"></span>
-                    System Live
-                </div>
-                <h1 class="fw-800 display-4 mb-3">Document Management</h1>
-                <p class="fs-5 mb-0 text-muted">Manage, upload, and organize official documents for NFFAC members and records.</p>
+<!-- HEADER & TOP BAR -->
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="search-wrapper position-relative mb-0" style="width: 300px;">
+                <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 18px; z-index: 5;"></i>
+                <input type="text" id="docSearch" class="form-control border-0 shadow-sm" placeholder="Search" style="background: #f1f5f9; border-radius: 10px; padding-left: 45px !important;">
             </div>
+            
+            <button class="btn btn-upload-gold shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal" style="height: 50px; padding: 0 25px !important; border-radius: 12px !important; font-weight: 700;">
+                <i class="bi bi-upload"></i> Upload
+            </button>
+            
+            <!-- Notification bell removed by user request -->
+        </div>
+    </div>
+
+    <!-- DRAG AND DROP ZONE -->
+    <div class="dropzone-elite animate-fade-in mb-4" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal" style="cursor: pointer;">
+        <div class="dropzone-icon-wrapper">
+            <i class="bi bi-cloud-arrow-up"></i>
+        </div>
+        <div class="dropzone-text">
+            <span>Drag & Drop</span> your folders and documents here (PNG, JPG, PDF)
         </div>
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="container pb-5">
-    <!-- TOOLBAR -->
-    <div class="doc-toolbar">
-        <div>
-            <h5 class="fw-bold mb-0" style="color: var(--track-dark);">Recent Documents</h5>
-            <small class="text-muted">Manage all your cooperative documents</small>
-        </div>
-        
-        <!-- SEARCH TOOLBAR -->
-        <div class="search-wrapper">
-            <div class="search-input-group">
-                <i class="bi bi-search"></i>
-                <input type="text" id="docSearch" class="search-input" placeholder="Search files, categories, or keywords...">
-            </div>
-        </div>
+    <!-- DOCUMENTS TABLE -->
+    <div class="table-card fade-in-up table-responsive" style="overflow-x: auto; padding: 2px;">
+        <?php if (count($all_documents) > 0): ?>
+        <table class="table table-elite align-middle">
+            <thead>
+                <tr>
+                    <th style="min-width: 250px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            NAME
+                        </div>
+                    </th>
+                    <th style="min-width: 160px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            SIGNING STATUS
+                        </div>
+                    </th>
+                    <th style="min-width: 160px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            DATE CREATED
+                        </div>
+                    </th>
+                    <th style="min-width: 220px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            CREATED BY
+                        </div>
+                    </th>
+                    <th style="min-width: 100px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            SIZE
+                        </div>
+                    </th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody id="docTableBody">
+                <?php foreach ($all_documents as $row): 
+                    $is_signed = ($row['id'] % 2 !== 0);
+                    $icon_class = ($row['type'] === 'PDF') ? 'text-danger' : 'text-primary';
+                    $icon = ($row['type'] === 'PDF') ? 'bi-file-pdf-fill' : 'bi-file-word-fill';
+                ?>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi <?php echo $icon; ?> <?php echo $icon_class; ?> fs-4"></i>
+                            <span class="fw-700 text-dark"><?php echo htmlspecialchars($row['name']); ?>.<?php echo strtolower($row['type']); ?></span>
+                        </div>
+                    </td>
+                    <td>
+                        <?php if ($is_signed): ?>
+                            <span class="badge-status badge-signed"><i class="bi bi-check-circle-fill"></i> SIGNED</span>
+                        <?php else: ?>
+                            <span class="badge-status badge-pending"><i class="bi bi-exclamation-triangle-fill"></i> PENDING</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="text-muted small fw-600"><?php echo date('M d, Y', strtotime($row['date_uploaded'])); ?></td>
+                    <td>
+                        <?php 
+                            $is_admin = ($row['id'] % 2 !== 0);
+                            $role_name = $is_admin ? 'Administrator' : 'Bookkeeper';
+                            $role_email = $is_admin ? 'admin@trackcoop.com' : 'bookkeeper@trackcoop.net';
+                            $role_initial = $is_admin ? 'A' : 'B';
+                            $role_bg = '#20a060'; // Uniform Brand Green for both roles
+                        ?>
+                        <div class="user-table-item">
+                            <div class="user-table-avatar-initials" style="background: <?php echo $role_bg; ?>; color: #ffffff;"><?php echo $role_initial; ?></div>
+                            <div class="user-table-info">
+                                <span class="user-table-name"><?php echo $role_name; ?></span>
+                                <span class="user-table-email"><?php echo $role_email; ?></span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-muted small fw-600"><?php echo $row['file_size']; ?></td>
+                    <td class="text-end">
+                        <div class="d-flex gap-1 justify-content-end align-items-center">
+                            <button class="btn-doc-action btn-action-view" title="View Document">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <?php if (!$is_signed): ?>
+                                <button class="btn-doc-action btn-action-approve" title="Approve">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            <?php endif; ?>
+                            <button class="btn-doc-action btn-action-view" title="Download"><i class="bi bi-cloud-download"></i></button>
+                            <button class="btn-doc-action btn-action-delete" title="Delete"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
-        <button class="btn-upload" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal" style="border: none; cursor: pointer;">
-            <i class="bi bi-cloud-arrow-up"></i> Upload Document
-        </button>
-    </div>
-
-    <!-- DOCUMENTS LIST -->
-    <div class="d-flex flex-column gap-3 mb-5">
-        <!-- Document 1 -->
-        <div class="doc-card">
-            <div class="doc-icon">
-                <i class="bi bi-file-pdf"></i>
-            </div>
-            <div class="doc-info">
-                <div class="doc-title">Member_Registry_2024.pdf</div>
-                <div class="doc-meta">
-                    <span class="doc-meta-item"><strong>Category:</strong> Records</span>
-                    <span class="doc-meta-item"><strong>Size:</strong> 2.4 MB</span>
-                    <span class="doc-meta-item"><strong>Uploaded:</strong> Oct 24, 2024</span>
-                </div>
-                <div class="doc-badges">
-                    <span class="badge-custom badge-records">Records</span>
-                    <span class="badge-custom badge-verified">✓ Verified</span>
-                </div>
-            </div>
-            <div class="doc-actions">
-                <button class="doc-btn" title="View" data-bs-toggle="modal" data-bs-target="#viewDocumentModal" data-doc-name="Member_Registry_2024.pdf">
-                    <i class="bi bi-eye"></i>
+        <!-- FUNCTIONAL PAGINATION -->
+        <div class="pagination-elite">
+            <span class="pagination-elite-label">Rows per page</span>
+            <select id="rowsPerPage" class="pagination-elite-select">
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+            </select>
+            <span id="paginationInfo" class="pagination-elite-info">1–5 of 14</span>
+            <div class="pagination-elite-buttons">
+                <button id="prevPage" class="pagination-elite-btn" title="Previous Page">
+                    <i class="bi bi-chevron-left"></i>
                 </button>
-                <button class="doc-btn" title="Edit" data-bs-toggle="modal" data-bs-target="#editDocumentModal" data-doc-name="Member_Registry_2024.pdf">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="doc-btn" title="Delete" onclick="TrackUI.show('Are you sure you want to delete this document? This cannot be undone.', 'Permanent Delete', 'danger', 'Yes, Delete', 'Keep it').then(res => { if(res) console.log('Deleted'); })">
-                    <i class="bi bi-trash"></i>
+                <button id="nextPage" class="pagination-elite-btn" title="Next Page">
+                    <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
         </div>
-
-        <!-- Document 2 -->
-        <div class="doc-card">
-            <div class="doc-icon" style="background: #fff3e0; color: #f57c00;">
-                <i class="bi bi-file-earmark-spreadsheet"></i>
-            </div>
-            <div class="doc-info">
-                <div class="doc-title">Financial_Report_Q3.xlsx</div>
-                <div class="doc-meta">
-                    <span class="doc-meta-item"><strong>Category:</strong> Finance</span>
-                    <span class="doc-meta-item"><strong>Size:</strong> 1.8 MB</span>
-                    <span class="doc-meta-item"><strong>Uploaded:</strong> Nov 02, 2024</span>
-                </div>
-                <div class="doc-badges">
-                    <span class="badge-custom badge-finance">Finance</span>
-                    <span class="badge-custom badge-pending">⏳ Pending Review</span>
-                </div>
-            </div>
-            <div class="doc-actions">
-                <button class="doc-btn" title="View" data-bs-toggle="modal" data-bs-target="#viewDocumentModal" data-doc-name="Financial_Report_Q3.xlsx">
-                    <i class="bi bi-eye"></i>
-                </button>
-                <button class="doc-btn" title="Edit" data-bs-toggle="modal" data-bs-target="#editDocumentModal" data-doc-name="Financial_Report_Q3.xlsx">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="doc-btn" title="Delete" onclick="TrackUI.show('Are you sure you want to delete this document? This cannot be undone.', 'Permanent Delete', 'danger', 'Yes, Delete', 'Keep it').then(res => { if(res) console.log('Deleted'); })">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
+        <?php else: ?>
+        <div class="empty-state">
+            <i class="bi bi-file-earmark-text empty-state-icon"></i>
+            <h3>No Documents Yet</h3>
+            <p>Upload your first cooperative document to get started.</p>
         </div>
-
-        <!-- Document 3 -->
-        <div class="doc-card">
-            <div class="doc-icon" style="background: #e3f2fd; color: #1976d2;">
-                <i class="bi bi-file-word"></i>
-            </div>
-            <div class="doc-info">
-                <div class="doc-title">Certificate_of_Compliance_2024.docx</div>
-                <div class="doc-meta">
-                    <span class="doc-meta-item"><strong>Category:</strong> Compliance</span>
-                    <span class="doc-meta-item"><strong>Size:</strong> 950 KB</span>
-                    <span class="doc-meta-item"><strong>Uploaded:</strong> Nov 15, 2024</span>
-                </div>
-                <div class="doc-badges">
-                    <span class="badge-custom badge-records">Compliance</span>
-                    <span class="badge-custom badge-verified">✓ Verified</span>
-                </div>
-            </div>
-            <div class="doc-actions">
-                <button class="doc-btn" title="View" data-bs-toggle="modal" data-bs-target="#viewDocumentModal" data-doc-name="Certificate_of_Compliance_2024.docx">
-                    <i class="bi bi-eye"></i>
-                </button>
-                <button class="doc-btn" title="Edit" data-bs-toggle="modal" data-bs-target="#editDocumentModal" data-doc-name="Certificate_of_Compliance_2024.docx">
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <button class="doc-btn" title="Delete" onclick="TrackUI.show('Are you sure you want to delete this document? This cannot be undone.', 'Permanent Delete', 'danger', 'Yes, Delete', 'Keep it').then(res => { if(res) console.log('Deleted'); })">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-        </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -774,11 +659,12 @@ $all_documents = $static_documents;
                     <textarea class="form-control" rows="4" readonly style="background: #f8fafc;">Member registry document for 2024 - Contains all registered member information and details.</textarea>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Close</button>
-                <a href="#" class="btn-modal-submit" style="text-decoration: none;">
-                    <i class="bi bi-download me-2"></i>Download
-                </a>
+                <div class="text-end mt-4">
+                    <button type="button" class="btn-modal-cancel me-2" data-bs-dismiss="modal">Close</button>
+                    <a href="#" class="btn-modal-submit" style="text-decoration: none;">
+                        <i class="bi bi-download me-2"></i>Download
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -830,9 +716,10 @@ $all_documents = $static_documents;
                         <input type="text" class="form-control" placeholder="Add tags separated by commas">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn-modal-submit">Save Changes</button>
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn-modal-cancel me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-modal-submit">Save Changes</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -844,10 +731,7 @@ $all_documents = $static_documents;
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title" id="uploadDocumentLabel">
-                    <i class="bi bi-cloud-arrow-up"></i>
-                    Upload New Document
-                </h1>
+                <h1 class="modal-title" id="uploadDocumentLabel" style="color: #20a060 !important;">Upload New Document</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form>
@@ -893,10 +777,10 @@ $all_documents = $static_documents;
                         <label for="uploadDescription" class="form-label">Description</label>
                         <textarea class="form-control" id="uploadDescription" rows="3" placeholder="Enter document description"></textarea>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn-modal-submit">Upload Document</button>
+                    <div class="mt-4 text-end pe-3 pb-2">
+                        <button type="button" class="btn-modal-cancel me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-modal-submit">Upload Document</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -924,124 +808,161 @@ $all_documents = $static_documents;
         document.getElementById('editDocumentName').value = docName;
     });
 
-    // --- CENTRALIZED DOCUMENT SEARCH ---
-    function performSearch() {
-        const term = document.getElementById('docSearch').value.toLowerCase().trim();
-        const cards = document.querySelectorAll('.doc-card');
-        let found = 0;
+    // --- FUNCTIONAL PAGINATION LOGIC ---
+    let currentPage = 1;
+    let rowsPerPage = 5;
 
-        cards.forEach(card => {
-            const title = card.querySelector('.doc-title').textContent.toLowerCase();
-            const meta = card.querySelector('.doc-meta').textContent.toLowerCase();
-            
-            if (title.includes(term) || meta.includes(term)) {
-                card.style.display = 'flex';
-                card.style.animation = 'fadeInUpCustom 0.4s ease forwards';
-                found++;
-            } else {
-                card.style.display = 'none';
+    function updateTablePagination() {
+        const term = document.getElementById('docSearch').value.toLowerCase().trim();
+        const allRows = Array.from(document.querySelectorAll('#docTableBody tr:not(.empty-state)'));
+        
+        // Filter rows based on search
+        const filteredRows = allRows.filter(row => {
+            const nameEl = row.querySelector('.fw-700.text-dark');
+            const statusEl = row.querySelector('.badge-status');
+            const name = nameEl ? nameEl.textContent.toLowerCase() : '';
+            const status = statusEl ? statusEl.textContent.toLowerCase() : '';
+            return name.includes(term) || status.includes(term);
+        });
+
+        const totalItems = filteredRows.length;
+        const totalPages = Math.ceil(totalItems / rowsPerPage);
+        
+        // Fix currentPage if it's out of bounds
+        if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = Math.min(start + rowsPerPage, totalItems);
+
+        // Hide all rows first
+        allRows.forEach(row => row.style.display = 'none');
+
+        // Show rows for current page
+        filteredRows.forEach((row, index) => {
+            if (index >= start && index < end) {
+                row.style.display = '';
+                row.style.animation = 'scaleIn 0.3s ease forwards';
             }
         });
 
-        // Handle empty state
-        const listContainer = document.querySelector('.d-flex.flex-column.gap-3.mb-5');
-        let noResults = document.getElementById('noResultsMsg');
-
-        if (found === 0) {
-            if (!noResults) {
-                noResults = document.createElement('div');
-                noResults.id = 'noResultsMsg';
-                noResults.className = 'empty-state py-5';
-                noResults.innerHTML = `
-                    <div class="empty-state-icon"><i class="bi bi-search"></i></div>
-                    <h3>No matching documents</h3>
-                    <p>We couldn't find any files matching your criteria.</p>
-                `;
-                listContainer.appendChild(noResults);
-            }
+        // Update Pagination Info
+        const infoEl = document.getElementById('paginationInfo');
+        if (totalItems === 0) {
+            infoEl.textContent = '0-0 of 0';
         } else {
-            if (noResults) noResults.remove();
+            infoEl.textContent = `${start + 1}-${end} of ${totalItems}`;
         }
+
+        // Enable/Disable Buttons
+        document.getElementById('prevPage').disabled = (currentPage === 1);
+        document.getElementById('nextPage').disabled = (currentPage === totalPages || totalPages === 0);
+        document.getElementById('prevPage').style.opacity = (currentPage === 1) ? '0.5' : '1';
+        document.getElementById('nextPage').style.opacity = (currentPage === totalPages || totalPages === 0) ? '0.5' : '1';
     }
 
-    // Trigger on Input (for real-time)
-    document.getElementById('docSearch').addEventListener('input', performSearch);
-    
-    // Trigger on Enter Key or Button Click
-    document.getElementById('docSearch').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') performSearch();
+    // Attach Listeners
+    document.getElementById('rowsPerPage').addEventListener('change', function() {
+        rowsPerPage = parseInt(this.value);
+        currentPage = 1;
+        updateTablePagination();
     });
-    document.getElementById('btnSearch').addEventListener('click', performSearch);
 
-    // --- MODAL DATA POPULATE ---
-    // Handle File Upload
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            updateTablePagination();
+        }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => {
+        const term = document.getElementById('docSearch').value.toLowerCase().trim();
+        const allRows = document.querySelectorAll('#docTableBody tr:not(.empty-state)');
+        const filteredCount = Array.from(allRows).filter(row => {
+            const name = row.querySelector('.fw-700.text-dark')?.textContent.toLowerCase() || '';
+            const status = row.querySelector('.badge-status')?.textContent.toLowerCase() || '';
+            return name.includes(term) || status.includes(term);
+        }).length;
+
+        if (currentPage < Math.ceil(filteredCount / rowsPerPage)) {
+            currentPage++;
+            updateTablePagination();
+        }
+    });
+
+    // Integrated Search + Pagination
+    function performSearch() {
+        currentPage = 1; // Reset to page 1 on search
+        updateTablePagination();
+    }
+    document.getElementById('docSearch').addEventListener('input', performSearch);
+
+    // Initial load - ensures 5 per page on refresh
+    updateTablePagination();
+
+    // Handle File Upload Select
     document.getElementById('fileInput').addEventListener('change', function(event) {
         const fileName = event.target.files[0]?.name || '';
         if (fileName) {
-            document.getElementById('fileName').textContent = '✓ File selected: ' + fileName;
+            document.getElementById('fileName').textContent = '✓ Selected: ' + fileName;
             document.getElementById('uploadDocName').value = fileName.split('.')[0];
         }
     });
 
-    // Handle Upload Area Drag & Drop
-    const uploadArea = document.querySelector('.upload-area');
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, preventDefaults, false);
+    // Handle Dropzone Logic
+    const dropzone = document.querySelector('.dropzone-elite');
+    ['dragenter', 'dragover'].forEach(name => {
+        dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.style.background = '#f1f5f9'; dropzone.style.borderColor = '#20a060'; });
     });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, () => {
-            uploadArea.style.background = 'rgba(32, 160, 96, 0.1)';
-            uploadArea.style.borderColor = '#1a8548';
-        }, false);
+    ['dragleave', 'drop'].forEach(name => {
+        dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.style.background = '#f8fafc'; dropzone.style.borderColor = '#cbd5e1'; });
     });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, () => {
-            uploadArea.style.background = 'rgba(32, 160, 96, 0.02)';
-            uploadArea.style.borderColor = '#20a060';
-        }, false);
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
+    dropzone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
         document.getElementById('fileInput').files = files;
-        const event = new Event('change', { bubbles: true });
-        document.getElementById('fileInput').dispatchEvent(event);
-    }, false);
+        document.getElementById('fileInput').dispatchEvent(new Event('change'));
+    });
 
     // Handle Form Submissions
     document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', async function(e) {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
-            const formType = this.closest('.modal-dialog').parentElement.id;
+            const modalEl = this.closest('.modal');
+            const formType = modalEl.id;
+            let actionText = (formType === 'editDocumentModal') ? 'updated' : 'uploaded';
             
-            let actionName = (formType === 'editDocumentModal') ? 'save changes to this document' : 'upload this document';
-            let title = (formType === 'editDocumentModal') ? 'Update Record' : 'Upload File';
-            let btnLabel = (formType === 'editDocumentModal') ? 'Save Changes' : 'Upload Now';
+            const alertPlaceholder = document.createElement('div');
+            alertPlaceholder.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4 animate-scale-in" role="alert" style="border-radius: 12px; background: #eefdf5; color: #27ae60; font-weight: 600;">
+                    <i class="bi bi-check-circle-fill me-2"></i> Document ${actionText} successfully!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            document.querySelector('.container-fluid').prepend(alertPlaceholder);
+            bootstrap.Modal.getInstance(modalEl).hide();
+            document.getElementById('docSearch').value = '';
+            performSearch();
+        });
+    });
 
-            if (await TrackUI.show(`Are you sure you want to ${actionName}?`, title, 'primary', btnLabel, 'Back')) {
-                if (formType === 'editDocumentModal') {
-                    alert('Document updated successfully!');
-                } else if (formType === 'uploadDocumentModal') {
-                    alert('Document uploaded successfully!');
-                }
-                
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(this.closest('.modal'));
-                if (modal) modal.hide();
-            }
+    // Handle Download Mockup
+    document.querySelectorAll('.bi-cloud-download').forEach(icon => {
+        icon.parentElement.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const name = this.closest('tr').querySelector('.fw-700.text-dark').textContent;
+            const toast = document.createElement('div');
+            toast.style = "position: fixed; bottom: 300px; right: 30px; z-index: 2000; background: #1a1f26; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; animation: fadeInUpCustom 0.5s ease;";
+            toast.innerHTML = `<i class="bi bi-cloud-download text-success fs-4"></i> <div><div class="fw-bold">Downloading...</div><div class="small opacity-75">${name}</div></div>`;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; toast.style.transition = 'all 0.5s ease'; setTimeout(() => toast.remove(), 500); }, 3000);
         });
     });
 </script>
 
+    </div> <!-- .main-content-wrapper -->
+</div> <!-- .sidebar-layout -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<?php include('../includes/footer.php'); ?>
+
 </body>
 </html>

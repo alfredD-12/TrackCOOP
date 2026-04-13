@@ -139,42 +139,6 @@ if (!(isset($_GET['view']) && $_GET['view'] === 'modal')) {
 </div>
 
 <div class="container pb-5">
-    <!-- Stat Highlights -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-people-fill"></i></div>
-                <h6 class="text-muted small fw-bold text-uppercase">Total Members</h6>
-                <h2 class="fw-800 m-0"><?php echo number_format($total_members); ?></h2>
-                <div class="mt-2 small text-success">Approved: <?php echo $approved_members; ?></div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="bi bi-hourglass-split"></i></div>
-                <h6 class="text-muted small fw-bold text-uppercase">Pending Apps</h6>
-                <h2 class="fw-800 m-0"><?php echo number_format($pending_members); ?></h2>
-                <div class="mt-2 small text-warning">Awaiting Approval</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="icon-box bg-primary bg-opacity-10 text-primary"><i class="bi bi-cash-stack"></i></div>
-                <h6 class="text-muted small fw-bold text-uppercase">Total Capital</h6>
-                <h2 class="fw-800 m-0">₱<?php echo number_format($total_capital, 2); ?></h2>
-                <div class="mt-2 small text-primary">Consolidated Funds</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="icon-box bg-info bg-opacity-10 text-info"><i class="bi bi-diagram-3-fill"></i></div>
-                <h6 class="text-muted small fw-bold text-uppercase">Active Sectors</h6>
-                <h2 class="fw-800 m-0"><?php echo count($sector_labels); ?></h2>
-                <div class="mt-2 small text-info">Registered Agri Sectors</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Charts Row 1 -->
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
@@ -284,6 +248,6 @@ if (!(isset($_GET['view']) && $_GET['view'] === 'modal')) {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<?php include('../includes/footer.php'); ?>
+
 </body>
 </html>

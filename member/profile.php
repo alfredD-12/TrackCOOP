@@ -55,18 +55,98 @@ if ($user_role !== 'Member') {
     
     <style>
         /* Profile Page Specific Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('../Home.jpeg') top center / 100% 100% no-repeat fixed;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            background-color: rgba(22, 74, 54, 0.95) !important;
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 2px solid rgba(32, 160, 96, 0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
         .profile-header {
-            background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
-            padding: 60px 0 40px;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.4);
+            background: transparent !important;
+            padding: 70px 0 50px;
+            border-bottom: none;
             margin-bottom: 40px;
             position: relative;
             overflow: hidden;
             animation: fadeInUpCustom 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+            z-index: 10;
         }
-        .profile-header h1 { color: var(--track-dark); letter-spacing: -2px; }
+        .profile-header h1 { 
+            color: #20a060 !important; 
+            letter-spacing: -2px; 
+            font-weight: 800 !important;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .profile-header p { 
+            color: #ffffff !important; 
+            font-weight: 400;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            opacity: 0.95;
+        }
 
-        .footer-track { margin-top: auto; background-color: var(--track-beige); border-top: 1px solid #E5E5C0; padding: 40px 0; color: #4B5563; }
+        /* ── Elite Profile Card ── */
+        .card-custom {
+            background: #ffffff !important;
+            border: 2.5px solid #20a060 !important;
+            border-radius: 30px !important;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+            position: relative;
+            overflow: hidden;
+            opacity: 1 !important;
+        }
+
+        .icon-square {
+            width: 54px; height: 54px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+
+        .info-box {
+            padding: 24px;
+            background: #f8fafc !important;
+            border-radius: 20px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            transition: all 0.3s ease;
+        }
+        .info-box:hover {
+            border-color: #20a060 !important;
+            background: #ffffff !important;
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.08);
+            transform: translateY(-3px);
+        }
+
+        .btn-primary-coop {
+            background: var(--track-green);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 28px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.3);
+        }
+        .btn-primary-coop:hover {
+            background: #1a8548;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(32, 160, 96, 0.4);
+            color: white;
+        }
+
+        .footer-track { margin-top: auto; background-color: #fdfdf8; border-top: 1px solid #E5E5C0; padding: 40px 0; color: #4B5563; }
     </style>
     <link rel="stylesheet" href="../includes/footer.css">
 </head>
@@ -83,21 +163,14 @@ if ($user_role !== 'Member') {
     <div class="container position-relative" style="z-index: 1;">
         <div class="row align-items-center">
             <div class="col-lg-12 fade-in-up">
-                <div class="status-badge mb-3">
-                    <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width: 10px; height: 10px;"></span>
-                    System Live
-                </div>
-                <h1 class="display-4 fw-800 text-dark mb-0">Account Information</h1>
-                <p class="fs-5 text-muted mb-0">Manage your account information and security settings here.</p>
+                <h1 class="display-4 fw-800 mb-0">Account Information</h1>
+                <p class="fs-5 mb-0">Manage your account information and security settings here.</p>
             </div>
         </div>
     </div>
 </div>
 
 <main class="container mb-5">
-    <!-- Feedback Alerts -->
-    <!-- Notifications will be handled by TrackUI globally -->
-
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card-custom p-4 p-md-5 fade-in-up delay-1">
@@ -116,25 +189,25 @@ if ($user_role !== 'Member') {
 
                 <div class="row g-4">
                     <div class="col-md-6 fade-in-up delay-1">
-                        <div class="p-4 bg-light rounded-4 border border-opacity-10" style="background: rgba(248, 250, 252, 0.5) !important;">
+                        <div class="info-box">
                             <small class="text-muted text-uppercase fw-800 d-block mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Username</small>
                             <h5 class="fw-bold text-dark mb-0"><?php echo htmlspecialchars($username); ?></h5>
                         </div>
                     </div>
                     <div class="col-md-6 fade-in-up delay-1">
-                        <div class="p-4 bg-light rounded-4 border border-opacity-10" style="background: rgba(248, 250, 252, 0.5) !important;">
+                        <div class="info-box">
                             <small class="text-muted text-uppercase fw-800 d-block mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Full Name</small>
                             <h5 class="fw-bold text-dark mb-0"><?php echo htmlspecialchars($full_name); ?></h5>
                         </div>
                     </div>
                     <div class="col-md-6 fade-in-up delay-2">
-                        <div class="p-4 bg-light rounded-4 border border-opacity-10" style="background: rgba(248, 250, 252, 0.5) !important;">
+                        <div class="info-box">
                             <small class="text-muted text-uppercase fw-800 d-block mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Assigned Sector</small>
                             <h5 class="fw-bold text-dark mb-0"><?php echo htmlspecialchars($user_sector); ?></h5>
                         </div>
                     </div>
                     <div class="col-md-6 fade-in-up delay-2">
-                        <div class="p-4 bg-light rounded-4 border border-opacity-10" style="background: rgba(248, 250, 252, 0.5) !important;">
+                        <div class="info-box">
                             <small class="text-muted text-uppercase fw-800 d-block mb-2" style="font-size: 10px; letter-spacing: 1.5px;">Member Category</small>
                             <h5 class="fw-bold text-dark mb-0"><?php echo htmlspecialchars($static_membership_type); ?></h5>
                         </div>
@@ -213,7 +286,7 @@ if ($user_role !== 'Member') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<?php include('../includes/footer.php'); ?>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);

@@ -5,20 +5,17 @@ include '../auth/db_connect.php';
 $user_role = isset($_SESSION['role']) ? $_SESSION['role'] : 'Guest';
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
 
-// Static media activities data
-$static_media = [
-    ['id' => 1, 'title' => 'Community Planting Day', 'description' => 'Members gathering for planting crops', 'category' => 'Events', 'activity_date' => '2024-03-20', 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'file_path' => 'uploads/event1.jpg'],
-    ['id' => 2, 'title' => 'Harvest Festival 2024', 'description' => 'Annual harvest celebration', 'category' => 'Activities', 'activity_date' => '2024-03-15', 'first_name' => 'Maria', 'last_name' => 'Santos', 'file_path' => 'uploads/harvest1.jpg'],
-    ['id' => 3, 'title' => 'Training Workshop', 'description' => 'Agricultural innovation workshop', 'category' => 'Training', 'activity_date' => '2024-03-10', 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'file_path' => 'uploads/training1.jpg'],
+// Static media activities data (Simulating DB results for demonstration)
+$media_activities = [
+    ['id' => 1, 'title' => 'Community Planting Day', 'description' => 'Members gathering for planting crops', 'category' => 'Events', 'activity_date' => '2024-03-20', 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'file_path' => 'event.png'],
+    ['id' => 2, 'title' => 'Harvest Festival 2024', 'description' => 'Annual harvest celebration', 'category' => 'Harvesting', 'activity_date' => '2024-03-15', 'first_name' => 'Maria', 'last_name' => 'Santos', 'file_path' => 'agriculture.webp'],
+    ['id' => 3, 'title' => 'Training Workshop', 'description' => 'Agricultural innovation workshop', 'category' => 'Training', 'activity_date' => '2024-03-10', 'first_name' => 'Pedro', 'last_name' => 'Garcia', 'file_path' => 'sector.jpg'],
+    ['id' => 4, 'title' => 'General Assembly', 'description' => 'Cooperative year-end meeting.', 'category' => 'Meeting', 'activity_date' => '2024-03-05', 'first_name' => 'Lito', 'last_name' => 'Cruz', 'file_path' => 'meeting.jpg'],
+    ['id' => 5, 'title' => 'Rice Field Inspection', 'description' => 'Monthly progress report.', 'category' => 'Livelihood', 'activity_date' => '2024-03-01', 'first_name' => 'Ana', 'last_name' => 'Reyes', 'file_path' => 'agriculture.webp'],
+    ['id' => 6, 'title' => 'Main Office Hub', 'description' => 'Central service center.', 'category' => 'Events', 'activity_date' => '2024-02-28', 'first_name' => 'Admin', 'last_name' => 'Account', 'file_path' => 'Home.jpeg'],
 ];
 
 $category_filter = isset($_GET['category']) ? $_GET['category'] : 'All';
-$media_activities = $static_media;
-if ($category_filter !== 'All') {
-    $media_activities = array_filter($media_activities, function($m) use ($category_filter) {
-        return $m['category'] === $category_filter;
-    });
-}
 
 // Messages from actions
 $msg = "";
@@ -34,7 +31,7 @@ if (isset($_GET['delete']) && $_GET['delete'] == 'success') $msg = "Media entry 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../includes/footer.css">
+    <link rel="stylesheet" href="../includes/dashboard_layout.css">
     
     <style>
         :root { --track-green: #206970; --track-dark: #1e272e; }
@@ -107,7 +104,11 @@ if (isset($_GET['delete']) && $_GET['delete'] == 'success') $msg = "Media entry 
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
         <a class="navbar-brand" href="../index.php">Track<span>COOP</span></a>
-        <div class="ms-auto">
+        <div class="ms-auto d-flex align-items-center gap-3">
+             <div class="search-wrapper position-relative" style="width: 250px;">
+                <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 15px;"></i>
+                <input type="text" id="gallerySearch" class="form-control border-0 shadow-sm" placeholder="Search gallery..." style="padding-left: 40px; border-radius: 50px; background: #f1f5f9;">
+            </div>
             <a href="../index.php" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">Back to Home</a>
         </div>
     </div>
@@ -119,66 +120,181 @@ if (isset($_GET['delete']) && $_GET['delete'] == 'success') $msg = "Media entry 
         <p class="text-muted fs-5 mb-5 mx-auto" style="max-width: 600px;">Experience the growth and milestones of Nasugbu's farmers and fisherfolks through our digital gallery.</p>
         
         <div class="d-flex flex-wrap justify-content-center mt-4">
-            <a href="?category=All" class="filter-btn <?php echo $category_filter === 'All' ? 'active' : ''; ?>">All Activities</a>
-            <a href="?category=Training" class="filter-btn <?php echo $category_filter === 'Training' ? 'active' : ''; ?>">Trainings</a>
-            <a href="?category=Harvesting" class="filter-btn <?php echo $category_filter === 'Harvesting' ? 'active' : ''; ?>">Harvesting</a>
-            <a href="?category=Meeting" class="filter-btn <?php echo $category_filter === 'Meeting' ? 'active' : ''; ?>">Meetings</a>
-            <a href="?category=Livelihood" class="filter-btn <?php echo $category_filter === 'Livelihood' ? 'active' : ''; ?>">Livelihood</a>
+            <button class="filter-btn active" data-filter="All">All Activities</button>
+            <button class="filter-btn" data-filter="Training">Trainings</button>
+            <button class="filter-btn" data-filter="Harvesting">Harvesting</button>
+            <button class="filter-btn" data-filter="Meeting">Meetings</button>
+            <button class="filter-btn" data-filter="Livelihood">Livelihood</button>
+            <button class="filter-btn" data-filter="Events">Events</button>
         </div>
     </div>
 </div>
 
 <div class="container py-5">
-    <?php if (mysqli_num_rows($result) > 0): ?>
-        <div class="row g-4">
-            <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                <div class="col-lg-4 col-md-6">
-                    <div class="media-card">
-                        <div class="media-img-container">
-                            <img src="../<?php echo htmlspecialchars($row['file_path']); ?>" alt="<?php echo htmlspecialchars($row['title']); ?>">
-                            <div class="category-badge"><?php echo htmlspecialchars($row['category']); ?></div>
-                        </div>
-                        <div class="media-body">
-                            <h5 class="media-title"><?php echo htmlspecialchars($row['title']); ?></h5>
-                            <p class="media-desc small"><?php echo htmlspecialchars($row['description']); ?></p>
-                            
-                            <div class="media-footer">
-                                <div class="uploader-info">
-                                    <div class="uploader-avatar"><?php echo substr($row['first_name'], 0, 1); ?></div>
-                                    <span><?php echo date('M d, Y', strtotime($row['activity_date'])); ?></span>
-                                </div>
-                                <?php if ($user_role === 'Admin'): ?>
-                                    <a href="media_actions.php?delete_id=<?php echo $row['id']; ?>" class="btn-delete" 
-                                       onclick="return TrackUI.confirmLink(event, 'Permanently delete this activity photo?', 'Delete Media', 'danger', 'Delete Now', 'Keep It')">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </a>
-                                <?php endif; ?>
+    <div class="row g-4" id="galleryGrid">
+        <?php foreach ($media_activities as $row): ?>
+            <div class="col-lg-4 col-md-6 media-item" data-category="<?php echo htmlspecialchars($row['category']); ?>" data-search-matched="true">
+                <div class="media-card">
+                    <div class="media-img-container">
+                        <img src="../<?php echo htmlspecialchars($row['file_path']); ?>" alt="<?php echo htmlspecialchars($row['title']); ?>">
+                        <div class="category-badge"><?php echo htmlspecialchars($row['category']); ?></div>
+                    </div>
+                    <div class="media-body">
+                        <h5 class="media-title"><?php echo htmlspecialchars($row['title']); ?></h5>
+                        <p class="media-desc small"><?php echo htmlspecialchars($row['description']); ?></p>
+                        
+                        <div class="media-footer">
+                            <div class="uploader-info">
+                                <div class="uploader-avatar"><?php echo strtoupper(substr($row['first_name'], 0, 1)); ?></div>
+                                <span><?php echo date('M d, Y', strtotime($row['activity_date'])); ?></span>
                             </div>
+                            <?php if ($user_role === 'Admin'): ?>
+                                <a href="media_actions.php?delete_id=<?php echo $row['id']; ?>" class="btn-delete" 
+                                   onclick="return TrackUI.confirmLink(event, 'Permanently delete this activity photo?', 'Delete Media', 'danger', 'Delete Now', 'Keep It')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
-            <?php endwhile; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div id="noResults" class="empty-state" style="display: none;">
+        <i class="bi bi-images"></i>
+        <h3>No media found</h3>
+        <p>We couldn't find any activities matching your criteria.</p>
+    </div>
+
+    <!-- ELITE PAGINATION clustered to right -->
+    <div class="pagination-elite mt-5">
+        <span class="pagination-elite-label">ROWS PER PAGE</span>
+        <select id="rowsPerPage" class="pagination-elite-select">
+            <option value="3">3</option>
+            <option value="6" selected>6</option>
+            <option value="12">12</option>
+        </select>
+        <span id="paginationInfo" class="pagination-elite-info">1–6 of 6</span>
+        <div class="pagination-elite-buttons">
+            <button id="prevPage" class="pagination-elite-btn" title="Previous Page"><i class="bi bi-chevron-left"></i></button>
+            <button id="nextPage" class="pagination-elite-btn" title="Next Page"><i class="bi bi-chevron-right"></i></button>
         </div>
-    <?php else: ?>
-        <div class="empty-state">
-            <i class="bi bi-images"></i>
-            <h3>No media found</h3>
-            <p>We haven't shared any activities in this category yet. Check back soon!</p>
-        </div>
-    <?php endif; ?>
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentPage = 1;
+    let rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
+    let activeFilter = 'All';
+
+    function updatePagination() {
+        const searchTerm = document.getElementById('gallerySearch').value.toLowerCase().trim();
+        const items = Array.from(document.querySelectorAll('.media-item'));
+        
+        let visibleCount = 0;
+        items.forEach(item => {
+            const title = item.querySelector('.media-title').innerText.toLowerCase();
+            const desc = item.querySelector('.media-desc').innerText.toLowerCase();
+            const cat = item.dataset.category;
+            
+            const matchesSearch = title.includes(searchTerm) || desc.includes(searchTerm);
+            const matchesFilter = activeFilter === 'All' || cat === activeFilter;
+            
+            if (matchesSearch && matchesFilter) {
+                item.setAttribute('data-search-matched', 'true');
+                visibleCount++;
+            } else {
+                item.setAttribute('data-search-matched', 'false');
+                item.style.display = 'none';
+            }
+        });
+
+        const matchedItems = items.filter(i => i.getAttribute('data-search-matched') === 'true');
+        const totalPages = Math.ceil(matchedItems.length / rowsPerPage);
+        
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+        if (currentPage < 1) currentPage = 1;
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        matchedItems.forEach((item, index) => {
+            if (index >= start && index < end) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Toggle Empty State
+        document.getElementById('noResults').style.display = matchedItems.length === 0 ? 'block' : 'none';
+        document.getElementById('galleryGrid').style.display = matchedItems.length === 0 ? 'none' : 'flex';
+
+        // Update Info
+        const infoStart = matchedItems.length === 0 ? 0 : start + 1;
+        const infoEnd = Math.min(end, matchedItems.length);
+        document.getElementById('paginationInfo').textContent = `${infoStart}–${infoEnd} of ${matchedItems.length}`;
+        
+        // Buttons
+        document.getElementById('prevPage').disabled = (currentPage === 1);
+        document.getElementById('nextPage').disabled = (currentPage === totalPages || totalPages === 0);
+    }
+
+    // Listeners
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            activeFilter = this.dataset.filter;
+            currentPage = 1;
+            updatePagination();
+        });
+    });
+
+    document.getElementById('gallerySearch').addEventListener('input', () => {
+        currentPage = 1;
+        updatePagination();
+    });
+
+    document.getElementById('rowsPerPage').addEventListener('change', function() {
+        rowsPerPage = parseInt(this.value);
+        currentPage = 1;
+        updatePagination();
+    });
+
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+        }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => {
+        const matchedCount = document.querySelectorAll('.media-item[data-search-matched="true"]').length;
+        if (currentPage < Math.ceil(matchedCount / rowsPerPage)) {
+            currentPage++;
+            updatePagination();
+        }
+    });
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', updatePagination);
+</script>
+
 <?php 
-// Show modals for messages
-if ($msg != "") {
+if (isset($msg) && $msg != "") {
     echo "<script>
     document.addEventListener('DOMContentLoaded', function() {
-        TrackUI.show('$msg', 'System Success', 'primary', 'Okay');
+        if(typeof TrackUI !== 'undefined') {
+            TrackUI.show('$msg', 'System Success', 'primary', 'Okay');
+        } else {
+            alert('$msg');
+        }
     });
     </script>";
 }
 ?>
-
-<?php include '../includes/footer.php'; ?>
 </body>
 </html>

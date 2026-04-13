@@ -1,37 +1,24 @@
 <?php
 session_start();
-include('../auth/db_connect.php');
+include('../auth/db_connect.php'); // Path kept for stability, but DB not used in demo
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-    header("Location: ../index.php?error=unauthorized");
-    exit();
-}
-
-$user_id = $_SESSION['user_id'];
-$user_role = $_SESSION['role'];
-$full_name = isset($_SESSION['fname']) ? $_SESSION['fname'] : "Administrator";
-
-// Try to fetch from database, but use session data if unavailable
-@$query = "SELECT first_name, last_name FROM users WHERE id = ?";
-@$stmt = $conn->prepare($query);
-if ($stmt) {
-    @$stmt->bind_param("i", $user_id);
-    @$stmt->execute();
-    @$result = $stmt->get_result();
-    if ($user = @$result->fetch_assoc()) {
-        $full_name = $user['first_name'] . " " . $user['last_name'];
-    }
-}
+// Static Identity for Full-Static Demo
+$user_id   = 1;
+$user_role = 'Admin';
+$full_name = "Administrator";
 
 $error_msg = "";
 $success_msg = "";
 
-// Static members data for display
+// ── Standardized 5-Sector Static Member Data ──
 $static_members = [
     ['id' => 1, 'first_name' => 'Juan', 'middle_name' => 'A', 'last_name' => 'Dela Cruz', 'username' => 'juan123', 'sector' => 'Rice', 'role' => 'Member', 'status' => 'Approved'],
     ['id' => 2, 'first_name' => 'Maria', 'middle_name' => 'B', 'last_name' => 'Santos', 'username' => 'maria456', 'sector' => 'Corn', 'role' => 'Member', 'status' => 'Approved'],
     ['id' => 3, 'first_name' => 'Pedro', 'middle_name' => 'C', 'last_name' => 'Garcia', 'username' => 'pedro789', 'sector' => 'Fishery', 'role' => 'Member', 'status' => 'Pending'],
     ['id' => 4, 'first_name' => 'Rosa', 'middle_name' => 'D', 'last_name' => 'Lopez', 'username' => 'rosa101', 'sector' => 'Livestock', 'role' => 'Member', 'status' => 'Approved'],
+    ['id' => 5, 'first_name' => 'Alex', 'middle_name' => 'E', 'last_name' => 'Reyes', 'username' => 'alexreyes', 'sector' => 'High Value Crops', 'role' => 'Member', 'status' => 'Approved'],
+    ['id' => 6, 'first_name' => 'Lito', 'middle_name' => 'F', 'last_name' => 'Perez', 'username' => 'litoperez', 'sector' => 'Rice', 'role' => 'Member', 'status' => 'Approved'],
+    ['id' => 7, 'first_name' => 'Elena', 'middle_name' => 'G', 'last_name' => 'Cruz', 'username' => 'elenacruz', 'sector' => 'High Value Crops', 'role' => 'Member', 'status' => 'Approved'],
 ];
 
 // Handle POST Requests (Add / Edit) - Simulated
@@ -68,33 +55,20 @@ $all_members = $static_members;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Members Management | TrackCOOP</title>
+    <title>Members Management | TRACKCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../includes/dashboard_layout.css">
     
     <style>
-        :root {
-            --track-green: #206970; 
-            --track-green-light: #e9f5ee;
-            --track-dark: #1a1a1a; 
-            --track-bg: #f8fafc;
-            --track-beige: #F5F5DC; 
-            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --text-main: #212529; 
-            --text-muted: #555555; 
-        }
-
-        @keyframes fadeInUpCustom {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         body { 
-            background-color: var(--track-bg);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-main);
+            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('../Home.jpeg') top center / 100% 100% no-repeat fixed;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
         .logout-btn {
@@ -130,7 +104,7 @@ $all_members = $static_members;
             letter-spacing: -0.8px;
             color: #ffffff !important;
         }
-        .navbar-brand span { color: #20a060; }
+        .navbar-brand span { color: #27ae60; }
 
         .navbar-nav .nav-link {
             color: rgba(255, 255, 255, 0.8) !important;
@@ -159,21 +133,32 @@ $all_members = $static_members;
         .navbar-nav .nav-link:hover::after,
         .navbar-nav .nav-link.active::after { width: 100%; }
         .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active { color: #20a060 !important; background: transparent !important; }
+        .navbar-nav .nav-link.active { color: #27ae60 !important; background: transparent !important; }
 
         .admin-header {
-            background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
-            padding: 60px 0 40px;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.4);
-            margin-bottom: 40px;
+            background: transparent;
+            padding: 10px 0 5px;
+            border-bottom: none;
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
             animation: fadeInUpCustom 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+            color: #ffffff !important;
         }
-        .admin-header h1 { color: var(--track-dark); letter-spacing: -1.5px; }
+
+        .admin-header h1 { 
+            color: #27ae60 !important; 
+            letter-spacing: -1.5px;
+            font-weight: 800 !important;
+        }
+
+        .admin-header p, .admin-header .text-muted { 
+            color: #ffffff !important; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
         .admin-header::after {
             content: ''; position: absolute; top: -20%; right: -5%; width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(32,160,96,0.08) 0%, rgba(255,255,255,0) 70%);
+            background: radial-gradient(circle, rgba(39,174,96,0.08) 0%, rgba(255,255,255,0) 70%);
             border-radius: 50%; z-index: 0; pointer-events: none;
         }
         .badge-platform {
@@ -183,35 +168,50 @@ $all_members = $static_members;
             box-shadow: 0 4px 12px rgba(32, 160, 96, 0.1); border: 1px solid rgba(32, 160, 96, 0.2);
         }
 
-        .table-card {
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            border-radius: 20px;
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            animation: fadeInUpCustom 0.8s ease-out 0.4s both;
-            padding: 24px; 
+        
+        
+        .table-responsive {
+            overflow-x: auto !important; /* Only show scrollbar if content is wider than screen */
+            overflow-y: visible !important;
+            -webkit-overflow-scrolling: touch;
         }
         
-        .badge-status { padding: 4px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-approved { background: #dcfce7; color: #166534; }
-        .badge-pending { background: #fef9c3; color: #854d0e; }
+        .badge-status { 
+            padding: 8px 16px; 
+            border-radius: 12px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-approved { background: #eefdf5; color: #27ae60; }
+        .badge-pending { background: #fff9e6; color: #d97706; }
         .badge-inactive { background: #fee2e2; color: #991b1b; }
 
-        .action-btn-outline {
-            display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
-            border-radius: 6px; color: #64748b; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: transparent; border: 1px solid #e2e8f0;
-            text-decoration: none; padding: 0; outline: none;
+        .action-btn {
+            display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center;
+            border-radius: 10px; color: #64748b; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); background: #f8fafc; border: 1px solid #e2e8f0;
+            text-decoration: none; padding: 0; outline: none; font-size: 1rem; cursor: pointer;
         }
-        .action-btn-outline:hover { transform: translateY(-3px); color: var(--track-green); border-color: var(--track-green); box-shadow: 0 4px 12px rgba(32, 160, 96, 0.15); }
-        .action-btn-outline.delete:hover { color: #ef4444; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); }
-        .action-btn-outline.approve:hover { color: #27ae60; border-color: #27ae60; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.15); }
         
-        .btn-success { transition: all 0.3s ease; }
-        .btn-success:hover { background: #20a060 !important; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(32, 160, 96, 0.3) !important; }
+        /* Unified Action Styles based on Documents */
+        .action-btn.view { color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); background: rgba(59, 130, 246, 0.05); }
+        .action-btn.view:hover { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+
+        .action-btn.edit { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); }
+        .action-btn.edit:hover { background: #f59e0b; color: white; border-color: #f59e0b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+
+        .action-btn.approve { color: #27ae60; border-color: rgba(32, 160, 96, 0.3); background: rgba(32, 160, 96, 0.05); }
+        .action-btn.approve:hover { background: #27ae60; color: white; border-color: #27ae60; box-shadow: 0 4px 12px rgba(32, 160, 96, 0.3); }
+
+        .action-btn.delete { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05); }
+        .action-btn.delete:hover { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
         
-        .table-hover tbody tr { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .table-hover tbody tr:hover { transform: translateY(-2px) scale(1.002); box-shadow: 0 8px 15px rgba(0,0,0,0.04); z-index: 10; position: relative; }
-        .table-hover tbody tr:hover td { background-color: #fff !important; }
+        .btn-success { transition: all 0.3s ease; background: #27ae60 !important; border: none !important; }
+        .btn-success:hover { background: #1a8548 !important; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(32, 160, 96, 0.3) !important; }
         
         .form-label { font-size: 0.95rem; font-weight: 600; color: var(--track-dark); margin-bottom: 8px; }
         .form-control, .form-select { border-radius: 8px; padding: 10px 14px; border: 2px solid #EAE0C8; background-color: #fff; transition: 0.3s; }
@@ -220,10 +220,31 @@ $all_members = $static_members;
         .modal-footer-beige { background-color: rgba(22, 74, 54, 0.95); border-top: none; padding: 20px 30px; border-radius: 0 0 20px 20px; color: white; }
 
         /* Modal Customizations */
-        .modal-content { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .modal-header { border-bottom: 1px solid #f1f5f9; padding: 20px 30px; border-radius: 20px 20px 0 0; }
-        .modal-footer { border-top: 1px solid #f1f5f9; padding: 20px 30px; border-radius: 0 0 20px 20px; }
+        .modal-content { border-radius: 30px !important; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden !important; }
+        .modal-header { border-bottom: 1px solid #f1f5f9; padding: 20px 30px; }
+        .modal-footer { border-top: 1px solid #f1f5f9; padding: 20px 30px; }
         .modal-body { padding: 30px; }
+
+        /* ── Red Circle Close Button ── */
+        .modal-content .btn-close {
+            width: 36px !important; height: 36px !important; min-width: 36px !important;
+            background: #ef4444 !important; background-image: none !important;
+            border-radius: 50% !important; opacity: 1 !important; filter: none !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+            transition: all 0.2s ease !important; padding: 0 !important; position: relative !important;
+            margin: 0 !important; /* Force override to prevent alignment issues */
+        }
+        .modal-content .btn-close::before,
+        .modal-content .btn-close::after {
+            content: "" !important; position: absolute !important; top: 50% !important; left: 50% !important;
+            width: 14px !important; height: 2px !important; background-color: white !important; border-radius: 2px !important;
+        }
+        .modal-content .btn-close::before { transform: translate(-50%, -50%) rotate(45deg) !important; }
+        .modal-content .btn-close::after { transform: translate(-50%, -50%) rotate(-45deg) !important; }
+        .modal-content .btn-close:hover {
+            background-color: #dc2626 !important; transform: scale(1.1) !important;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5) !important;
+        }
 
         .profile-header-modal { background: linear-gradient(135deg, var(--track-green) 0%, #167e4a 100%); height: 120px; position: relative; border-radius: 20px 20px 0 0; margin-top: -30px; margin-left: -30px; margin-right: -30px; margin-bottom: 50px; }
         .profile-avatar-modal { 
@@ -263,7 +284,7 @@ $all_members = $static_members;
             height: 52px;
             padding: 0 20px 0 50px;
             border-radius: 14px;
-            border: 2px solid var(--track-beige);
+            border: 1px solid #e2e8f0 !important;
             background: white;
             transition: var(--transition-smooth);
             font-weight: 600;
@@ -302,36 +323,39 @@ $all_members = $static_members;
     <link rel="stylesheet" href="../includes/footer.css">
 </head>
 <body>
+<div class="sidebar-layout">
+    <?php 
+        $active_page = 'members';
+        $user_role = $_SESSION['role'];
+        $membership_type = $user_role;
+        $full_name = htmlspecialchars($full_name);
+        include('../includes/dashboard_sidebar.php'); 
+    ?>
 
-<?php 
-    $active_page = 'members';
-    $membership_type = $user_role;
-    include('../includes/dashboard_navbar.php'); 
-?>
+    <div class="main-content-wrapper">
 
-<div class="admin-header">
-    <div class="container position-relative" style="z-index: 1;">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <div class="badge-platform">
-                    <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width: 10px; height: 10px;"></span>
-                    System Live
-                </div>
-                <h1 class="fw-800 display-4 mb-3">Cooperative Members</h1>
-                <p class="fs-5 mb-0 text-muted">View and manage all registered NFFAC members across sectors.</p>
+<!-- HEADER & TOP BAR -->
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3">
+            <div class="search-wrapper position-relative mb-0" style="width: 300px;">
+                <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 18px; z-index: 5;"></i>
+                <input type="text" id="memberSearch" class="form-control border-0 shadow-sm" placeholder="Search" style="background: #f1f5f9; border-radius: 10px; padding-left: 45px !important;">
             </div>
-            <?php if($user_role === 'Admin'): ?>
-            <div class="col-md-4 text-md-end mt-4 mt-md-0">
-                <button type="button" class="btn btn-success px-4 py-3 fw-bold shadow-sm" style="border-radius: 12px; border: none; background: var(--track-green);" data-bs-toggle="modal" data-bs-target="#addMemberModal">
-                    <i class="bi bi-person-plus-fill me-2"></i> Add New Member
-                </button>
-            </div>
+            
+            <?php if ($user_role === 'Admin'): ?>
+            <!-- Add Member trigger removed by user request -->
             <?php endif; ?>
+            
+            <!-- Notification bell removed by user request -->
         </div>
     </div>
 </div>
 
-<div class="container pb-5">
+<div class="container-fluid px-4 pb-5">
     <?php if($success_msg): ?>
         <div class="alert alert-success fw-bold"><i class="bi bi-check-circle-fill me-2"></i> <?php echo $success_msg; ?></div>
     <?php endif; ?>
@@ -346,61 +370,82 @@ $all_members = $static_members;
         <div class="alert alert-danger fw-bold"><i class="bi bi-trash-fill me-2"></i> Account deleted successfully.</div>
     <?php endif; ?>
 
-    <!-- SEARCH TOOLBAR -->
-    <div class="search-wrapper">
-        <div class="search-input-group">
-            <i class="bi bi-search"></i>
-            <input type="text" id="memberSearch" class="search-input" placeholder="Search members by name or username...">
-        </div>
-    </div>
 
-    <div class="table-card table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="text-uppercase" style="font-size: 0.7rem; font-weight: 800; color: #475569; letter-spacing: 1px;">
+    <div class="table-card fade-in-up table-responsive">
+        <table class="table table-elite align-middle">
+            <thead>
                 <tr>
-                    <th class="border-bottom pb-3">NAME</th>
-                    <th class="border-bottom pb-3">SECTOR</th>
-                    <th class="border-bottom pb-3">ROLE</th>
-                    <th class="border-bottom pb-3">STATUS</th>
-                    <th class="border-bottom pb-3 text-end">ACTIONS</th>
+                    <th style="min-width: 200px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            NAME
+                        </div>
+                    </th>
+                    <th style="min-width: 150px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            SECTOR
+                        </div>
+                    </th>
+                    <th style="min-width: 120px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            ROLE
+                        </div>
+                    </th>
+                    <th style="min-width: 130px; white-space: nowrap;">
+                        <div class="d-flex align-items-center">
+                            STATUS
+                        </div>
+                    </th>
+                    <th class="text-end"></th>
                 </tr>
             </thead>
             <tbody style="font-size: 0.95rem;">
                 <?php $modalsHtml = ''; ?>
                 <?php foreach($all_members as $row): ?>
-                <tr style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#viewMemberModal<?php echo $row['id']; ?>">
-                    <td class="py-3">
+                <tr style="cursor: default;">
+                    <td>
                         <div class="d-flex align-items-center">
-                            <div class="bg-success text-white fw-bold me-3 d-flex align-items-center justify-content-center" style="width:44px;height:44px;border-radius:8px;font-size:1.1rem;">
+                            <div class="user-table-avatar-initials me-3" style="background: var(--track-green); color: white;">
                                 <?php echo strtoupper(substr($row['first_name'],0,1) . substr($row['last_name'],0,1)); ?>
                             </div>
-                            <div>
-                                <div class="fw-semibold member-name" style="color:#1e293b; font-size:0.95rem; margin-bottom: 2px;">
-                                    <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
-                                </div>
-                                <div class="text-muted member-user" style="color:#64748b; font-size:0.8rem;">@<?php echo htmlspecialchars($row['username']); ?></div>
+                            <div class="user-table-info">
+                                <span class="user-table-name member-name"><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></span>
+                                <span class="user-table-email member-user">@<?php echo htmlspecialchars($row['username']); ?></span>
                             </div>
                         </div>
                     </td>
-                    <td class="py-3 align-middle"><span class="badge border" style="background:#fff; color:#475569; font-weight:600; padding:4px 8px;"><?php echo htmlspecialchars($row['sector']); ?> Sector</span></td>
-                    <td class="py-3 align-middle" style="color:#475569;"><?php echo htmlspecialchars($row['role']); ?></td>
-                    <td class="py-3 align-middle">
+                    <td>
+                        <div class="fw-600 text-dark">
+                            <?php echo htmlspecialchars($row['sector']); ?>
+                        </div>
+                    </td>
+                    <td class="text-muted small fw-600">
+                        <?php echo htmlspecialchars($row['role']); ?>
+                    </td>
+                    <td>
                         <?php 
-                            if($row['status'] === 'Approved') echo '<span class="badge-status badge-approved">Approved</span>';
-                            elseif($row['status'] === 'Pending') echo '<span class="badge-status badge-pending">Pending</span>';
-                            else echo '<span class="badge-status badge-inactive">Inactive</span>';
+                            if($row['status'] === 'Approved') echo '<span class="badge-status badge-approved"><i class="bi bi-check-circle-fill"></i> APPROVED</span>';
+                            elseif($row['status'] === 'Pending') echo '<span class="badge-status badge-pending"><i class="bi bi-exclamation-triangle-fill"></i> PENDING</span>';
+                            else echo '<span class="badge-status badge-inactive"><i class="bi bi-x-circle-fill"></i> INACTIVE</span>';
                         ?>
                     </td>
-                    <td class="py-3 text-end align-middle" onclick="event.stopPropagation();">
-                        <div class="d-flex gap-2 justify-content-end">
-                            <button type="button" class="action-btn-outline" title="View Profile" data-bs-toggle="modal" data-bs-target="#viewMemberModal<?php echo $row['id']; ?>"><i class="bi bi-eye"></i></button>
+                    <td class="text-end" onclick="event.stopPropagation();">
+                        <div class="d-flex gap-1 justify-content-end align-items-center">
+                            <button type="button" class="btn-doc-action btn-action-view" title="View Profile">
+                                <i class="bi bi-eye"></i>
+                            </button>
                             
                             <?php if($user_role === 'Admin'): ?>
-                                <button type="button" class="action-btn-outline" title="Edit" data-bs-toggle="modal" data-bs-target="#editMemberModal<?php echo $row['id']; ?>"><i class="bi bi-pencil"></i></button>
+                                <button type="button" class="btn-doc-action btn-action-edit" title="Edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
                                 <?php if($row['status'] === 'Pending'): ?>
-                                    <a href="members.php?action=approve&id=<?php echo $row['id']; ?>" class="action-btn-outline approve" title="Approve" onclick="return TrackUI.confirmLink(event, 'Approve this member for full cooperative access?', 'Membership Approval', 'primary', 'Approve Now', 'Review Later')"><i class="bi bi-check-lg"></i></a>
+                                    <button type="button" class="btn-doc-action btn-action-approve" title="Approve">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
                                 <?php endif; ?>
-                                <a href="members.php?action=delete&id=<?php echo $row['id']; ?>" class="action-btn-outline delete" title="Delete" onclick="return TrackUI.confirmLink(event, 'Remove this member from the registry? This action is permanent.', 'Permanent Delete', 'danger', 'Yes, Delete', 'Keep Member')"><i class="bi bi-trash"></i></a>
+                                <button type="button" class="btn-doc-action btn-action-delete" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             <?php endif; ?>
                         </div>
                     </td>
@@ -462,9 +507,9 @@ $all_members = $static_members;
                                     </div>
                                 </div>
                                 <div class="modal-footer-beige d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn px-4 fw-bold" style="background: #206970; color: white; border: none; border-radius: 8px; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn px-4 fw-bold" style="height: 50px; padding: 0 30px !important; border-radius: 50px !important; background: #ef4444; color: white; border: none; font-weight: 700; transition: all 0.3s ease;" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 8px 20px rgba(239, 68, 68, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Close</button>
                                     <?php if($user_role === 'Admin'): ?>
-                                    <button type="button" class="btn px-4 fw-bold text-white shadow-sm" style="background: var(--track-green); border-radius: 8px;" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#editMemberModal<?php echo $row['id']; ?>">Edit Details</button>
+                                    <button type="button" class="btn px-4 fw-bold text-white shadow-sm" style="height: 50px; padding: 0 35px !important; border-radius: 50px !important; background: var(--track-green); font-weight: 700;" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#editMemberModal<?php echo $row['id']; ?>">Edit Details</button>
                                     <?php endif; ?>
                                 </div>
                         </div>
@@ -550,8 +595,8 @@ $all_members = $static_members;
                                     </div>
                                 </div>
                                 <div class="modal-footer-beige d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" >Save Changes</button>
+                                    <button type="button" class="btn px-4 fw-bold text-white" style="height: 50px; padding: 0 30px !important; background: #ef4444; border-radius: 50px !important; border: none; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(239, 68, 68, 0.2);" onmouseover="this.style.background='#dc2626'; this.style.boxShadow='0 12px 25px rgba(239, 68, 68, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#ef4444'; this.style.boxShadow='0 8px 15px rgba(239, 68, 68, 0.2)'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn px-4 fw-bold text-white" style="height: 50px; padding: 0 35px !important; background: var(--track-green); border-radius: 50px !important; border: none; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2);" onmouseover="this.style.background='#1a8548'; this.style.boxShadow='0 12px 25px rgba(39, 174, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#27ae60'; this.style.boxShadow='0 8px 15px rgba(39, 174, 96, 0.2)'; this.style.transform='translateY(0)';" >Save Changes</button>
                                 </div>
                             </form>
                         </div>
@@ -569,6 +614,24 @@ $all_members = $static_members;
                 <?php endif; ?>
             </tbody>
         </table>
+        <!-- FUNCTIONAL PAGINATION -->
+        <div class="pagination-elite">
+            <span class="pagination-elite-label">Rows per page</span>
+            <select id="rowsPerPage" class="pagination-elite-select">
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+            </select>
+            <span id="paginationInfo" class="pagination-elite-info">1–5 of <?php echo count($all_members); ?></span>
+            <div class="pagination-elite-buttons">
+                <button id="prevPage" class="pagination-elite-btn" title="Previous Page">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button id="nextPage" class="pagination-elite-btn" title="Next Page">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -579,8 +642,8 @@ $all_members = $static_members;
         <div class="modal-content">
             <form method="POST" action="members.php" onsubmit="return TrackUI.confirmForm(event, 'Register this member to the TrackCOOP system?', 'New Registry', 'primary', 'Register Now', 'Review')">
                 <input type="hidden" name="action_type" value="add_member">
-                <div class="modal-header-beige d-flex justify-content-between align-items-center">
-                    <h5 class="modal-title fw-bold m-0" style="color: var(--track-dark);"><i class="bi bi-pencil-square text-success me-2"></i> Add New Member</h5>
+                <div class="modal-header d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title fw-bold m-0"><i class="bi bi-person-plus-fill me-2"></i> Add New Member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -640,10 +703,9 @@ $all_members = $static_members;
                             </select>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer-beige d-flex justify-content-end gap-2">
-                    <button type="button" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn px-4 fw-bold text-white" style="background: #206970; border-radius: 8px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 12px 25px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='0 8px 15px rgba(32, 126, 112, 0.2)'; this.style.transform='translateY(0)';" >Save Changes</button>
+                    <div class="mt-4 text-end pe-3 pb-2">
+                        <button type="submit" class="btn px-4 py-2 fw-bold text-white" style="background: var(--track-green); border-radius: 50px; border: none; transition: all 0.3s ease; box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2);" onmouseover="this.style.background='#1a8548'; this.style.boxShadow='0 12px 25px rgba(39, 174, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#27ae60'; this.style.boxShadow='0 8px 15px rgba(39, 174, 96, 0.2)'; this.style.transform='translateY(0)';" >Save Registry Entry</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -653,29 +715,91 @@ $all_members = $static_members;
 
 <?php echo isset($modalsHtml) ? $modalsHtml : ''; ?>
 
-<script src="../includes/footer-logic.js"></script>
 <script>
-    // --- REAL-TIME MEMBER SEARCH ---
-    function performMemberSearch() {
-        const term = document.getElementById('memberSearch').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('tbody tr:not(.no-results-row)');
-        let found = 0;
+    // --- FUNCTIONAL PAGINATION ---
+    let currentPage = 1;
+    let rowsPerPage = parseInt(document.getElementById('rowsPerPage').value);
+    
+    function updatePagination() {
+        const rows = Array.from(document.querySelectorAll('tbody tr:not(.no-results-row)'));
+        const totalRows = rows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+        if (currentPage < 1) currentPage = 1;
 
-        rows.forEach(row => {
-            const name = row.querySelector('.member-name').textContent.toLowerCase();
-            const username = row.querySelector('.member-user').textContent.toLowerCase();
-            const sector = row.querySelector('.badge').textContent.toLowerCase();
-            
-            if (name.includes(term) || username.includes(term) || sector.includes(term)) {
+        const startIdx = (currentPage - 1) * rowsPerPage;
+        const endIdx = startIdx + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            if (index >= startIdx && index < endIdx) {
                 row.style.display = '';
-                row.style.animation = 'fadeInUpCustom 0.4s ease forwards';
-                found++;
             } else {
                 row.style.display = 'none';
             }
         });
 
-        // Handle Empty State
+        // Update Info Text
+        const startDisplay = totalRows === 0 ? 0 : startIdx + 1;
+        const endDisplay = Math.min(endIdx, totalRows);
+        const infoEl = document.getElementById('paginationInfo');
+        if (infoEl) infoEl.textContent = `${startDisplay}-${endDisplay} of ${totalRows}`;
+
+        // Disable/Enable buttons
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        
+        if (prevBtn) {
+            prevBtn.disabled = (currentPage === 1);
+            prevBtn.style.opacity = (currentPage === 1) ? '0.5' : '1';
+        }
+        if (nextBtn) {
+            nextBtn.disabled = (currentPage === totalPages || totalPages === 0);
+            nextBtn.style.opacity = (currentPage === totalPages || totalPages === 0) ? '0.5' : '1';
+        }
+    }
+
+    document.getElementById('rowsPerPage').addEventListener('change', function() {
+        rowsPerPage = parseInt(this.value);
+        currentPage = 1;
+        updatePagination();
+    });
+
+    document.getElementById('prevPage').addEventListener('click', function() {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+        }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', function() {
+        const rows = document.querySelectorAll('tbody tr:not(.no-results-row)');
+        if (currentPage < Math.ceil(rows.length / rowsPerPage)) {
+            currentPage++;
+            updatePagination();
+        }
+    });
+
+    // Integrated Search + Pagination
+    function performMemberSearch() {
+        const term = document.getElementById('memberSearch').value.toLowerCase().trim();
+        const allRows = document.querySelectorAll('tbody tr:not(.no-results-row)');
+        let found = 0;
+
+        allRows.forEach(row => {
+            const name = row.querySelector('.member-name').textContent.toLowerCase();
+            const username = row.querySelector('.member-user').textContent.toLowerCase();
+            const sectorElement = row.querySelector('.fw-600.text-dark');
+            const sector = sectorElement ? sectorElement.textContent.toLowerCase() : '';
+            
+            if (name.includes(term) || username.includes(term) || sector.includes(term)) {
+                row.classList.remove('search-hidden');
+                found++;
+            } else {
+                row.classList.add('search-hidden');
+            }
+        });
+
         const tbody = document.querySelector('tbody');
         let emptyRow = document.getElementById('noResultsRow');
         
@@ -693,24 +817,54 @@ $all_members = $static_members;
                 `;
                 tbody.appendChild(emptyRow);
             }
-        } else {
-            if (emptyRow) emptyRow.remove();
+        } else if (emptyRow) {
+            emptyRow.remove();
         }
+
+        currentPage = 1; 
+        updatePaginationAfterSearch();
     }
 
-    // Trigger on input (real-time)
+    function updatePaginationAfterSearch() {
+        const activeRows = Array.from(document.querySelectorAll('tbody tr:not(.no-results-row):not(.search-hidden)'));
+        const hiddenBySearch = document.querySelectorAll('tbody tr.search-hidden');
+        
+        hiddenBySearch.forEach(r => r.style.display = 'none');
+
+        const totalRows = activeRows.length;
+        const totalPages = Math.ceil(totalRows / rowsPerPage);
+        
+        const startIdx = (currentPage - 1) * rowsPerPage;
+        const endIdx = startIdx + rowsPerPage;
+
+        activeRows.forEach((row, index) => {
+            if (index >= startIdx && index < endIdx) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        const startDisplay = totalRows === 0 ? 0 : startIdx + 1;
+        const endDisplay = Math.min(endIdx, totalRows);
+        const infoEl = document.getElementById('paginationInfo');
+        if (infoEl) infoEl.textContent = `${startDisplay}-${endDisplay} of ${totalRows}`;
+
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        if (prevBtn) prevBtn.disabled = (currentPage === 1);
+        if (nextBtn) nextBtn.disabled = (currentPage === totalPages || totalPages === 0);
+    }
+
     document.getElementById('memberSearch').addEventListener('input', performMemberSearch);
     
-    // Trigger on Enter key
-    document.getElementById('memberSearch').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') performMemberSearch();
-    });
+    // Initialize
+    updatePagination();
 </script>
 
+    </div> <!-- .main-content-wrapper -->
+</div> <!-- .sidebar-layout -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<?php include('../includes/footer.php'); ?>
-<script>
-    AOS.init({ once: true, duration: 800 });
-</script>
 </body>
 </html>

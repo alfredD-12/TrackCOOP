@@ -25,11 +25,11 @@ if(isset($_GET['register'])) {
 // Fetch latest 6 announcements for inline section (Static demo data)
 $ann_rows = [
     ['title' => 'Welcome to TrackCOOP', 'content' => 'TrackCOOP is now live! Join our community and start tracking your cooperative activities.', 'category' => 'General', 'created_at' => '2026-04-02', 'first_name' => 'Admin', 'last_name' => 'User'],
-    ['title' => 'New Share Capital System', 'content' => 'Our new share capital tracking system is now available. All members can monitor their contributions.', 'category' => 'System', 'created_at' => '2026-04-01', 'first_name' => 'Bookkeeper', 'last_name' => ''],
-    ['title' => 'Member Meeting Notice', 'content' => 'General assembly meeting will be held on April 15, 2026. All members are invited to attend.', 'category' => 'Meeting', 'created_at' => '2026-03-31', 'first_name' => 'Admin', 'last_name' => 'User'],
-    ['title' => 'Sector Highlights - Rice Season', 'content' => 'This season\'s rice production shows a 15% increase. Congratulations to all rice sector members!', 'category' => 'Sector News', 'created_at' => '2026-03-28', 'first_name' => 'NFFAC', 'last_name' => 'Admin'],
-    ['title' => 'Financial Report Released', 'content' => 'Q1 2026 financial report is now available. Total cooperative capital has reached ₱125,000.', 'category' => 'Finance', 'created_at' => '2026-03-25', 'first_name' => 'Bookkeeper', 'last_name' => ''],
-    ['title' => 'Documentation Guide Updated', 'content' => 'New documentation guides are available in the Documents section. Please review for compliance.', 'category' => 'Documentation', 'created_at' => '2026-03-20', 'first_name' => 'Admin', 'last_name' => 'User'],
+    ['title' => 'New Share Capital System', 'content' => 'Our new share capital tracking system is now available. All members can monitor their contributions.', 'category' => 'Sector News', 'created_at' => '2026-04-01', 'first_name' => 'Bookkeeper', 'last_name' => ''],
+    ['title' => 'Member Meeting Notice', 'content' => 'General assembly meeting will be held on April 15, 2026. All members are invited to attend and participate in important discussions.', 'category' => 'Meetings', 'created_at' => '2026-03-31', 'first_name' => 'Admin', 'last_name' => 'User'],
+    ['title' => 'Harvest Festival 2026', 'content' => 'Join us for the annual Harvest Festival on April 20, 2026. Celebrate the season with members and enjoy traditional Filipino food.', 'category' => 'Events', 'created_at' => '2026-04-05', 'first_name' => 'Admin', 'last_name' => 'User'],
+    ['title' => 'Share Capital Deadline', 'content' => 'Reminder: Share capital contributions must be submitted by April 30, 2026. Late submissions will not be processed.', 'category' => 'Deadlines', 'created_at' => '2026-04-01', 'first_name' => 'Bookkeeper', 'last_name' => ''],
+    ['title' => 'Member Meeting Notice', 'content' => 'General assembly meeting will be held on April 15, 2026. All members are invited to attend.', 'category' => 'Meetings', 'created_at' => '2026-03-20', 'first_name' => 'Admin', 'last_name' => 'User'],
 ];
 
 // Session-aware User Detail logic (Static fallback)
@@ -48,7 +48,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrackCOOP | NFFAC Nasugbu</title>
+    <title>TRACKCOOP | NFFAC Nasugbu</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -75,7 +75,7 @@ if (isset($_SESSION['user_id'])) {
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-main);
-            background-color: #fff;
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('Home.jpeg') top center / 100% 100% no-repeat fixed;
             overflow-x: hidden;
             line-height: 1.6;
         }
@@ -147,23 +147,23 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .btn-nav-login {
-            background: #206970;
+            background: #20a060;
             color: white !important;
             padding: 10px 24px !important;
-            border-radius: 12px;
+            border-radius: 50px;
             font-weight: 700;
             transition: var(--transition-smooth);
             border: none;
-            box-shadow: 0 8px 20px rgba(32, 126, 112, 0.2);
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.2);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
         .btn-nav-login:hover {
-            background: #20a060;
+            background: #1b8a52;
             transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(32, 160, 96, 0.3);
+            box-shadow: 0 12px 25px rgba(32, 160, 96, 0.4);
             color: white !important;
         }
 
@@ -196,7 +196,7 @@ if (isset($_SESSION['user_id'])) {
         /* --- Footer --- */
         footer {
             background: rgba(22, 74, 54, 0.95) !important;
-            padding: 100px 0 40px !important;
+            padding: 60px 0 40px !important;
             border-top: 1px solid rgba(22, 74, 54, 0.3) !important;
             color: #ffffff !important;
             position: relative;
@@ -229,11 +229,12 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .hero {
-            padding: 180px 0 100px; 
-            background: radial-gradient(circle at top right, #f1f8f5, #ffffff);
-            min-height: 90vh;
+            padding: 60px 0 60px; 
+            min-height: 80vh;
             display: flex;
             align-items: center;
+            color: white;
+            background: transparent;
         }
 
         .hero-title {
@@ -242,22 +243,21 @@ if (isset($_SESSION['user_id'])) {
             line-height: 1.1;
             margin-bottom: 25px;
             letter-spacing: -1px;
-            color: var(--text-dark);
+            color: #20a060;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .stats-wrapper {
-            margin-top: -60px;
+            margin-top: -100px;
             position: relative;
             z-index: 10;
         }
 
         .stat-card-modern {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(32, 160, 96, 0.03) 100%);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid rgba(32, 160, 96, 0.35);
+            background: #ffffff;
+            border: 3px solid #20a060;
             padding: 40px 30px;
-            border-radius: 28px;
+            border-radius: 35px;
             text-align: center;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 10px 35px rgba(32, 160, 96, 0.15);
@@ -278,7 +278,7 @@ if (isset($_SESSION['user_id'])) {
 
         .stat-card-modern:hover {
             transform: translateY(-12px) scale(1.02);
-            background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(32, 160, 96, 0.06) 100%);
+            background: #ffffff;
             border-color: var(--primary-green);
             box-shadow: 0 20px 60px rgba(32, 160, 96, 0.3);
         }
@@ -301,12 +301,7 @@ if (isset($_SESSION['user_id'])) {
             font-weight: 700;
         }
 
-        .status-badge {
-            display: inline-flex; align-items: center; background: white; color: var(--primary-green);
-            font-weight: 700; padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; 
-            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.1); border: 1px solid rgba(32, 160, 96, 0.2);
-        }
+
 
         .feature-card {
             border: 2px solid rgba(32, 160, 96, 0.25);
@@ -379,25 +374,41 @@ if (isset($_SESSION['user_id'])) {
         .footer-link:hover { color: #20a060; transform: translateX(5px); }
 
         /* --- Modal Styling --- */
-        .modal-content { border-radius: 30px; border: none; overflow: hidden; }
+        .modal-content { border-radius: 35px; border: none; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.25); }
         
-        .modal-header-beige {
-            background-color: rgba(22, 74, 54, 0.95);
-            padding: 20px 25px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+        .modal-header-botanical {
+            background-color: #143c2c;
+            padding: 25px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
             color: white;
+            border: none;
         }
 
-        .modal-header-beige .btn-close {
+        .modal-header-botanical .btn-close-custom {
             position: absolute;
             top: 20px;
             right: 20px;
-            filter: invert(1);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .modal-header-botanical .btn-close-custom:hover {
+            background: #e63946 !important;
+            color: white !important;
+            transform: rotate(90deg);
+            box-shadow: 0 0 15px rgba(230, 57, 70, 0.4);
         }
 
         .nav-tabs-auth { 
@@ -414,6 +425,122 @@ if (isset($_SESSION['user_id'])) {
             color: #64748b; 
             transition: var(--transition-smooth); 
             padding: 12px;
+            flex: 1;
+            text-align: center;
+        }
+
+        /* --- Multi-step Registration --- */
+        .reg-step { transition: all 0.3s ease; }
+        .reg-step-1.d-none, .reg-step-2.d-none { display: none !important; }
+        .section-title-pill { 
+            color: #20a060; 
+            font-weight: 800; 
+            font-size: 0.85rem; 
+            letter-spacing: 0.5px; 
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .step-indicator {
+            color: #20a060;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .form-label-custom {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 4px;
+            display: block;
+            letter-spacing: 0.2px;
+        }
+        .form-control-botanical {
+            border-radius: 12px !important;
+            padding: 12px 18px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            background-color: #fcfdfc;
+            transition: all 0.2s ease;
+        }
+        .form-control-botanical:focus {
+            border-color: #20a060;
+            box-shadow: 0 0 0 3px rgba(32, 160, 96, 0.1);
+            background-color: #ffffff;
+        }
+        .btn-reg-next {
+            background: #20a060;
+            color: white;
+            border-radius: 50px;
+            padding: 14px 28px;
+            font-weight: 700;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .btn-reg-next:hover {
+            background: #1a8a52;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(32, 160, 96, 0.3);
+        }
+        .btn-reg-back {
+            background: #20a060;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 24px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .btn-reg-back:hover {
+            background: #1a8a52;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(32, 160, 96, 0.3);
+        }
+        .btn-reg-cancel {
+            background: #e63946;
+            color: white;
+            border-radius: 50px;
+            padding: 14px 24px;
+            font-weight: 700;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .btn-reg-cancel:hover {
+            background: #d62d3a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        /* Strength Meter Styles */
+        .strength-meter {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            margin-top: 8px;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .strength-text {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-top: 4px;
+            display: block;
+            letter-spacing: 0.5px;
+        }
+        .st-weak { width: 33.33%; background-color: #ef4444; }
+        .st-good { width: 66.66%; background-color: #f59e0b; }
+        .st-strong { width: 100%; background-color: #20a060; }
+        .text-weak { color: #ef4444; }
+        .text-good { color: #f59e0b; }
+        .text-strong { color: #20a060; }
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -435,18 +562,45 @@ if (isset($_SESSION['user_id'])) {
         }
 
         .btn-cancel-modal {
-            background: #206970;
+            background: #e63946;
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 14px;
+            border-radius: 50px;
             font-weight: 700;
             transition: var(--transition-smooth);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 8px 15px rgba(32, 126, 112, 0.2);
+            box-shadow: 0 8px 20px rgba(230, 57, 70, 0.2);
+        }
+        .btn-cancel-modal:hover {
+            background: #d62828;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(230, 57, 70, 0.4);
+            color: white;
+        }
+        
+        .btn-login-modal {
+            background: #20a060;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.2);
+        }
+        .btn-login-modal:hover {
+            background: #1b8550;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(32, 160, 96, 0.4);
+            color: white;
         }
         .btn-cancel-modal:hover {
             background: #20a060;
@@ -473,7 +627,71 @@ if (isset($_SESSION['user_id'])) {
         .text-weak { color: #ef4444; }
         .text-fair { color: #f59e0b; }
         .text-strong { color: #22c55e; }
+
+        /* Dynamic Children Fields Styling */
+        .btn-add-child {
+            background: #20a060;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 5px rgba(32, 160, 96, 0.3);
+        }
+        .btn-add-child:hover {
+            background: #1b8550;
+            transform: scale(1.1);
+        }
+        .child-row {
+            animation: slideFade 0.3s ease-out;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .child-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0px;
+            margin-bottom: 10px;
+        }
+        .btn-remove-child {
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding-top: 25px;
+        }
+        .btn-remove-child:hover {
+            color: #b91c1c;
+            transform: scale(1.1);
+        }
     </style>
+<style>
+    /* Sticky Footer Logic */
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    main {
+        flex: 1 0 auto;
+    }
+    .footer-track {
+        flex-shrink: 0;
+    }
+</style>
 </head>
 <body>
 
@@ -481,12 +699,16 @@ if (isset($_SESSION['user_id'])) {
 
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#home"><img src="TrackCOOP Logo.svg" alt="TrackCOOP Logo" class="navbar-logo">TRACK<span>COOP</span></a>
+            <a class="navbar-brand d-flex align-items-center" href="#home" style="padding-left: 0; margin-left: -20px;">
+                <img src="TrackCOOP Logo.svg" alt="TRACKCOOP Logo" class="navbar-logo">
+                TRACK<span style="color: #20a060;">COOP</span>
+            </a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="bi bi-list fs-1 text-success"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
+                <!-- Centered Links -->
+                <ul class="navbar-nav mx-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link mx-2" href="#home">
                             <i class="bi bi-house-door me-1"></i> Home
@@ -509,9 +731,13 @@ if (isset($_SESSION['user_id'])) {
                     </li>
                     <li class="nav-item">
                         <a class="nav-link mx-2" href="#contact">
-                            <i class="bi bi-envelope me-1"></i> Contact
+                            <i class="bi bi-question-circle me-1"></i> FAQ
                         </a>
                     </li>
+                </ul>
+
+                <!-- Right-aligned Dashboard/Login -->
+                <ul class="navbar-nav align-items-center">
                     <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
                         <?php if ($is_logged_in): ?>
                             <div class="d-flex align-items-center bg-white p-2 rounded-4 border border-success border-opacity-10 shadow-sm">
@@ -535,8 +761,8 @@ if (isset($_SESSION['user_id'])) {
                                 </a>
                             </div>
                         <?php else: ?>
-                            <button class="btn btn-nav-login" data-bs-toggle="modal" data-bs-target="#authModal">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                            <button class="btn btn-nav-login" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <i class="bi bi-key-fill me-1"></i> Login
                             </button>
                         <?php endif; ?>
                     </li>
@@ -549,24 +775,19 @@ if (isset($_SESSION['user_id'])) {
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-7" data-aos="fade-right">
-                    <div class="status-badge">
-                        <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width: 10px; height: 10px;"></span>
-                        System Live
-                    </div>
-                    <h1 class="hero-title">Intelligent <br><span class="text-success">Management</span> for Nasugbu Farmers.</h1>
-                    <p class="text-muted mb-5 fs-5">Empowering our local agriculture cooperative with a centralized digital system for document tracking and membership growth.</p>
+                    <h1 class="hero-title">Intelligent <br>Management for Nasugbu Farmers.</h1>
+                    <p class="text-white opacity-75 mb-5 fs-5 text-shadow" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Empowering our local agriculture cooperative with a centralized digital system for document tracking and membership growth.</p>
                 </div>
                 <div class="col-lg-5 text-center" data-aos="fade-left" data-aos-delay="300">
                     <div class="d-flex flex-column gap-3 align-items-center justify-content-center">
-                        <button class="btn btn-lg px-5 py-3 shadow-lg rounded-4 fw-bold w-75 hero-btn-filled" data-bs-toggle="modal" data-bs-target="#authModal">Explore Portal</button>
-                        <a href="#announcements" class="btn btn-lg px-4 py-3 rounded-4 fw-bold w-75 hero-btn-outline">Public Announcements</a>
+                        <button class="btn btn-lg px-5 py-3 shadow-lg rounded-pill fw-bold w-100 text-white" style="max-width: 320px; background: #20a060; border: none; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(32,160,96,0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';" data-bs-toggle="modal" data-bs-target="#registerModal">Become a Member</button>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="container stats-wrapper mb-5 mb-lg-100px">
+    <div class="container stats-wrapper mb-5 mb-lg-60px">
         <div class="row g-4 justify-content-center">
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="stat-card-modern">
@@ -590,15 +811,14 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <!-- --- STANDALONE ACTIVITIES GALLERY SHOWCASE --- -->
-    <section class="py-100px" id="gallery" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);">
+    <section class="py-60px" id="gallery" style="background: transparent;">
         <div class="container py-5">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5" data-aos="fade-up">
                 <div class="text-center text-md-start mb-4 mb-md-0">
-                    <h2 class="fw-800 fs-1 mb-2" style="letter-spacing: -1.5px; color: #1e272e;">Cooperative Activities</h2>
-                    <p class="text-muted mb-0">Discover the heart and soul of NFFAC Nasugbu through our official gallery.</p>
+                    <h2 class="fw-bold fs-1 mb-2" style="letter-spacing: -1.5px; color: #20a060; font-weight: 900 !important; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">Cooperative Activities</h2>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" data-bs-toggle="modal" data-bs-target="#galleryModal" class="btn btn-outline-success rounded-pill px-5 py-3 fw-bold border-2 b-gallery-btn">
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#galleryModal" class="btn rounded-pill px-5 py-3 fw-bold text-white b-gallery-btn" style="background: #20a060 !important; border: 2px solid #20a060 !important; box-shadow: 0 4px 15px rgba(32, 160, 96, 0.3);">
                         Browse Full Archive <i class="bi bi-arrow-right ms-2"></i>
                     </button>
                 </div>
@@ -609,20 +829,20 @@ if (isset($_SESSION['user_id'])) {
                 // Fetch top 3 latest activities
                 // Static media activities (Demo data)
                 $media_activities = [
-                    ['id' => 1, 'title' => 'Team Building Event 2026', 'category' => 'Events', 'activity_date' => '2026-03-15', 'file_path' => 'uploads/media/team_building.jpg'],
-                    ['id' => 2, 'title' => 'Harvest Season Activity', 'category' => 'Agriculture', 'activity_date' => '2026-03-10', 'file_path' => 'uploads/media/harvest.jpg'],
-                    ['id' => 4, 'title' => 'Member Conference 2026', 'category' => 'Meetings', 'activity_date' => '2026-02-28', 'file_path' => 'uploads/media/conference.jpg'],
+                    ['id' => 1, 'title' => 'Team Building Event 2026', 'category' => 'Events', 'activity_date' => '2026-03-15', 'file_path' => 'event.png', 'description' => 'Our cooperative members gathered for an exciting team building activity to strengthen bonds and improve collaboration. This event featured various activities designed to enhance teamwork and communication among participants.'],
+                    ['id' => 2, 'title' => 'Harvest Season Activity', 'category' => 'Agriculture', 'activity_date' => '2026-03-10', 'file_path' => 'agriculture.webp', 'description' => 'A successful harvest season engaging our farmers. Our cooperative members gathered for an exciting activity to strengthen bonds and celebrate a bountiful yield.'],
+                    ['id' => 4, 'title' => 'Member Conference 2026', 'category' => 'Meetings', 'activity_date' => '2026-02-28', 'file_path' => 'meeting.jpg', 'description' => 'Annual strategic member conference to discuss future goals, financial reviews, and cooperative developments for the upcoming year.'],
                 ];
                 if (count($media_activities) > 0): 
                     foreach ($media_activities as $m): ?>
                         <div class="col-lg-4" data-aos="zoom-in">
-                            <div class="gallery-card-premium">
-                                <div class="card-img-wrapper">
-                                    <span class="category-tag"><?php echo htmlspecialchars($m['category']); ?></span>
+                            <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 3px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='translateY(0)';" data-title="<?php echo htmlspecialchars($m['title']); ?>" data-date="<?php echo date('F d, Y', strtotime($m['activity_date'])); ?>" data-category="<?php echo htmlspecialchars($m['category']); ?>" data-img="<?php echo htmlspecialchars($m['file_path']); ?>" data-desc="<?php echo htmlspecialchars($m['description']); ?>" onclick="openActivityDetail(this)">
+                                <div class="card-img-wrapper" style="height: 220px; position: relative; background: url('<?php echo htmlspecialchars($m['file_path']); ?>') center/cover no-repeat;">
+                                    <span class="category-tag bg-white fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem; pointer-events: none; color: #20a060;"><?php echo htmlspecialchars($m['category']); ?></span>
                                 </div>
-                                <div class="card-content">
-                                    <h5 class="fw-bold mb-2"><?php echo htmlspecialchars($m['title']); ?></h5>
-                                    <p class="text-muted small mb-0"><i class="bi bi-calendar-event me-2"></i><?php echo date('F d, Y', strtotime($m['activity_date'])); ?></p>
+                                <div class="card-content p-4 d-flex flex-column" style="flex: 1; pointer-events: none;">
+                                    <h4 class="fw-bold mb-3" style="color: #20a060; font-size: 1.35rem;"><?php echo htmlspecialchars($m['title']); ?></h4>
+                                    <p class="text-dark small mb-0 mt-auto" style="font-size: 0.95rem;"><i class="bi bi-calendar me-2"></i><?php echo date('F d, Y', strtotime($m['activity_date'])); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -684,53 +904,155 @@ if (isset($_SESSION['user_id'])) {
     .py-100px { padding-top: 100px !important; padding-bottom: 100px !important; }
     .mb-lg-100px { margin-bottom: 100px !important; }
 
-    /* Announcement V2 - Feature Style */
+    /* Announcement V2 - Feature Style (Matched to Prototype) */
     .ann-card-v2 {
-        border: 2px solid rgba(32, 160, 96, 0.4);
-        background: linear-gradient(135deg, #ffffff 0%, rgba(32, 160, 96, 0.04) 100%);
+        border: 3px solid #20a060;
+        background: #ffffff;
         padding: 40px 30px;
-        border-radius: 28px;
-        transition: var(--transition-smooth);
+        border-radius: 35px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         height: 100%;
         display: flex;
         flex-direction: column;
         position: relative;
-        box-shadow: 0 10px 30px rgba(32, 160, 96, 0.12);
+        box-shadow: 0 10px 30px rgba(32, 160, 96, 0.1);
+        cursor: pointer;
     }
     .ann-card-v2:hover {
-        transform: translateY(-12px);
+        transform: translateY(-10px) scale(1.02);
         box-shadow: 0 25px 50px rgba(32, 160, 96, 0.2);
-        border-color: var(--primary-green);
-        background: linear-gradient(135deg, #ffffff 0%, rgba(32, 160, 96, 0.08) 100%);
+        border-color: #28c76f;
     }
     .ann-icon-box {
-        width: 60px; height: 60px; background: #eef7f2; color: var(--primary-green);
-        border-radius: 18px; display: flex; align-items: center; justify-content: center;
-        font-size: 20px; font-weight: 800; margin-bottom: 25px; transition: 0.5s ease;
+        width: 70px; height: 70px; background: #20a060; color: white;
+        border-radius: 20px; display: flex; align-items: center; justify-content: center;
+        font-size: 24px; font-weight: 800; margin-bottom: 25px; transition: 0.3s ease;
     }
-    .ann-card-v2:hover .ann-icon-box { background: var(--primary-green); color: white; }
     
     .ann-category-tag {
-        position: absolute; top: 30px; right: 30px;
-        font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 1px; color: var(--primary-green);
-        background: rgba(32, 160, 96, 0.08); padding: 5px 12px; border-radius: 50px;
+        position: absolute; top: 30px; right: 25px;
+        font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.5px; color: white;
+        background: #20a060; padding: 6px 16px; border-radius: 50px;
     }
-    .ann-card-v2 .title { font-weight: 700; font-size: 1.15rem; margin-bottom: 15px; color: var(--text-dark); line-height: 1.4; }
-    .ann-card-v2 .snippet { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 25px; flex-grow: 1; }
+    .ann-card-v2 .title { font-weight: 700; font-size: 1.25rem; margin-bottom: 12px; color: #20a060; line-height: 1.4; }
+    .ann-card-v2 .snippet { color: #334155; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; flex-grow: 1; }
     
     .ann-footer {
-        border-top: 1px solid #f1f5f9; padding-top: 15px;
+        border-top: 1px solid #f1f5f9; padding-top: 20px;
         display: flex; align-items: center; justify-content: space-between;
-        font-size: 0.75rem; font-weight: 600; color: #94a3b8;
+        font-size: 0.85rem; font-weight: 600; color: #64748b;
     }
-    .ann-footer .author { color: var(--text-dark); }
+    .ann-footer i { color: #20a060; font-size: 1.1rem; }
+    .ann-footer .author { display: flex; align-items: center; gap: 6px; }
+    .ann-footer .date { display: flex; align-items: center; gap: 6px; }
+
+    /* FAQ & Message Center Custom Styles */
+    .faq-wrapper-card {
+        background: white;
+        border: 3px solid #20a060;
+        border-radius: 40px;
+        padding: 40px;
+        height: 100%;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+    .faq-accordion .accordion-item {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 20px !important;
+        margin-bottom: 15px;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+    .faq-accordion .accordion-item:hover {
+        border-color: #20a060;
+        box-shadow: 0 5px 15px rgba(32, 160, 96, 0.1);
+    }
+    .faq-accordion .accordion-button {
+        padding: 20px 25px;
+        font-weight: 700;
+        color: #20a060;
+        background: white;
+        box-shadow: none;
+        font-size: 1.05rem;
+    }
+    .faq-accordion .accordion-button:not(.collapsed) {
+        color: #20a060;
+        background: #f8fafc;
+    }
+    .faq-accordion .accordion-button::after {
+        background-size: 1.2rem;
+        filter: hue-rotate(100deg) brightness(0.6);
+    }
+    .faq-accordion .accordion-body {
+        padding: 0 25px 25px;
+        color: #475569;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    
+    .message-wrapper-card {
+        background: white;
+        border: 3px solid #20a060;
+        border-radius: 40px;
+        padding: 40px;
+        height: 100%;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+    .message-wrapper-card .form-control {
+        border: 1.5px solid #cbd5e1;
+        border-radius: 15px;
+        padding: 15px;
+        font-size: 0.95rem;
+    }
+    .message-wrapper-card .form-control:focus {
+        border-color: #20a060;
+        box-shadow: 0 0 0 4px rgba(32, 160, 96, 0.1);
+    }
+    .btn-submit-green {
+        background: #20a060 !important;
+        color: white !important;
+        font-weight: 700;
+        border-radius: 50px;
+        padding: 15px;
+        transition: 0.3s;
+        border: none;
+    }
+    .btn-submit-green:hover {
+        background: #1b8a52 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(32, 160, 96, 0.2);
+    }
+
+    /* Platform Features Styles */
+    .feature-card {
+        background: #ffffff;
+        border: 3px solid #20a060;
+        padding: 40px 30px;
+        border-radius: 35px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(32, 160, 96, 0.1);
+    }
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(32, 160, 96, 0.2);
+        border-color: #28c76f;
+    }
+    .feature-card .icon-box {
+        width: 70px; height: 70px; background: #20a060; color: white;
+        border-radius: 20px; display: flex; align-items: center; justify-content: center;
+        font-size: 24px; font-weight: 800; margin-bottom: 25px; transition: 0.3s ease;
+    }
+    .feature-card h4 { font-weight: 700; font-size: 1.25rem; margin-bottom: 12px; color: #20a060; }
     </style>
 
-    <section class="py-100px mt-5 border-top" id="features">
-        <div class="container py-100px">
-            <div class="text-center mb-5" data-aos="fade-up">
-                <h2 class="fw-bold fs-1">Platform Features</h2>
+    <section class="py-100px mt-5" id="features" style="background: transparent;">
+        <div class="container py-60px">
+            <div class="text-start mb-5" data-aos="fade-up">
+                <h2 class="fw-bold fs-1" style="color: #20a060; letter-spacing: -1.5px; font-weight: 900 !important; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">Platform Features</h2>
             </div>
             <div class="row g-4">
                 <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
@@ -759,19 +1081,30 @@ if (isset($_SESSION['user_id'])) {
     </section>
 
     <!-- ── INLINE ANNOUNCEMENTS SECTION ─────────────────────────────────── -->
-    <section id="announcements" class="py-100px" style="background: #fff;">
+    <section id="announcements" class="py-100px" style="background: transparent;">
         <div class="container py-5">
-            <div class="text-center mb-5" data-aos="fade-up">
-                <span class="status-badge"><i class="bi bi-megaphone-fill me-2"></i> Official Updates</span>
-                <h2 class="fw-bold fs-1 mb-3">Cooperative <span class="text-success">Announcements</span></h2>
-                <p class="text-muted fs-5 mx-auto" style="max-width:600px;">Stay updated with the latest news and important reminders from the NFFAC Nasugbu management.</p>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5" data-aos="fade-up">
+                <div class="text-start mb-4 mb-md-0">
+                    <h2 class="fw-bold fs-1 mb-3" style="color: #20a060; letter-spacing: -1.5px; font-weight: 900 !important; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">Cooperative Announcements</h2>
+                </div>
+                <div>
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#announcementsModal" class="btn rounded-pill px-5 py-3 fw-bold text-white b-gallery-btn" style="background: #20a060 !important; border: 2px solid #20a060 !important; box-shadow: 0 4px 15px rgba(32, 160, 96, 0.3); transition: all 0.3s ease;">
+                        View All Announcements
+                    </button>
+                </div>
             </div>
 
             <?php if (!empty($ann_rows)): ?>
             <div class="row g-4 justify-content-center">
-                <?php foreach ($ann_rows as $i => $ann): ?>
+                <?php foreach (array_slice($ann_rows, 0, 3) as $i => $ann): ?>
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="<?php echo 100 + ($i * 100); ?>">
-                    <div class="ann-card-v2">
+                    <div class="ann-card-v2" style="cursor: pointer;" 
+                         onclick="openAnnouncementDetail(this)"
+                         data-title="<?php echo htmlspecialchars($ann['title']); ?>"
+                         data-category="<?php echo htmlspecialchars($ann['category'] ?? 'General'); ?>"
+                         data-date="<?php echo date('M j, Y', strtotime($ann['created_at'])); ?>"
+                         data-author="<?php echo htmlspecialchars($ann['first_name'] . ' ' . $ann['last_name']); ?>"
+                         data-content="<?php echo htmlspecialchars($ann['content']); ?>">
                         <span class="ann-category-tag"><?php echo htmlspecialchars($ann['category'] ?? 'General'); ?></span>
                         
                         <div class="ann-icon-box">
@@ -779,11 +1112,11 @@ if (isset($_SESSION['user_id'])) {
                         </div>
                         
                         <h4 class="title"><?php echo htmlspecialchars($ann['title']); ?></h4>
-                        <p class="snippet"><?php echo htmlspecialchars(mb_strimwidth($ann['content'], 0, 130, '...')); ?></p>
+                        <p class="snippet"><?php echo htmlspecialchars(mb_strimwidth($ann['content'], 0, 100, '...')); ?></p>
                         
                         <div class="ann-footer">
                             <span class="author"><i class="bi bi-person me-1"></i> <?php echo htmlspecialchars($ann['first_name'] . ' ' . $ann['last_name']); ?></span>
-                            <span><i class="bi bi-calendar3 me-1"></i> <?php echo date('M j, Y', strtotime($ann['created_at'])); ?></span>
+                            <span class="date"><i class="bi bi-calendar4-event me-1"></i> <?php echo date('M j, Y', strtotime($ann['created_at'])); ?></span>
                         </div>
                     </div>
                 </div>
@@ -799,32 +1132,103 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </section>
 
-    <section class="py-100px bg-light" id="contact">
-        <div class="container py-100px">
-            <div class="row g-5 align-items-center">
-                <div class="col-lg-5" data-aos="fade-right">
-                    <h2 class="fw-bold mb-4">Official Coop Office</h2>
-                    <p class="text-muted mb-4 fs-5">Visit us for manual verification or cooperative inquiries at the heart of Nasugbu.</p>
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-4 me-3"><i class="bi bi-geo-alt-fill text-success fs-4"></i></div>
-                        <div><h6 class="fw-bold mb-0">Location</h6><p class="text-muted small mb-0">Camp Avejar, Nasugbu, Batangas</p></div>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <div class="bg-success bg-opacity-10 p-3 rounded-4 me-3"><i class="bi bi-clock-fill text-success fs-4"></i></div>
-                        <div><h6 class="fw-bold mb-0">Working Hours</h6><p class="text-muted small mb-0">Mon - Fri: 8:00 AM - 5:00 PM</p></div>
+    <section class="py-100px" id="contact" style="background: transparent !important;">
+        <div class="container py-60px">
+            <div class="text-start mb-5" data-aos="fade-right">
+                <h2 class="fw-bold" style="color: #20a060 !important; font-weight: 900; font-size: 2.8rem; letter-spacing: -1.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">Frequently Asked Questions</h2>
+            </div>
+            
+            <div class="row g-4 overflow-hidden">
+                <!-- FAQ Accordion Column -->
+                <div class="col-lg-7" data-aos="fade-right" data-aos-delay="200">
+                    <div class="faq-wrapper-card">
+                        <div class="accordion faq-accordion" id="faqAccordion">
+                            <!-- FAQ 1 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        Who can register in TrackCOOP?
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        Farmers and fisherfolks connected to NFFAC Nasugbu can register. Select the correct sector during signup so your account profile is properly categorized.
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- FAQ 2 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        Why can't I log in right after registering?
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        All new accounts require administrative verification. Please wait for an SMS or email notification once your account has been reviewed and approved.
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- FAQ 3 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        What password format is required?
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        For security, your password must be at least 8 characters long and include a mix of uppercase letters, lowercase letters, and numbers.
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- FAQ 4 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                        How do I know the latest cooperative updates?
+                                    </button>
+                                </h2>
+                                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        You can check the "Cooperative Announcements" section on the homepage or log in to your dashboard to view more detailed management news.
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- FAQ 5 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                        Who should I contact for account concerns?
+                                    </button>
+                                </h2>
+                                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        For urgent concerns, you can use the message form on this page or visit our Official Coop Office during working hours.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-7" data-aos="fade-left">
-                    <div class="contact-card">
-                        <h4 class="fw-bold mb-4 text-center">Send us a message</h4>
+
+                <!-- Message Form Column -->
+                <div class="col-lg-5" data-aos="fade-left" data-aos-delay="400">
+                    <div class="message-wrapper-card">
+                        <div class="text-start mb-4">
+                            <h3 class="fw-bold" style="color: #20a060; letter-spacing: -0.5px;">Send us a Message</h3>
+                            <p class="text-muted small" style="text-align: justify;">Need more help? Send your question and our team will get back to you.</p>
+                        </div>
                         <form action="#" method="POST">
                             <div class="row g-3">
                                 <div class="col-md-4"><input type="text" class="form-control" placeholder="First Name" required></div>
                                 <div class="col-md-4"><input type="text" class="form-control" placeholder="Middle Name"></div>
                                 <div class="col-md-4"><input type="text" class="form-control" placeholder="Last Name" required></div>
                                 <div class="col-12"><input type="email" class="form-control" placeholder="Email Address" required></div>
-                                <div class="col-12"><textarea class="form-control" rows="4" placeholder="How can we help?" required></textarea></div>
-                                <div class="col-12"><button type="submit" class="btn btn-nav-login w-100 py-3 rounded-4 fw-bold">Submit Message</button></div>
+                                <div class="col-12"><textarea class="form-control" rows="5" placeholder="How can we help?" required></textarea></div>
+                                <div class="col-12 pt-2">
+                                    <button type="submit" class="btn btn-submit-green w-100">Submit Message</button>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -835,160 +1239,339 @@ if (isset($_SESSION['user_id'])) {
 
     <!-- NFFAC Official Footer Section -->
 
-    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+    <!-- --- DEDICATED LOGIN MODAL --- -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
-            <div class="modal-content shadow-lg border-0">
-                <div class="modal-header-beige">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="top: 25px; right: 25px;"></button>
-                    <div class="modal-brand m-0" style="font-weight: 800; font-size: 1.3rem; letter-spacing: -1.2px; color: #ffffff;">
-                        TRACK<span style="color: #20a060;">COOP</span>
-                    </div>
-                    <div class="icon-box-small" style="width: 40px; height: 40px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 15px rgba(32, 160, 96, 0.1);">
-                        <i class="bi bi-shield-lock-fill text-success fs-5"></i>
+            <div class="modal-content border-0">
+                <div class="modal-header-botanical position-relative" style="padding: 25px; display: flex; justify-content: center;">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.1); border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: none; color: #ffffff;">
+                        <i class="bi bi-x-lg" style="font-size: 1rem;"></i>
+                    </button>
+                    <div class="d-flex align-items-center gap-0">
+                        <img src="TrackCOOP Logo.svg" alt="Logo" style="height: 42px; width: auto; margin-right: -14px;">
+                        <div class="modal-brand m-0" style="font-weight: 800; font-size: 1.6rem; letter-spacing: -1.5px; color: #ffffff;">
+                            TRACK<span style="color: #20a060;">COOP</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="p-4">
-                    <ul class="nav nav-tabs nav-tabs-auth mb-4" role="tablist">
-                        <li class="nav-item w-50"><button class="nav-link active w-100" data-bs-toggle="tab" data-bs-target="#login-p">Login</button></li>
-                        <li class="nav-item w-50"><button class="nav-link w-100" data-bs-toggle="tab" data-bs-target="#reg-p">Register</button></li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="login-p">
-                            <form action="auth/login.php" method="POST" onsubmit="return TrackUI.confirmForm(event, 'Proceed to login to your cooperative account?', 'Authentication', 'primary', 'Login', 'Back')">
-                                <div class="mb-3">
-                                    <label class="small fw-bold mb-2">USERNAME</label>
-                                    <input type="text" id="loginUsername" name="username" class="form-control" placeholder="Enter username" required value="<?php echo !empty($remembered_user) ? htmlspecialchars($remembered_user) : (isset($_GET['username']) ? htmlspecialchars($_GET['username']) : ''); ?>">
-                                </div>
-                                <div class="mb-4">
-                                    <label class="small fw-bold mb-2">PASSWORD</label>
-                                    <div class="password-toggle-wrapper">
-                                        <input type="password" id="loginPassword" name="password" class="form-control" placeholder="Enter password" required maxlength="15" style="padding-right: 45px;">
-                                        <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('loginPassword', 'loginEye')">
-                                            <i id="loginEye" class="bi bi-eye"></i>
-                                        </button>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-between mt-2 px-1">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="remember-me" id="rememberMe" <?php echo !empty($remembered_user) ? 'checked' : ''; ?>>
-                                            <label class="form-check-label small fw-bold text-muted" for="rememberMe" style="cursor: pointer;">Remember Me</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="small fw-bold mb-2">SELECT ROLE</label>
-                                    <select id="loginRole" name="selected_role" class="form-select form-control" required onchange="autoFillCredentials(this.value)">
-                                        <option value="">-- Choose Role --</option>
-                                        <option value="Admin">Administrator</option>
-                                        <option value="Bookkeeper">Bookkeeper</option>
-                                        <option value="Member">Member</option>
-                                    </select>
-                                </div>
-                                <div class="mb-4 d-flex justify-content-center">
-                                    <!-- Visual Mockup of reCAPTCHA -->
-                                    <div class="fake-recaptcha d-flex align-items-center justify-content-between p-3 border-1 rounded-1 shadow-sm" style="width: 300px; background: #f9f9f9; border: 1px solid #d3d3d3;">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="form-check m-0">
-                                                <input class="form-check-input" type="checkbox" id="fakeRobotCheck" required style="width: 24px; height: 24px; cursor: pointer; border-color: #c1c1c1;">
-                                            </div>
-                                            <span class="small fw-bold" style="color: #555; font-size: 0.8rem;">I'm not a robot</span>
-                                        </div>
-                                        <div class="text-center" style="line-height: 1;">
-                                            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA" style="width: 24px; opacity: 0.8;">
-                                            <div class="text-muted" style="font-size: 0.5rem; font-weight: 700;">reCAPTCHA</div>
-                                            <div class="text-muted" style="font-size: 0.4rem;">Privacy - Terms</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-3 mt-4">
-                                    <button type="button" class="btn btn-cancel-modal w-100" data-bs-dismiss="modal">
-                                        <i class="bi bi-x-circle me-2"></i>Cancel
-                                    </button>
-                                    <button type="submit" class="btn btn-nav-login w-100 py-3 fw-bold">
-                                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
-                                    </button>
-                                </div>
-                            </form>
+                <div class="p-4 pt-5">
+                    <form action="auth/login.php" method="POST" onsubmit="return TrackUI.confirmForm(event, 'Proceed to login to your cooperative account?', 'Authentication', 'primary', 'Login', 'Back')">
+                        <div class="mb-3">
+                            <label class="small fw-bold mb-2 text-dark" style="letter-spacing: 0.5px;">USERNAME</label>
+                            <input type="text" id="loginUsername" name="username" class="form-control px-4" placeholder="Enter username" required value="<?php echo !empty($remembered_user) ? htmlspecialchars($remembered_user) : (isset($_GET['username']) ? htmlspecialchars($_GET['username']) : ''); ?>">
+                        </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold mb-2 text-dark" style="letter-spacing: 0.5px;">PASSWORD</label>
+                            <div class="password-toggle-wrapper">
+                                <input type="password" id="loginPassword" name="password" class="form-control px-4" placeholder="Enter password" required maxlength="15" style="padding-right: 45px;">
+                                <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('loginPassword', 'loginEye')" style="right: 15px;">
+                                    <i id="loginEye" class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold mb-2 text-dark" style="letter-spacing: 0.5px;">SELECT ROLE</label>
+                            <select id="loginRole" name="selected_role" class="form-select px-4" required onchange="autoFillCredentials(this.value)">
+                                <option value="">-- Choose Role --</option>
+                                <option value="Admin">Administrator</option>
+                                <option value="Bookkeeper">Bookkeeper</option>
+                                <option value="Member">Member</option>
+                            </select>
                         </div>
 
-                        <div class="tab-pane" id="reg-p">
-                            <form action="auth/register.php" method="POST" onsubmit="return TrackUI.confirmForm(event, 'Proceed with your account registration? Please verify your details first.', 'New Account Registry', 'primary', 'Register Now', 'Review')">
-                                <div class="mb-4">
-                                    <label class="small fw-bold mb-2">FULL NAME</label>
-                                    <div class="row g-2">
-                                        <div class="col-4"><input type="text" name="fname" class="form-control" placeholder="First" required></div>
-                                        <div class="col-4"><input type="text" name="mname" class="form-control" placeholder="Middle"></div>
-                                        <div class="col-4"><input type="text" name="lname" class="form-control" placeholder="Last" required></div>
+                        <div class="form-check mb-4 ps-1">
+                            <input class="form-check-input" type="checkbox" name="remember-me" id="rememberMe" <?php echo !empty($remembered_user) ? 'checked' : ''; ?> style="margin-left: 0; margin-right: 10px; cursor: pointer;">
+                            <label class="form-check-label small fw-bold text-muted" for="rememberMe" style="cursor: pointer; vertical-align: middle;">Remember Me</label>
+                        </div>
+
+                        <div class="mb-4 d-flex justify-content-center">
+                            <div class="fake-recaptcha d-flex align-items-center justify-content-between p-3 border-1 rounded-3 shadow-sm" style="width: 100%; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 12px !important;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="form-check m-0">
+                                        <input class="form-check-input" type="checkbox" id="fakeRobotCheck" required style="width: 24px; height: 24px; cursor: pointer; border-color: #cbd5e1; border-radius: 4px;">
+                                    </div>
+                                    <span class="small fw-bold text-muted" style="font-size: 0.85rem;">I'm not a robot</span>
+                                </div>
+                                <div class="text-center" style="line-height: 1;">
+                                    <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA" style="width: 28px; opacity: 0.9;">
+                                    <div class="text-muted" style="font-size: 0.55rem; font-weight: 700; margin-top: 2px;">reCAPTCHA</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <p class="small text-muted mb-0">Don't have an account? <a href="javascript:void(0)" onclick="TrackUI.switchModals('#loginModal', '#registerModal')" class="fw-bold text-success text-decoration-none" style="color: #20a060 !important;">Register here</a></p>
+                        </div>
+
+                        <div class="row g-3 mt-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-cancel-modal w-100 py-3" data-bs-dismiss="modal">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-login-modal w-100 py-3">
+                                    <i class="bi bi-key-fill me-2"></i>Login
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- DEDICATED REGISTER MODAL (MULTI-STEP) --- -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 850px;">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header-botanical position-relative" style="padding: 25px; display: flex; justify-content: center;">
+                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.1); border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: none; color: #ffffff;">
+                        <i class="bi bi-x-lg" style="font-size: 1rem;"></i>
+                    </button>
+                    <div class="d-flex align-items-center gap-0">
+                        <img src="TrackCOOP Logo.svg" alt="Logo" style="height: 42px; width: auto; margin-right: -14px;">
+                        <div class="modal-brand m-0" style="font-weight: 800; font-size: 1.6rem; letter-spacing: -1.5px; color: #ffffff;">
+                            TRACK<span style="color: #20a060;">COOP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2 px-md-3">
+                    <form action="auth/register.php" id="registrationForm" method="POST">
+                        
+                        <!-- Page 1: PERSONAL DETAILS -->
+                        <div id="regStep1" class="reg-step reg-step-1">
+                            <div class="step-indicator mb-1">Page 1 of 2</div>
+                            <div class="section-title-pill mb-3">PERSONAL DETAILS</div>
+                            
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">FIRST NAME</label>
+                                    <input type="text" name="fname" class="form-control form-control-botanical" placeholder="First name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">MIDDLE NAME</label>
+                                    <input type="text" name="mname" class="form-control form-control-botanical" placeholder="Middle name">
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">LAST NAME</label>
+                                    <input type="text" name="lname" class="form-control form-control-botanical" placeholder="Last name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">EMAIL</label>
+                                    <input type="email" name="email" class="form-control form-control-botanical" placeholder="Email address" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">PHONE</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text form-control-botanical border-end-0" style="background-color: #f1f5f9; color: #475569; font-weight: 700; border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;">+63</span>
+                                        <input type="text" name="phone" class="form-control form-control-botanical border-start-0" placeholder="9123456789" required maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important;">
                                     </div>
                                 </div>
-
-                                <div class="mb-4">
-                                    <label class="small fw-bold mb-3">ACCOUNT DETAILS</label>
-                                    <div class="d-flex flex-column gap-3">
-                                        <div>
-                                            <input type="text" name="username" class="form-control" placeholder="Username" required>
-                                        </div>
-                                        <div>
-                                            <div class="password-toggle-wrapper">
-                                                <input type="password" id="regPassword" name="password" class="form-control" 
-                                                       placeholder="Password" required 
-                                                       pattern="(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).{8,15}"
-                                                       title="8-15 chars: must include letters, numbers, and symbols."
-                                                       maxlength="15"
-                                                       oninput="checkPasswordStrength(this.value); checkPasswordMatch();"
-                                                       style="padding-right: 45px;">
-                                                <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('regPassword', 'regEye')">
-                                                    <i id="regEye" class="bi bi-eye"></i>
-                                                </button>
-                                            </div>
-                                            <div class="strength-container" id="strengthContainer" style="display: none;">
-                                                <div class="strength-bar"><div id="strengthBar" class="strength-segment"></div></div>
-                                                <span id="strengthText" class="strength-text"></span>
-                                            </div>
-                                            <div class="mt-2 ps-1" id="passReqText" style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">
-                                                <i class="bi bi-shield-lock-fill me-1 text-success"></i> 
-                                                8-15 Characters (Letters, Numbers, & Symbols)
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="password-toggle-wrapper">
-                                                <input type="password" id="regConfirmPassword" name="confirm_password" class="form-control" 
-                                                       placeholder="Confirm" required maxlength="15"
-                                                       oninput="checkPasswordMatch()"
-                                                       style="padding-right: 45px;">
-                                                <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('regConfirmPassword', 'regConfirmEye')">
-                                                    <i id="regConfirmEye" class="bi bi-eye"></i>
-                                                </button>
-                                            </div>
-                                            <div id="matchStatus" class="mt-1 ps-1 fw-bold" style="font-size: 0.65rem; display: none;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="small fw-bold mb-2">AGRICULTURAL SECTOR</label>
-                                    <select name="sector" class="form-select" required>
-                                        <option value="" selected disabled>Select your sector...</option>
-                                        <option value="Rice">Rice</option>
-                                        <option value="Corn">Corn</option>
-                                        <option value="Fishery">Fishery</option>
-                                        <option value="Livestock">Livestock</option>
-                                        <option value="High Value Crops">High Value Crops</option>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">STATUS</label>
+                                    <select name="status" class="form-select form-control-botanical" required>
+                                        <option value="">-- Select Status --</option>
+                                        <option value="Single">Single</option>
+                                        <option value="Married">Married</option>
+                                        <option value="Widowed">Widowed</option>
                                     </select>
                                 </div>
-
-                                <div class="d-flex gap-3 mt-4">
-                                    <button type="button" class="btn btn-cancel-modal w-100" data-bs-dismiss="modal">
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">PLACE OF BIRTH</label>
+                                    <input type="text" name="pob" class="form-control form-control-botanical" placeholder="Place of birth" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">BIRTHDAY</label>
+                                    <input type="date" name="dob" class="form-control form-control-botanical" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">CURRENT HOME</label>
+                                    <select name="barangay" class="form-select form-control-botanical" required>
+                                        <option value="">-- Select Barangay --</option>
+                                        <option value="Aga">Aga</option>
+                                        <option value="Balayag-Manoc">Balayag-Manoc</option>
+                                        <option value="Banilad">Banilad</option>
+                                        <option value="Barangay 1 (Pob.)">Barangay 1 (Pob.)</option>
+                                        <option value="Barangay 2 (Pob.)">Barangay 2 (Pob.)</option>
+                                        <option value="Barangay 3 (Pob.)">Barangay 3 (Pob.)</option>
+                                        <option value="Barangay 4 (Pob.)">Barangay 4 (Pob.)</option>
+                                        <option value="Barangay 5 (Pob.)">Barangay 5 (Pob.)</option>
+                                        <option value="Barangay 6 (Pob.)">Barangay 6 (Pob.)</option>
+                                        <option value="Barangay 7 (Pob.)">Barangay 7 (Pob.)</option>
+                                        <option value="Barangay 8 (Pob.)">Barangay 8 (Pob.)</option>
+                                        <option value="Barangay 9 (Pob.)">Barangay 9 (Pob.)</option>
+                                        <option value="Barangay 10 (Pob.)">Barangay 10 (Pob.)</option>
+                                        <option value="Barangay 11 (Pob.)">Barangay 11 (Pob.)</option>
+                                        <option value="Barangay 12 (Pob.)">Barangay 12 (Pob.)</option>
+                                        <option value="Barangay 13 (Pob.)">Barangay 13 (Pob.)</option>
+                                        <option value="Barangay 14 (Pob.)">Barangay 14 (Pob.)</option>
+                                        <option value="Barangay 15 (Pob.)">Barangay 15 (Pob.)</option>
+                                        <option value="Barangay 16 (Pob.)">Barangay 16 (Pob.)</option>
+                                        <option value="Barangay 17 (Pob.)">Barangay 17 (Pob.)</option>
+                                        <option value="Barangay 18 (Pob.)">Barangay 18 (Pob.)</option>
+                                        <option value="Barangay 19 (Pob.)">Barangay 19 (Pob.)</option>
+                                        <option value="Bayo">Bayo</option>
+                                        <option value="Bucana">Bucana</option>
+                                        <option value="Bulihan">Bulihan</option>
+                                        <option value="Bungahan">Bungahan</option>
+                                        <option value="Calauag">Calauag</option>
+                                        <option value="Catandaan">Catandaan</option>
+                                        <option value="Cogunan">Cogunan</option>
+                                        <option value="Dacanlao">Dacanlao</option>
+                                        <option value="Kaylaway">Kaylaway</option>
+                                        <option value="Looc">Looc</option>
+                                        <option value="Lumbangan">Lumbangan</option>
+                                        <option value="Mataas na Pulo">Mataas na Pulo</option>
+                                        <option value="Mulat">Mulat</option>
+                                        <option value="Natipuan">Natipuan</option>
+                                        <option value="Pantalan">Pantalan</option>
+                                        <option value="Papaya">Papaya</option>
+                                        <option value="Putat">Putat</option>
+                                        <option value="Reparo">Reparo</option>
+                                        <option value="Tala">Tala</option>
+                                        <option value="Wawa">Wawa</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">WORK/OCCUPATION</label>
+                                    <input type="text" name="occupation" class="form-control form-control-botanical" placeholder="Occupation" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-2 mt-3">
+                                <div class="col-6">
+                                    <button type="button" class="btn-reg-cancel w-100" data-bs-dismiss="modal">
                                         <i class="bi bi-x-circle me-2"></i>Cancel
                                     </button>
-                                    <button type="submit" class="btn btn-nav-login w-100 py-3 fw-bold">
-                                        <i class="bi bi-person-plus-fill me-2"></i>Register
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn-reg-next w-100" onclick="TrackUI.showRegStep(2)">
+                                        Next <i class="bi bi-chevron-right ms-2"></i>
                                     </button>
                                 </div>
-                            </form>
-                        </div> 
-                    </div>
+                            </div>
+                        </div>
+
+                        <!-- Page 2: FAMILY & SECURITY (Hidden by default) -->
+                        <div id="regStep2" class="reg-step reg-step-2 d-none">
+                            <div class="step-indicator">Page 2 of 2</div>
+                            
+                            <div class="section-title-pill mb-3">FAMILY INFORMATION</div>
+                            <!-- Parents & Spouse Row -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label-custom small">FATHER'S NAME</label>
+                                    <input type="text" name="father_name" class="form-control form-control-botanical" placeholder="Father's name">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom small">MOTHER'S NAME</label>
+                                    <input type="text" name="mother_name" class="form-control form-control-botanical" placeholder="Mother's name">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom small">WIFE'S NAME</label>
+                                    <input type="text" name="wife_name" class="form-control form-control-botanical" placeholder="Wife's name (if married)">
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Children Container -->
+                            <div class="section-title-pill mb-2">CHILDREN INFORMATION</div>
+                            <div id="childrenContainer">
+                                <div class="child-row row g-2">
+                                    <div class="col-md-5 col-12">
+                                        <label class="form-label-custom small">CHILD'S NAME</label>
+                                        <input type="text" name="child_names[]" class="form-control form-control-botanical" placeholder="Child's name">
+                                    </div>
+                                    <div class="col-md-2 col-4">
+                                        <label class="form-label-custom small">AGE</label>
+                                        <input type="number" name="child_ages[]" class="form-control form-control-botanical" placeholder="Age">
+                                    </div>
+                                    <div class="col-md-4 col-6">
+                                        <label class="form-label-custom small">BENEFIT</label>
+                                        <select name="child_benefits[]" class="form-select form-control-botanical">
+                                            <option value="">None</option>
+                                            <option value="SSS">SSS</option>
+                                            <option value="PhilHealth">PhilHealth</option>
+                                            <option value="Pag-IBIG">Pag-IBIG</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1 col-2 text-center d-flex align-items-center justify-content-center">
+                                        <button type="button" class="btn-add-child" onclick="TrackUI.addChildRow()" title="Add another child" style="margin-top: 18px;">
+                                            <i class="bi bi-plus-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4"></div>
+
+                            <div class="section-title-pill mb-3">ACCOUNT SECURITY</div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">USERNAME</label>
+                                    <input type="text" name="username" class="form-control form-control-botanical" placeholder="Create username" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">PASSWORD</label>
+                                    <div class="position-relative">
+                                        <input type="password" id="regPasswordV2" name="password" class="form-control form-control-botanical" 
+                                               placeholder="Create password" required maxlength="15" 
+                                               oninput="checkPasswordStrengthV2(this.value)">
+                                        <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer text-muted" 
+                                           onclick="togglePassVisibility('regPasswordV2', this.id)" id="eyeRegV2"></i>
+                                    </div>
+                                    <span id="strengthTextV2" class="strength-text" style="display: none;">Weak</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label-custom">CONFIRM PASSWORD</label>
+                                    <div class="position-relative">
+                                        <input type="password" id="regConfirmPasswordV2" name="confirm_password" class="form-control form-control-botanical" 
+                                               placeholder="Confirm password" required maxlength="15" oninput="checkPasswordMatchV2()">
+                                        <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer text-muted" 
+                                           onclick="togglePassVisibility('regConfirmPasswordV2', this.id)" id="eyeConfRegV2"></i>
+                                    </div>
+                                </div>
+                                <div class="col-12 d-flex justify-content-between align-items-center mt-0">
+                                    <span id="strengthTextV2" class="strength-text" style="display: none; margin-left: 2px;">Weak</span>
+                                    <div id="matchStatusV2" class="fw-bold" style="font-size: 0.65rem; display: none;"></div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                                <div class="form-check m-0">
+                                    <input class="form-check-input" type="checkbox" id="termsCheck" required style="cursor: pointer;">
+                                    <label class="form-check-label small text-muted" for="termsCheck" style="cursor: pointer;">
+                                        I agree to the <a href="#" class="text-success fw-bold text-decoration-none">Terms and Conditions</a>
+                                    </label>
+                                </div>
+                                <p class="small text-muted mb-0">Already have an account? <a href="javascript:void(0)" onclick="TrackUI.switchModals('#registerModal', '#loginModal')" class="fw-bold text-success text-decoration-none">Login here</a></p>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <button type="button" class="btn-reg-cancel w-100" data-bs-dismiss="modal">
+                                        <i class="bi bi-x-circle me-1"></i> Cancel
+                                    </button>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" class="btn-reg-back w-100" onclick="TrackUI.showRegStep(1)">
+                                        <i class="bi bi-chevron-left me-2"></i>Back
+                                    </button>
+                                </div>
+                                <div class="col-4">
+                                    <button type="submit" class="btn-reg-next w-100">
+                                        <i class="bi bi-check2-circle me-2"></i>Register
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
                 </div>
             </div>
         </div>
@@ -1050,42 +1633,40 @@ if (isset($_SESSION['user_id'])) {
 <!-- --- PREMIUM GALLERY ARCHIVE MODAL --- -->
 <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius: 40px; border: none; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.2);">
-            <div class="modal-header border-0 pb-3 px-4 pt-4 text-center d-block" style="background: rgba(22, 74, 54, 0.95) !important; border-bottom: 1px solid rgba(22, 74, 54, 0.3) !important; color: white;">
-                <h2 class="fw-800 mb-0" style="color: white; letter-spacing: -2px;">Cooperative Gallery</h2>
-                <p class="text-muted small mb-0">Our shared milestones and activities archive</p>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 30px; top: 30px; filter: invert(1);"></button>
+        <div class="modal-content" style="border-radius: 40px; border: none; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.2); height: 75vh;">
+            <div class="modal-header border-0 py-4 px-4 d-flex align-items-center position-relative w-100" style="background: rgba(22, 74, 54, 0.95) !important; border-bottom: 1px solid rgba(22, 74, 54, 0.3) !important; color: white;">
+                <div class="w-100 d-flex flex-wrap gap-2 justify-content-center">
+                    <button type="button" class="modal-filter-btn active" onclick="filterModalGallery('All', this)">All</button>
+                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Events', this)">Events</button>
+                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Agriculture', this)">Agriculture</button>
+                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Meetings', this)">Meetings</button>
+                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Sector News', this)">Sector News</button>
+                </div>
+                <button type="button" class="btn btn-light rounded-circle shadow-sm detail-close-btn" data-bs-dismiss="modal" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; outline: none; border: none; z-index: 2;">
+                    <i class="bi bi-x-lg fs-5"></i>
+                </button>
             </div>
             <div class="modal-body px-4 pb-5">
-                <!-- MODAL FILTER BUTTONS -->
-                <div class="d-flex flex-wrap justify-content-center mb-4 gap-2">
-                    <button type="button" class="modal-filter-btn active" onclick="filterModalGallery('All', this)">All</button>
-                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Training', this)">Trainings</button>
-                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Harvesting', this)">Harvesting</button>
-                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Meeting', this)">Meetings</button>
-                    <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Livelihood', this)">Livelihood</button>
-                </div>
-
                 <div class="row g-4 mt-2" id="modalGalleryGrid">
                     <?php
                     // Static archive activities (Demo data)
                     $archive_activities = [
-                        ['id' => 1, 'title' => 'Team Building Event 2026', 'category' => 'Events', 'activity_date' => '2026-03-15', 'file_path' => 'uploads/media/team_building.jpg'],
-                        ['id' => 2, 'title' => 'Harvest Season Activity', 'category' => 'Agriculture', 'activity_date' => '2026-03-10', 'file_path' => 'uploads/media/harvest.jpg'],
-                        ['id' => 4, 'title' => 'Member Conference 2026', 'category' => 'Meetings', 'activity_date' => '2026-02-28', 'file_path' => 'uploads/media/conference.jpg'],
-                        ['id' => 5, 'title' => 'Sector Launch - Fishery', 'category' => 'Sector News', 'activity_date' => '2026-02-20', 'file_path' => 'uploads/media/fishery.jpg'],
-                        ['id' => 6, 'title' => 'Annual General Meeting', 'category' => 'Meetings', 'activity_date' => '2026-02-10', 'file_path' => 'uploads/media/agm.jpg'],
+                        ['id' => 1, 'title' => 'Team Building Event 2026', 'category' => 'Events', 'activity_date' => '2026-03-15', 'file_path' => 'event.png', 'description' => 'Our cooperative members gathered for an exciting team building activity to strengthen bonds and improve collaboration. This event featured various activities designed to enhance teamwork and communication among participants.'],
+                        ['id' => 2, 'title' => 'Harvest Season Activity', 'category' => 'Agriculture', 'activity_date' => '2026-03-10', 'file_path' => 'agriculture.webp', 'description' => 'A successful harvest season engaging our farmers. Our cooperative members gathered for an exciting activity to strengthen bonds and celebrate a bountiful yield.'],
+                        ['id' => 4, 'title' => 'Member Conference 2026', 'category' => 'Meetings', 'activity_date' => '2026-02-28', 'file_path' => 'meeting.jpg', 'description' => 'Annual strategic member conference to discuss future goals, financial reviews, and cooperative developments for the upcoming year.'],
+                        ['id' => 5, 'title' => 'Sector Launch - Rice', 'category' => 'Sector News', 'activity_date' => '2026-02-20', 'file_path' => 'sector.jpg', 'description' => 'Official launch of the Rice sector operations, marking a significant milestone for our agricultural cooperative framework.'],
+                        ['id' => 6, 'title' => 'Annual General Meeting', 'category' => 'Meetings', 'activity_date' => '2026-02-10', 'file_path' => 'meeting.jpg', 'description' => 'Annual general assembly of cooperative members to review financial reports and elect new board officials.'],
                     ];
                     if (count($archive_activities) > 0):
                         foreach ($archive_activities as $row): ?>
                             <div class="col-lg-4 col-md-6 modal-gallery-item" data-category="<?php echo htmlspecialchars($row['category']); ?>">
-                                <div class="gallery-card-premium">
-                                    <div class="card-img-wrapper" style="height: 180px;">
-                                        <span class="category-tag"><?php echo htmlspecialchars($row['category']); ?></span>
+                                <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 2px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)';" onmouseout="this.style.transform='translateY(0)';" data-title="<?php echo htmlspecialchars($row['title']); ?>" data-date="<?php echo date('M d, Y', strtotime($row['activity_date'])); ?>" data-category="<?php echo htmlspecialchars($row['category']); ?>" data-img="<?php echo htmlspecialchars($row['file_path']); ?>" data-desc="<?php echo htmlspecialchars($row['description']); ?>" onclick="openActivityDetail(this)">
+                                    <div class="card-img-wrapper" style="height: 180px; position: relative; background: url('<?php echo htmlspecialchars($row['file_path']); ?>') center/cover no-repeat; border-bottom: 2px solid #20a060;">
+                                        <span class="category-tag bg-white text-success fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem; pointer-events: none;"><?php echo htmlspecialchars($row['category']); ?></span>
                                     </div>
-                                    <div class="card-content p-3">
-                                        <h6 class="fw-bold mb-1" style="font-size: 0.95rem;"><?php echo htmlspecialchars($row['title']); ?></h6>
-                                        <p class="text-muted mb-0" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i><?php echo date('M d, Y', strtotime($row['activity_date'])); ?></p>
+                                    <div class="card-content p-3 d-flex flex-column" style="flex: 1; pointer-events: none;">
+                                        <h6 class="fw-bold mb-1" style="font-size: 0.95rem; color: #20a060;"><?php echo htmlspecialchars($row['title']); ?></h6>
+                                        <p class="text-dark mb-0 mt-auto" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i><?php echo date('M d, Y', strtotime($row['activity_date'])); ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -1102,24 +1683,20 @@ if (isset($_SESSION['user_id'])) {
             <!-- MODAL SPECIFIC STYLES & SCRIPT -->
             <style>
                 .modal-filter-btn {
-                    padding: 10px 24px; border-radius: 50px; border: 1.5px solid #e2e8f0;
-                    background: white; color: #64748b; font-weight: 700; font-size: 0.85rem;
+                    padding: 8px 24px; border-radius: 50px; border: none;
+                    background: white; color: #475569; font-weight: 700; font-size: 0.85rem;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
                 }
                 .modal-filter-btn.active, .modal-filter-btn:hover {
-                    background: #20a060; color: white; border-color: #20a060;
+                    background: #20a060; color: white;
                     box-shadow: 0 10px 20px rgba(32, 160, 96, 0.25);
-                    transform: translateY(-2px);
                 }
             </style>
             <script>
                 function filterModalGallery(category, btn) {
-                    // Update active button state
-                    document.querySelectorAll('.modal-filter-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('#galleryModal .modal-filter-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-
-                    // Filter items
                     const items = document.querySelectorAll('.modal-gallery-item');
                     items.forEach(item => {
                         if (category === 'All' || item.getAttribute('data-category') === category) {
@@ -1131,10 +1708,226 @@ if (isset($_SESSION['user_id'])) {
                     });
                 }
             </script>
-
         </div>
     </div>
 </div>
+
+<!-- --- PREMIUM ANNOUNCEMENTS ARCHIVE MODAL --- -->
+<div class="modal fade" id="announcementsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius: 40px; border: none; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.2); height: 80vh;">
+            <div class="modal-header border-0 py-4 px-4 d-flex align-items-center position-relative w-100" style="background: rgba(22, 74, 54, 0.95) !important; color: white;">
+                <div class="w-100 d-flex flex-wrap gap-2 justify-content-center">
+                    <button type="button" class="modal-filter-btn ann-filter active" onclick="filterAnnouncements('All', this)">All</button>
+                    <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('General', this)">General</button>
+                    <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Events', this)">Events</button>
+                    <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Meetings', this)">Meetings</button>
+                    <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Deadlines', this)">Deadlines</button>
+                    <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Sector News', this)">Sector News</button>
+                </div>
+                <button type="button" class="btn btn-light rounded-circle shadow-sm detail-close-btn" data-bs-dismiss="modal" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; outline: none; border: none; z-index: 2;">
+                    <i class="bi bi-x-lg fs-5"></i>
+                </button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="d-flex flex-column gap-3" id="modalAnnouncementsList">
+                    <?php foreach ($ann_rows as $row): ?>
+                    <div class="modal-ann-row-item" data-category="<?php echo htmlspecialchars($row['category'] ?? 'General'); ?>">
+                        <div class="ann-horizontal-card bg-white p-4 d-flex align-items-center gap-4 position-relative" style="border-radius: 25px; border: 1.5px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer;"
+                             onclick="openAnnouncementDetail(this)"
+                             data-title="<?php echo htmlspecialchars($row['title']); ?>"
+                             data-category="<?php echo htmlspecialchars($row['category'] ?? 'General'); ?>"
+                             data-date="<?php echo date('M j, Y', strtotime($row['created_at'])); ?>"
+                             data-author="<?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>"
+                             data-content="<?php echo htmlspecialchars($row['content']); ?>">
+                            <div class="ann-horizontal-icon" style="width: 80px; height: 80px; background: #20a060; color: white; border-radius: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800;">
+                                <?php echo strtoupper(substr($row['first_name'], 0, 1) . substr($row['last_name'], 0, 1)); ?>
+                            </div>
+                            <div class="flex-grow-1 text-start pe-5">
+                                <h5 class="fw-bold mb-2" style="color: #1a332a; font-size: 1.2rem;"><?php echo htmlspecialchars($row['title']); ?></h5>
+                                <p class="text-muted small mb-3 lh-base" style="max-width: 90%;"><?php echo htmlspecialchars($row['content']); ?></p>
+                                <div class="ann-row-footer d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: #f1f5f9 !important;">
+                                    <span class="small fw-600 text-muted"><i class="bi bi-person me-1 text-success"></i> <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></span>
+                                    <span class="small fw-600 text-muted"><i class="bi bi-calendar4-event me-1 text-success"></i> <?php echo date('M j, Y', strtotime($row['created_at'])); ?></span>
+                                </div>
+                            </div>
+                            <span class="badge rounded-pill px-3 py-2" style="position: absolute; top: 25px; right: 30px; background: #eef7f2; color: #20a060; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <?php echo htmlspecialchars($row['category'] ?? 'General'); ?>
+                            </span>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            
+            <script>
+                function filterAnnouncements(category, btn) {
+                    document.querySelectorAll('.ann-filter').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const items = document.querySelectorAll('.modal-ann-row-item');
+                    items.forEach(item => {
+                        const itemCat = item.getAttribute('data-category');
+                        if (category === 'All' || itemCat === category) {
+                            item.style.display = 'block';
+                            item.style.animation = 'fadeInUp 0.3s ease forwards';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                }
+            </script>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-ann-row-item { animation: fadeInUp 0.4s ease forwards; }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- --- ANNOUNCEMENT DETAIL MODAL --- -->
+<div class="modal fade" id="announcementDetailModal" tabindex="-1" aria-hidden="true" style="z-index: 2000;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 35px; border: none; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.3);">
+            <!-- Modal Header (Dark Green with Integrated Icon) -->
+            <div class="modal-header border-0 py-4 px-4 d-flex align-items-center justify-content-between" style="background: rgba(22, 74, 54, 0.95); color: white;">
+                <div class="d-flex align-items-center gap-3">
+                    <div id="annDetailInitialBox" class="d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; background: #20a060; color: white; border-radius: 12px; font-size: 22px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2);">
+                        A
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-0" id="annDetailTitle" style="color: #20a060; font-size: 1.3rem; letter-spacing: -0.5px;">Announcement Title</h4>
+                        <span id="annDetailCategory" class="text-white-50 small fw-bold text-uppercase" style="letter-spacing: 1px;">CATEGORY</span>
+                    </div>
+                </div>
+                <button type="button" class="btn ann-detail-close-btn rounded-circle p-0 d-flex align-items-center justify-content-center" data-bs-dismiss="modal" style="width: 44px; height: 44px;">
+                    <i class="bi bi-x-lg fs-5"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Clean Content) -->
+            <div class="modal-body p-4 p-md-5 bg-white">
+                <div id="annDetailContent" class="text-dark lh-lg" style="font-size: 1.1rem; color: #334155 !important;">
+                    Announcement content goes here...
+                </div>
+            </div>
+            
+            <!-- Modal Footer (Status Bar Style) -->
+            <div class="modal-footer border-0 p-4 pt-0 bg-white">
+                <div class="w-100 d-flex justify-content-between align-items-center py-3 border-top" style="border-color: #f1f5f9 !important;">
+                    <div class="text-muted small fw-bold d-flex align-items-center gap-2" style="color: #20a060 !important;">
+                        <i class="bi bi-person fs-5"></i> <span id="annDetailAuthor">Admin Name</span>
+                    </div>
+                    <div class="text-muted small fw-bold d-flex align-items-center gap-2" style="color: #20a060 !important;">
+                         <span id="annDetailDate">April 02, 2026</span> <i class="bi bi-calendar4-event fs-5"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openAnnouncementDetail(element) {
+        if(!element) return;
+        
+        // Read data attributes
+        const title = element.getAttribute('data-title');
+        const category = element.getAttribute('data-category');
+        const date = element.getAttribute('data-date');
+        const author = element.getAttribute('data-author');
+        const content = element.getAttribute('data-content');
+
+        // Extract Initial (First letter of author)
+        const initial = author ? author.charAt(0).toUpperCase() : 'A';
+
+        // Populate modal fields
+        const t = document.getElementById('annDetailTitle');
+        const c = document.getElementById('annDetailCategory');
+        const d = document.getElementById('annDetailDate');
+        const a = document.getElementById('annDetailAuthor');
+        const con = document.getElementById('annDetailContent');
+        const ib = document.getElementById('annDetailInitialBox');
+
+        if(t) t.textContent = title;
+        if(c) c.textContent = category;
+        if(d) d.textContent = date;
+        if(a) a.textContent = author;
+        if(con) con.innerHTML = content.replace(/\n/g, '<br>');
+        if(ib) ib.textContent = initial;
+
+        // Trigger Modal
+        const modalEl = document.getElementById('announcementDetailModal');
+        if(modalEl) {
+            const annModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            annModal.show();
+        }
+    }
+</script>
+
+<!-- --- ACTIVITY DETAIL MODAL --- -->
+<style>
+    .detail-close-btn {
+        transition: all 0.2s ease-in-out;
+        color: #20a060 !important;
+    }
+    .detail-close-btn:hover {
+        color: white !important; 
+        background-color: #dc3545 !important; /* Solid Red BG */
+        transform: scale(1.1);
+    }
+</style>
+<div class="modal fade" id="activityDetailModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.3);">
+            <!-- Top Image Half -->
+            <div id="detailModalImage" style="height: 350px; background: url('') center/cover no-repeat; position: relative;">
+                <!-- Close Button -->
+                <button type="button" class="btn btn-light rounded-circle shadow-sm detail-close-btn" data-bs-dismiss="modal" style="position: absolute; right: 20px; top: 20px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; outline: none; border: none;">
+                    <i class="bi bi-x-lg fs-5"></i>
+                </button>
+            </div>
+            <!-- Bottom Text Half -->
+            <div class="modal-body p-4 p-md-5 bg-white text-start">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-1 gap-2">
+                    <h3 class="fw-bold mb-0" id="detailModalTitle" style="color: #20a060;">Activity Title</h3>
+                    <div class="text-muted" style="font-size: 0.95rem; display: flex; align-items: center; white-space: nowrap; font-weight: 500; color: #64748b !important;">
+                        <i class="bi bi-calendar3 me-2" style="color: #74B816;"></i> <span id="detailModalDate">January 01, 2026</span>
+                    </div>
+                </div>
+                <h6 class="mb-4" id="detailModalCategory" style="color: #20a060; font-weight: 600; font-size: 0.9rem;">Category</h6>
+                <p class="text-dark mb-0" id="detailModalDesc" style="line-height: 1.8; font-size: 1rem; color: #334155 !important;">
+                    Activity description goes here.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openActivityDetail(element) {
+        // Read data attributes
+        const title = element.getAttribute('data-title');
+        const dateStr = element.getAttribute('data-date');
+        const category = element.getAttribute('data-category');
+        const img = element.getAttribute('data-img');
+        const desc = element.getAttribute('data-desc');
+
+        // Populate detail modal
+        document.getElementById('detailModalTitle').textContent = title;
+        document.getElementById('detailModalDate').textContent = dateStr;
+        document.getElementById('detailModalCategory').textContent = category;
+        document.getElementById('detailModalDesc').textContent = desc;
+        document.getElementById('detailModalImage').style.backgroundImage = `url('${img}')`;
+
+        // Show modal (we hide gallery if needed, but z-index handles stacking for now)
+        const detailModal = new bootstrap.Modal(document.getElementById('activityDetailModal'));
+        detailModal.show();
+    }
+</script>
 
 <script>
 const TrackUI = {
@@ -1162,6 +1955,45 @@ const TrackUI = {
         const form = event.currentTarget;
         if (await this.show(message, title, type, btnC, btnX)) form.submit();
         return false;
+    },
+    switchModals(fromId, toId) {
+        const fromModal = bootstrap.Modal.getInstance(document.querySelector(fromId));
+        if (fromModal) fromModal.hide();
+        setTimeout(() => {
+            const toModal = new bootstrap.Modal(document.querySelector(toId));
+            toModal.show();
+        }, 400);
+    },
+    showRegStep(step) {
+        document.querySelectorAll('.reg-step').forEach(s => s.classList.add('d-none'));
+        document.getElementById(`regStep${step}`).classList.remove('d-none');
+    },
+    addChildRow() {
+        const container = document.getElementById('childrenContainer');
+        const newRow = document.createElement('div');
+        newRow.className = 'child-row row g-2 mt-2';
+        newRow.innerHTML = `
+            <div class="col-md-5 col-12">
+                <input type="text" name="child_names[]" class="form-control form-control-botanical" placeholder="Child's name">
+            </div>
+            <div class="col-md-2 col-4">
+                <input type="number" name="child_ages[]" class="form-control form-control-botanical" placeholder="Age">
+            </div>
+            <div class="col-md-4 col-6">
+                <select name="child_benefits[]" class="form-select form-control-botanical">
+                    <option value="">None</option>
+                    <option value="SSS">SSS</option>
+                    <option value="PhilHealth">PhilHealth</option>
+                    <option value="Pag-IBIG">Pag-IBIG</option>
+                </select>
+            </div>
+            <div class="col-md-1 col-2 text-center d-flex align-items-center justify-content-center">
+                <div class="btn-remove-child" onclick="this.closest('.child-row').remove()" title="Remove child" style="padding-top:0;">
+                    <i class="bi bi-dash-circle-fill fs-5"></i>
+                </div>
+            </div>
+        `;
+        container.appendChild(newRow);
     }
 };
 
@@ -1187,7 +2019,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         TrackUI.show(alertMsg, title, type, btnConfirm, 'Dismiss').then(confirmed => {
             if (confirmed && btnConfirm === "Retry Login") {
-                const myModal = new bootstrap.Modal(document.getElementById('authModal'));
+                const myModal = new bootstrap.Modal(document.getElementById('loginModal'));
                 myModal.show();
             }
         });
@@ -1197,7 +2029,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<?php include('includes/footer.php'); ?>
+<style>
+    .ann-detail-close-btn {
+        transition: all 0.2s ease-in-out;
+        border: 2px solid rgba(255,255,255,0.4) !important;
+        color: white !important;
+    }
+    .ann-detail-close-btn:hover {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.4);
+    }
+</style>
+
     <script>
         AOS.init({ duration: 1000, once: true });
 
@@ -1320,37 +2166,97 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function switchAuthTab(targetId) {
-            const sideBtn = document.getElementById('sideAuthBtn');
-            const sideText = document.getElementById('sideAuthText');
+        // --- NEW MULTI-STEP PASSWORD LOGIC ---
+        function checkPasswordStrengthV2(password) {
+            const text = document.getElementById('strengthTextV2');
             
-            if (sideBtn && sideText) {
-                if(targetId === '#register-v') {
-                    sideBtn.textContent = 'Back to Login';
-                    sideText.textContent = 'Already have an account? Access here.';
-                } else {
-                    sideBtn.textContent = 'Create an Account';
-                    sideText.textContent = 'New to the Cooperative? Join us today.';
-                }
+            if (password.length === 0) {
+                text.style.display = 'none';
+                return;
             }
 
-            const triggerEl = document.querySelector(`.nav-tabs-auth button[data-bs-target="${targetId}"]`);
-            if (triggerEl) {
-                const tab = new bootstrap.Tab(triggerEl);
-                tab.show();
-            }
-        }
+            text.style.display = 'block';
 
-        // Global Helper for side button
-        function toggleAuthMode() {
-            const regPane = document.getElementById('register-v');
-            if(regPane && regPane.classList.contains('active')) {
-                switchAuthTab('#login-v');
+            const hasLetters = /[a-zA-Z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSymbols = /[\W_]/.test(password);
+
+            // Reset classes
+            text.className = 'strength-text';
+
+            if (hasLetters && hasNumbers && hasSymbols) {
+                // STRONG: Letters + Numbers + Symbols
+                text.textContent = 'Strong Password';
+                text.classList.add('text-strong');
+            } else if (hasLetters && (hasNumbers || hasSymbols)) {
+                // GOOD: Letters + (Numbers OR Symbols)
+                text.textContent = 'Good Password';
+                text.classList.add('text-good');
             } else {
-                switchAuthTab('#register-v');
+                // WEAK: Letters only (or any other basic combo)
+                text.textContent = 'Weak Password';
+                text.classList.add('text-weak');
             }
         }
+
+        function checkPasswordMatchV2() {
+            const pass = document.getElementById('regPasswordV2').value;
+            const confirm = document.getElementById('regConfirmPasswordV2').value;
+            const status = document.getElementById('matchStatusV2');
+
+            if (confirm.length === 0) {
+                status.style.display = 'none';
+                return;
+            }
+
+            status.style.display = 'block';
+            if (pass === confirm) {
+                status.textContent = 'Passwords Match';
+                status.style.color = '#20a060';
+            } else {
+                status.textContent = 'Passwords do not match';
+                status.style.color = '#ef4444';
+            }
+        }
+
+        // --- VERTICAL CENTERING SCROLL LOGIC ---
+        document.querySelectorAll('a.nav-link[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (!targetElement) return;
+
+                e.preventDefault();
+                
+                // Calculate position to center the section
+                const elementRect = targetElement.getBoundingClientRect();
+                const absoluteElementTop = elementRect.top + window.pageYOffset;
+                const elementHeight = targetElement.offsetHeight;
+                const viewportHeight = window.innerHeight;
+                
+                // Pinned Centering Logic:
+                // Attempts to center the section, but ensures the TOP is never hidden
+                const navbarHeight = 90; // Approx navbar height + buffer
+                let offsetPosition = absoluteElementTop - (viewportHeight / 2) + (elementHeight / 2);
+                
+                // If the section is too tall and centering hides the top, stick to top
+                if (offsetPosition > absoluteElementTop - navbarHeight) {
+                    offsetPosition = absoluteElementTop - navbarHeight;
+                }
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+
+                // Update active state in navbar
+                document.querySelectorAll('.nav-link').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
     </script>
+<?php include('includes/footer.php'); ?>
 </body>
-</html>
 </html>

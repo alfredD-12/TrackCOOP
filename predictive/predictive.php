@@ -49,7 +49,7 @@ $members_intel = $static_members_intel;
         }
 
         /* Jakob's 10: Aesthetic and minimalist design */
-        h2.page-title { font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
+        h2.page-title { font-weight: 900; letter-spacing: -1px; margin-bottom: 30px; color: #20a060; }
 
         /* Feature Cards Grid */
         .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
@@ -58,73 +58,97 @@ $members_intel = $static_members_intel;
             background: var(--white);
             border-radius: 24px;
             padding: 30px;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 2px solid #20a060;
             box-shadow: 0 10px 30px rgba(0,0,0,0.02);
             transition: var(--transition);
             cursor: pointer;
             position: relative;
             z-index: 1;
         }
-        .risk-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(32, 160, 96, 0.08); border-color: var(--track-green); }
-        .risk-card.active { border: 2.5px solid var(--track-green); background: #fafff9; }
+        .risk-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 20px 40px rgba(32, 160, 96, 0.15); 
+            background: #fafff9;
+        }
+        .risk-card.active { border: 2.5px solid #20a060; background: #fafff9; }
 
         .card-icon { 
             width: 60px; height: 60px; 
-            background: rgba(32, 160, 96, 0.1); color: var(--track-green);
+            background: rgba(32, 160, 96, 0.12); color: #20a060;
+            border: 1.5px solid rgba(32, 160, 96, 0.2);
             border-radius: 18px; display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; margin-bottom: 20px;
         }
         
-        .card-label { font-weight: 800; font-size: 1.1rem; margin-bottom: 10px; line-height: 1.2; }
-        .card-desc { font-size: 0.85rem; color: #64748b; font-weight: 500; margin-bottom: 20px; }
+        .card-label { font-weight: 800; font-size: 1.1rem; margin-bottom: 10px; line-height: 1.2; color: #20a060; }
+        .card-desc { font-size: 0.85rem; color: #000; font-weight: 500; margin-bottom: 20px; }
 
         .btn-view {
-            background: #fff; color: var(--track-green); border: 2px solid var(--track-green);
+            background: #20a060; color: #fff; border: 2px solid #20a060;
             padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.75rem;
             text-transform: uppercase; transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(32, 160, 96, 0.2);
         }
         .btn-view:hover {
-            background: #20a060; color: #fff; border-color: #20a060;
+            background: #1b8a53; color: #fff; border-color: #1b8a53; transform: translateY(-2px);
         }
         .risk-card:hover .btn-view, .risk-card.active .btn-view { background: #20a060; color: #fff; border-color: #20a060; }
 
-        /* Workspace Pane */
-        #workspacePane { opacity: 0; transform: translateY(20px); transition: var(--transition); }
-        #workspacePane.visible { opacity: 1; transform: translateY(0); }
+        /* Workspace Pane Replacement - Dynamic View Design */
+        .workspace-header { border-left: none; padding-left: 0; margin-bottom: 25px; }
+        .workspace-header h4 { font-weight: 900; margin-bottom: 6px; letter-spacing: -1.5px; font-size: 2.2rem; color: #20a060; }
+        #workDesc { color: #000 !important; opacity: 1; }
 
-        .workspace-header { border-left: 6px solid var(--track-green); padding-left: 20px; margin-bottom: 30px; }
-        .workspace-header h4 { font-weight: 800; margin-bottom: 4px; }
-
-        .intel-table { width: 100%; surface: #fff; border-collapse: separate; border-spacing: 0 12px; }
-        .intel-table th { background: transparent; padding: 10px 20px; font-weight: 800; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
-        .intel-table td { background: #fff; padding: 20px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .intel-table tr td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
-        .intel-table tr td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+        .intel-table { width: 100%; border-collapse: separate; border-spacing: 0 15px; }
+        .intel-table th { background: transparent; padding: 10px 25px; font-weight: 900; font-size: 0.8rem; color: #000; text-transform: uppercase; letter-spacing: 2px; }
+        .intel-table td { 
+            background: #fff; 
+            padding: 25px; 
+            border-top: 1px solid #f1f5f9; 
+            border-bottom: 1px solid #f1f5f9; 
+            vertical-align: middle;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            transition: var(--transition);
+        }
+        .intel-table tr:hover td { transform: scale(1.015); box-shadow: 0 10px 25px rgba(0,0,0,0.05); z-index: 2; border-color: rgba(32, 160, 96, 0.2); }
+        .intel-table tr td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+        .intel-table tr td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 20px; border-bottom-right-radius: 20px; }
         
-        .badge-pill { padding: 6px 14px; border-radius: 50px; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
+        .badge-pill { padding: 10px 18px; border-radius: 50px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
         .badge-High { background: #fee2e2; color: #b91c1c; }
         .badge-Medium { background: #ffedd5; color: #9a3412; }
         .badge-Low { background: #dcfce7; color: #166534; }
 
-        /* Entrance Animations */
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-        .stagger-1 { animation: slideIn 0.5s ease-out forwards; animation-delay: 0.1s; opacity: 0; }
-        .stagger-2 { animation: slideIn 0.5s ease-out forwards; animation-delay: 0.2s; opacity: 0; }
-        .stagger-3 { animation: slideIn 0.5s ease-out forwards; animation-delay: 0.3s; opacity: 0; }
-        .stagger-4 { animation: slideIn 0.5s ease-out forwards; animation-delay: 0.4s; opacity: 0; }
+        /* Elite Back Button */
+        .btn-back {
+            background: white;
+            border: 2px solid #20a060;
+            color: #20a060;
+            width: 50px; height: 50px;
+            border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(32, 160, 96, 0.1);
+        }
+        .btn-back:hover {
+            background: #20a060;
+            color: white;
+            transform: translateX(-5px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(32, 160, 96, 0.2);
+        }
 
-        /* Secondary Module (Image Parity) */
-        .system-audit { background: #fff; border-radius: 20px; padding: 25px; border: 2px solid #333; margin-top: 60px; overflow: hidden; }
-        .audit-table { width: 100%; border-collapse: collapse; }
-        .audit-table th, .audit-table td { border: 1.5px solid #333; padding: 15px; text-align: center; }
-        .audit-table th { background: #fdfdfd; font-weight: 800; text-transform: uppercase; font-size: 0.75rem; }
+        /* Entrance Animations */
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        .stagger-1 { animation: slideInUp 0.6s ease-out forwards; animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation: slideInUp 0.6s ease-out forwards; animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation: slideInUp 0.6s ease-out forwards; animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation: slideInUp 0.6s ease-out forwards; animation-delay: 0.4s; opacity: 0; }
     </style>
 </head>
 <body>
 
 <div class="container-fluid">
-    <h2 class="page-title stagger-1">Member Risk Dashboard</h2>
-
     <div class="feature-grid">
         <!-- Feature 1: Status Prediction -->
         <div class="risk-card stagger-1" onclick="loadFeature('status', this)">
@@ -159,32 +183,40 @@ $members_intel = $static_members_intel;
         </div>
     </div>
 
-    <!-- Workspace Detail Pane -->
-    <div id="workspacePane">
-        <div class="workspace-header">
-            <h4 id="workTitle">Diagnostic Detail Area</h4>
-            <p class="text-muted small fw-600 m-0" id="workDesc">Select a feature card above to view real-time prescriptive analytics.</p>
+    <!-- Dynamic Detail View (In-place) -->
+    <div id="dynamicView" style="display: none;" class="stagger-1 mt-4">
+        <div class="d-flex align-items-center mb-5">
+            <button onclick="backToGrid()" class="btn-back me-4">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+            <div class="workspace-header m-0">
+                <h4 id="workTitle" class="mb-0">Diagnostic Detail Area</h4>
+                <p class="text-muted small fw-600 m-0" id="workDesc">Select a feature card above to view real-time prescriptive analytics.</p>
+            </div>
         </div>
         
         <div id="workspaceContent" class="table-responsive">
             <!-- Dynamic Data Tables Load Here -->
         </div>
+
+
     </div>
 
     <script>
     const members = <?php echo json_encode($members_intel); ?>;
 
     function loadFeature(type, card) {
-        // Aesthetic: Highlight active card
-        document.querySelectorAll('.risk-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-
-        const pane = document.getElementById('workspacePane');
+        const grid = document.querySelector('.feature-grid');
+        const view = document.getElementById('dynamicView');
         const title = document.getElementById('workTitle');
         const desc = document.getElementById('workDesc');
         const space = document.getElementById('workspaceContent');
 
-        pane.classList.add('visible');
+        // Dynamic Switching Logic
+        grid.style.display = 'none';
+        view.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
         space.innerHTML = '';
 
         let tbl = `<table class="intel-table"><thead><tr><th style="width:30%">Intelligence Subject</th>`;
@@ -196,25 +228,25 @@ $members_intel = $static_members_intel;
             members.forEach(m => {
                 tbl += `<tr>
                     <td><strong>${m.first_name} ${m.last_name}</strong><br><small class="text-success fw-bold">${m.sector || 'General'}</small></td>
-                    <td><span class="fw-800 text-dark">${m.predicted_status}</span></td>
+                    <td><span class="fw-900 text-dark">${m.predicted_status}</span></td>
                     <td>${m.last_contribution || 'NO RECORD'}</td>
                 </tr>`;
             });
         } 
         else if (type === 'risk') {
-            title.innerText = "Risk Classification matrix";
+            title.innerText = "Risk Classification Matrix";
             desc.innerText = "Segmentation of members based on contribution stability metrics.";
             tbl += `<th>Classification</th><th>Segment Audit</th></tr></thead><tbody>`;
             members.forEach(m => {
                 tbl += `<tr>
                     <td><strong>${m.first_name} ${m.last_name}</strong></td>
                     <td><span class="badge-pill badge-${m.risk_level}">${m.risk_level} RISK</span></td>
-                    <td>${m.risk_level === 'High' ? 'Critical Priority' : (m.risk_level === 'Medium' ? 'Monitor Gaps' : 'Maintaining Base')}</td>
+                    <td><span class="fw-700 ${m.risk_level === 'High' ? 'text-danger' : 'text-muted'}">${m.risk_level === 'High' ? 'Critical Priority' : (m.risk_level === 'Medium' ? 'Monitor Gaps' : 'Maintaining Base')}</span></td>
                 </tr>`;
             });
         }
         else if (type === 'interpret') {
-            title.innerText = "Prediction Results interpretation";
+            title.innerText = "Prediction Results Interpretation";
             desc.innerText = "Prescriptive logic explaining the reasoning behind each member forecast.";
             tbl += `<th>Automated Analysis</th></tr></thead><tbody>`;
             members.forEach(m => {
@@ -235,7 +267,7 @@ $members_intel = $static_members_intel;
                 targets.forEach(m => {
                     tbl += `<tr>
                         <td><strong>${m.first_name} ${m.last_name}</strong></td>
-                        <td class="text-danger fw-800"><i class="bi bi-lightning-fill"></i> URGENT ACTION REQUIRED</td>
+                        <td class="text-danger fw-900"><i class="bi bi-lightning-fill"></i> URGENT ACTION REQUIRED</td>
                     </tr>`;
                 });
             }
@@ -243,11 +275,21 @@ $members_intel = $static_members_intel;
 
         tbl += `</tbody></table>`;
         space.innerHTML = tbl;
-
-        // User Control: Smooth scroll to workspace
-        pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-</script>
+
+    function backToGrid() {
+        const grid = document.querySelector('.feature-grid');
+        const view = document.getElementById('dynamicView');
+        
+        // Return to Grid Logic
+        view.style.display = 'none';
+        grid.style.display = 'grid';
+        
+        // Remove active highlights
+        document.querySelectorAll('.risk-card').forEach(c => c.classList.remove('active'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    </script>
 
 </body>
 </html>

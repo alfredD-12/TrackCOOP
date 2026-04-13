@@ -25,11 +25,70 @@ if ($stmt) {
 
 // Fetch media activities for management modal (Static demo data)
 $static_media_activities = [
-    ['id' => 1, 'title' => 'Team Building Event 2024', 'description' => 'Annual team building activity at the cooperative', 'category' => 'Events', 'activity_date' => '2024-03-15', 'file_path' => 'uploads/media/team_building.jpg'],
-    ['id' => 2, 'title' => 'Member Conference', 'description' => 'Quarterly member conference and discussion', 'category' => 'Meetings', 'activity_date' => '2024-03-10', 'file_path' => 'uploads/media/conference.jpg'],
-    ['id' => 3, 'title' => 'Harvest Season 2024', 'description' => 'Documentation of harvest season activities', 'category' => 'Events', 'activity_date' => '2024-03-05', 'file_path' => 'uploads/media/harvest.jpg'],
+    ['id' => 1, 'title' => 'Harvest Training Workshop', 'description' => 'Members attending the annual agricultural best practices session.', 'category' => 'Training', 'activity_date' => '2024-03-15', 'file_path' => 'agriculture.webp'],
+    ['id' => 2, 'title' => 'General Assembly 2024', 'description' => 'Cooperative members meeting for the annual planning.', 'category' => 'Meetings', 'activity_date' => '2024-03-10', 'file_path' => 'meeting.jpg'],
+    ['id' => 3, 'title' => 'Community Harvest Festival', 'description' => 'Celebrating the successful harvest season with active members.', 'category' => 'Events', 'activity_date' => '2024-03-05', 'file_path' => 'event.png'],
+    ['id' => 4, 'title' => 'Sector Focus Group', 'description' => 'Specialized discussion for local agricultural sectors.', 'category' => 'Livelihood', 'activity_date' => '2024-03-01', 'file_path' => 'sector.jpg'],
 ];
 $media_activities_query = $static_media_activities;
+
+// --- TOTAL MEMBERS COUNT ---
+$member_count = 0;
+$count_query = "SELECT COUNT(*) as total FROM users WHERE role = 'Member'";
+$count_result = $conn->query($count_query);
+if ($count_result) {
+    $row = $count_result->fetch_assoc();
+    $member_count = $row['total'];
+}
+
+// --- TOTAL DOCUMENTS COUNT ---
+$doc_count = 0;
+$doc_count_query = "SELECT COUNT(*) as total FROM documents";
+$doc_count_result = $conn->query($doc_count_query);
+if ($doc_count_result) {
+    $doc_row = $doc_count_result->fetch_assoc();
+    $doc_count = $doc_row['total'];
+}
+
+// --- TOTAL ANNOUNCEMENTS COUNT ---
+$ann_count = 0;
+$ann_count_query = "SELECT COUNT(*) as total FROM announcements";
+$ann_count_result = $conn->query($ann_count_query);
+if ($ann_count_result) {
+    $ann_row = $ann_count_result->fetch_assoc();
+    $ann_count = $ann_row['total'];
+}
+
+// --- DATA FOR CHARTS ---
+
+// 1. Member Growth (Last 6 Months) with Sample Data
+$months = [];
+$counts = [];
+$sample_base = [12, 18, 25, 32, 45, 62]; // Realistic growth trend
+for ($i = 5; $i >= 0; $i--) {
+    $idx = 5 - $i;
+    $month = date('M', strtotime("-$i month"));
+    $full_month = date('Y-m', strtotime("-$i month"));
+    $months[] = $month;
+    $q = "SELECT COUNT(*) as count FROM users WHERE role = 'Member' AND created_at LIKE '$full_month%'";
+    $r = $conn->query($q);
+    $db_count = ($r && $row = $r->fetch_assoc()) ? $row['count'] : 0;
+    $counts[] = $db_count + $sample_base[$idx]; // DB + Sample
+}
+
+// 2. Sector Distribution with Sample Data
+$sector_labels = ['Rice', 'Corn', 'Fishery', 'Livestock', 'Crops'];
+$sample_sectors = [15, 12, 8, 10, 14]; // Realistic distribution
+$sector_counts = [];
+foreach ($sector_labels as $index => $sec) {
+    $q = "SELECT COUNT(*) as count FROM users WHERE role = 'Member' AND sector LIKE '%$sec%'";
+    $r = $conn->query($q);
+    $db_count = ($r && $row = $r->fetch_assoc()) ? $row['count'] : 0;
+    $sector_counts[] = $db_count + $sample_sectors[$index];
+}
+
+?>
+
 
 ?>
 <!DOCTYPE html>
@@ -37,7 +96,7 @@ $media_activities_query = $static_media_activities;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal | TrackCOOP</title>
+    <title>Admin Portal | TRACKCOOP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -61,9 +120,12 @@ $media_activities_query = $static_media_activities;
         }
 
         body { 
-            background-color: var(--track-bg);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-main);
+            background: #f8fafc;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
         .logout-btn {
@@ -88,8 +150,7 @@ $media_activities_query = $static_media_activities;
 
         /* --- Updated Navbar Styles --- */
         .navbar {
-            background-color: rgba(22, 74, 54, 0.95) !important;
-            backdrop-filter: blur(10px);
+            background-color: #164a36 !important;
             padding: 15px 0;
             border-bottom: 1px solid rgba(22, 74, 54, 0.3);
             animation: fadeInUpCustom 0.8s ease-out;
@@ -139,15 +200,89 @@ $media_activities_query = $static_media_activities;
             background: transparent !important; 
         }
 
+        /* All Buttons in Gallery Modal - Elite Green Styling */
+        #uploadMediaModal .btn,
+        #uploadMediaModal .cancel-btn,
+        #uploadMediaModal .upload-btn,
+        #uploadMediaModal .close-btn {
+            background-color: #20a060 !important;
+            color: white !important;
+            border: none !important;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.2);
+        }
+        #uploadMediaModal .btn:hover,
+        #uploadMediaModal .cancel-btn:hover,
+        #uploadMediaModal .upload-btn:hover,
+        #uploadMediaModal .close-btn:hover {
+            background-color: #1b8a53 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(32, 160, 96, 0.4);
+        }
+
+        /* Elite Green Pills for Gallery Tabs */
+        #uploadMediaModal .nav-pills .nav-link.active {
+            background-color: #20a060 !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.3);
+        }
+        #uploadMediaModal .nav-pills .nav-link {
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+        #uploadMediaModal .nav-pills .nav-link:hover:not(.active) {
+            color: #20a060;
+            background-color: rgba(32, 160, 96, 0.05);
+        }
+
+        /* Premium Gallery Action Buttons - Document Match Design */
+        .edit-btn {
+            background-color: rgba(245, 158, 11, 0.08) !important;
+            color: #f59e0b !important;
+            border: 1.5px solid rgba(245, 158, 11, 0.3) !important;
+            border-radius: 12px !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .edit-btn:hover {
+            background-color: #f59e0b !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2);
+        }
+
+        .delete-btn {
+            background-color: rgba(239, 68, 68, 0.08) !important;
+            color: #ef4444 !important;
+            border: 1.5px solid rgba(239, 68, 68, 0.3) !important;
+            border-radius: 12px !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .delete-btn:hover {
+            background-color: #ef4444 !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(239, 68, 68, 0.2);
+        }
+
         /* --- Dashboard Specific Styles --- */
         .admin-header {
-            background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
-            padding: 60px 0 40px;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.4);
-            margin-bottom: 40px;
+            background: transparent;
+            padding: 10px 0;
+            border-bottom: none;
+            margin-bottom: 0;
             position: relative;
             overflow: hidden;
             animation: fadeInUpCustom 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+            color: #ffffff !important;
+        }
+
+        .admin-header h1 { 
+            color: #20a060 !important; 
+        }
+
+        .admin-header p, .admin-header .text-muted { 
+            color: #ffffff !important; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .status-badge {
@@ -155,6 +290,32 @@ $media_activities_query = $static_media_activities;
             font-weight: 700; padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; 
             text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(32, 160, 96, 0.1); border: 1px solid rgba(32, 160, 96, 0.2);
+        }
+
+        .btn-portal {
+            background-color: #20a060 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 50px !important;
+            padding: 12px 28px !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            text-decoration: none !important;
+            box-shadow: 0 8px 18px rgba(32, 160, 96, 0.2) !important;
+            cursor: pointer !important;
+        }
+
+        .btn-portal:hover {
+            background-color: #1a8a53 !important;
+            transform: translateY(-3px) scale(1.02) !important;
+            box-shadow: 0 12px 25px rgba(32, 160, 96, 0.3) !important;
+            color: white !important;
         }
 
         /* Premium Modal Styles */
@@ -183,56 +344,246 @@ $media_activities_query = $static_media_activities;
             border-radius: 50%; z-index: 0; pointer-events: none;
         }
 
-        .badge-platform {
-            background: white; color: var(--track-green); font-weight: 700; padding: 6px 14px;
-            border-radius: 50px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-flex; align-items: center; margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.1); border: 1px solid rgba(32, 160, 96, 0.2);
-        }
 
         .stat-card {
-            border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 20px; background: white;
-            padding: 24px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03); position: relative; overflow: hidden;
+            border: 1.5px solid rgba(255, 255, 255, 0.4) !important; 
+            border-radius: 42px; 
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 35px; 
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 15px 35px -10px rgba(0, 0, 0, 0.08),
+                0 8px 15px -5px rgba(0, 0, 0, 0.03); 
+            position: relative; 
+            overflow: hidden;
             z-index: 1;
         }
 
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
+            z-index: -1; opacity: 0; transition: 0.5s;
+        }
+
         .stat-card:hover {
-            transform: translateY(-8px); box-shadow: 0 20px 40px rgba(32, 160, 96, 0.08); border-color: rgba(32, 160, 96, 0.3); z-index: 2;
+            transform: translateY(-15px) scale(1.015); 
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 45px 80px -20px rgba(39, 174, 96, 0.18),
+                0 15px 30px -10px rgba(0, 0, 0, 0.05); 
+            border-color: rgba(39, 174, 96, 0.4) !important; 
+            z-index: 10;
+        }
+
+        .stat-card:hover::before { opacity: 1; }
+
+        /* Modern Shine Sweep */
+        .stat-card::after {
+            content: ""; 
+            position: absolute; 
+            top: -100%; 
+            left: -100%; 
+            width: 250%; 
+            height: 250%;
+            background: linear-gradient(
+                60deg, 
+                transparent 10%, 
+                rgba(255, 255, 255, 0.15) 45%, 
+                rgba(255, 255, 255, 0.4) 50%, 
+                rgba(255, 255, 255, 0.15) 55%, 
+                transparent 90%
+            );
+            transform: rotate(45deg); 
+            transition: 0s; 
+            pointer-events: none; 
+            opacity: 0;
+            z-index: 2;
+        }
+        .stat-card:hover::after { 
+            animation: shineSweep 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 1; 
+        }
+
+        @keyframes shineSweep {
+            0% { transform: rotate(45deg) translate(-50%, -50%); }
+            100% { transform: rotate(45deg) translate(30%, 30%); }
+        }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) scale(1.05); }
+            50% { transform: translateY(-7px) scale(1.15); }
         }
 
         .icon-box {
-            width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
-            border-radius: 14px; margin-bottom: 16px; transition: 0.3s;
+            width: 54px; height: 54px; display: flex; align-items: center; justify-content: center;
+            border-radius: 16px; margin-bottom: 20px; transition: all 0.4s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0,0,0,0.03);
         }
         
-        .stat-card:hover .icon-box { transform: scale(1.1) rotate(5deg); }
-
-        .quick-tool-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 18px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
-        }
-        .quick-tool-card:hover {
-            transform: translateY(-8px); border-color: rgba(32, 160, 96, 0.3) !important;
-            box-shadow: 0 20px 40px rgba(32, 160, 96, 0.08); z-index: 10;
+        .stat-card:hover .icon-box { 
+            animation: floatIcon 2.5s ease-in-out infinite;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
         }
 
-        .btn-portal {
-            background: var(--track-green); color: white; border-radius: 12px; padding: 14px 28px;
-            font-weight: 700; border: none; box-shadow: 0 8px 20px rgba(32, 160, 96, 0.2);
-            transition: var(--transition-smooth);
+        .stat-card h6 {
+            color: #64748b !important;
+            font-size: 0.75rem;
+            letter-spacing: 1.2px;
+            font-weight: 700;
         }
-        .btn-portal:hover { transform: translateY(-3px); background: #20a060; box-shadow: 0 12px 25px rgba(32, 160, 96, 0.3); color: white; }
 
-        .activity-item { padding: 12px; margin-bottom: 10px; border-radius: 14px; transition: var(--transition-smooth); border: 1px solid transparent; background: #fff; cursor: pointer; }
-        .activity-item:hover { background: var(--track-bg); border-color: #e2e8f0; transform: translateX(5px); box-shadow: 4px 0 0 var(--track-green); }
+        .stat-card h2 {
+            font-weight: 900 !important;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-        /* Report Modal Items Animation */
-        .report-item { transition: all 0.3s ease; border: 1.5px solid #f1f5f9 !important; }
-        .report-item:hover { transform: translateY(-4px); border-color: var(--track-green) !important; box-shadow: 0 10px 20px rgba(32, 160, 96, 0.08) !important; background-color: #fff !important; }
+
+
+        /* ── Global Modal Styles ── */
+        .modal-content {
+            border-radius: 30px !important;
+            overflow: hidden !important;
+        }
+        .modal-header .btn-close {
+            width: 36px !important;
+            height: 36px !important;
+            min-width: 36px !important;
+            background: #ef4444 !important;
+            background-image: none !important;
+            border-radius: 50% !important;
+            opacity: 1 !important;
+            filter: none !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important;
+            transition: all 0.2s ease !important;
+            padding: 0 !important;
+            position: relative !important;
+        }
+        .modal-header .btn-close::before,
+        .modal-header .btn-close::after {
+            content: "" !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            width: 14px !important;
+            height: 2px !important;
+            background-color: white !important;
+            border-radius: 2px !important;
+        }
+        .modal-header .btn-close::before {
+            transform: translate(-50%, -50%) rotate(45deg) !important;
+        }
+        .modal-header .btn-close::after {
+            transform: translate(-50%, -50%) rotate(-45deg) !important;
+        }
+        .modal-header .btn-close:hover {
+            background-color: #dc2626 !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45) !important;
+        }
+
+        .glass-mini-card {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            padding: 18px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+        .glass-mini-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(39, 174, 96, 0.3);
+            box-shadow: 0 15px 30px rgba(39, 174, 96, 0.12);
+        }
+        
+        /* Modern Slim Progress Bars */
+        .sector-progress {
+            height: 8px !important;
+            border-radius: 50px !important;
+            background: rgba(0, 0, 0, 0.04) !important;
+            box-shadow: none !important;
+            margin-bottom: 2rem !important;
+        }
+        .sector-progress .progress-bar {
+            border-radius: 50px;
+            background: linear-gradient(90deg, #27ae60, #2ecc71) !important;
+            box-shadow: 0 2px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        /* Timeline Activity Styled Feed */
+        .activity-timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        .activity-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(39, 174, 96, 0.3) 0%, rgba(39, 174, 96, 0.05) 100%);
+            border-radius: 2px;
+        }
+        .activity-item { 
+            padding: 18px; 
+            margin-bottom: 16px; 
+            border-radius: 22px; 
+            transition: var(--transition-smooth); 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            background: rgba(255, 255, 255, 0.4); 
+            backdrop-filter: blur(8px);
+            cursor: pointer; 
+            position: relative;
+        }
+        .activity-item::after {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 34px;
+            width: 10px;
+            height: 10px;
+            background: #27ae60;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 4px rgba(39, 174, 96, 0.1);
+        }
+        .activity-item:hover { 
+            background: #fff; 
+            border-color: rgba(39, 174, 96, 0.2); 
+            transform: translateX(12px); 
+            box-shadow: 0 12px 25px rgba(0,0,0,0.04);
+        }
+
+        /* Predictive Insight Tiles */
+        .insight-tile {
+            background: white;
+            border: 2.5px solid rgba(0, 0, 0, 0.03);
+            border-radius: 24px;
+            padding: 24px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .insight-tile:hover {
+            transform: scale(1.02) translateY(-5px);
+            border-color: var(--insight-color);
+            box-shadow: 0 20px 40px var(--insight-glow);
+        }
 
         /* Staggered Animations */
-        .fade-in-up { opacity: 0; animation: fadeInUpCustom 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .fade-in-up { opacity: 0; animation: fadeInUpCustom 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .delay-1 { animation-delay: 0.1s; }
         .delay-2 { animation-delay: 0.2s; }
         .delay-3 { animation-delay: 0.3s; }
@@ -336,8 +687,13 @@ $media_activities_query = $static_media_activities;
 
         .intervention-row {
             opacity: 0;
+            animation: slideInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             transition: all 0.3s ease;
         }
+
+        .intervention-row:nth-child(1) { animation-delay: 0.6s; }
+        .intervention-row:nth-child(2) { animation-delay: 0.7s; }
+        .intervention-row:nth-child(3) { animation-delay: 0.8s; }
 
         .intervention-row:hover {
             background-color: #f8fafc;
@@ -442,1206 +798,224 @@ $media_activities_query = $static_media_activities;
         }
     </style>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="../includes/footer.css">
+
 </head>
-<body>
-
-<?php 
-    $user_role = 'Admin';
-    $active_page = 'dashboard';
-    $membership_type = 'Admin';
-    include('../includes/dashboard_navbar.php'); 
-?>
-
-<div class="admin-header">
-    <div class="container position-relative" style="z-index: 1;">
-        <div class="row align-items-center mb-0">
-            <div class="col-lg-7 fade-in-up">
-                <div class="status-badge">
-                    <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width: 10px; height: 10px;"></span>
-                    System Live
-                </div>
-                <h1 class="fw-800 display-3 mb-2">Coop Insights.</h1>
-                <p class="fs-5 text-muted mb-0" style="max-width: 600px;">Overview of membership growth and system activity records.</p>
-            </div>
-            <div class="col-lg-5 text-lg-end mt-4 mt-lg-0 fade-in-up d-flex flex-wrap justify-content-lg-end gap-2 text-center">
-                <button class="btn-portal d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#dataCenterModal">
-                    Predictive Insights
-                </button>
-                <button type="button" data-bs-toggle="modal" data-bs-target="#uploadMediaModal" class="btn-portal d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-images"></i> Upload Photo
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container pb-5" data-aos="fade-up" data-aos-duration="1000">
-    <div class="row g-4 mb-5">
-        <div class="col-md-3 fade-in-up delay-1">
-            <div class="stat-card h-100">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-people-fill fs-4"></i></div>
-                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill fw-bold">+12%</span>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-2 text-muted" style="letter-spacing: 0.5px;">Total Members</h6>
-                <h2 class="fw-800 mb-0 text-dark">1,240</h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-2">
-            <div class="stat-card h-100">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="bi bi-clock-history fs-4"></i></div>
-                    <i class="bi bi-exclamation-circle text-warning"></i>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-2 text-muted" style="letter-spacing: 0.5px;">Pending Apps</h6>
-                <h2 class="fw-800 mb-0 text-dark">18</h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-3">
-            <div class="stat-card h-100">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary"><i class="bi bi-diagram-3-fill fs-4"></i></div>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-2 text-muted" style="letter-spacing: 0.5px;">Agri Sectors</h6>
-                <h2 class="fw-800 mb-0 text-dark">5 Active</h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-4">
-            <div class="stat-card h-100">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-info bg-opacity-10 text-info"><i class="bi bi-cloud-check-fill fs-4"></i></div>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-2 text-muted" style="letter-spacing: 0.5px;">Stored Docs</h6>
-                <h2 class="fw-800 mb-0 text-dark">145</h2>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="row g-4">
-        <div class="col-lg-8 fade-in-up delay-5">
-            <div class="stat-card h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-pie-chart-fill text-success me-2"></i> Sector Distribution</h5>
-                    <a href="#" class="text-success text-decoration-none fw-bold small">Details <i class="bi bi-chevron-right"></i></a>
-                </div>
-                <div class="progress sector-progress mb-5 overflow-visible" style="height: 30px; border-radius: 50px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
-                    <div class="progress-bar bg-success" style="width: 40%; border-radius: 50px 0 0 50px;">Rice 40%</div>
-                    <div class="progress-bar" style="width: 25%; background-color: #f1c40f;">Corn 25%</div>
-                    <div class="progress-bar bg-primary" style="width: 20%">Fishery 20%</div>
-                    <div class="progress-bar bg-info" style="width: 15%; border-radius: 0 50px 50px 0;">Others 15%</div>
-                </div>
-                <div class="row g-3">
-                    <div class="col-6 col-md-3">
-                        <div class="p-3 bg-white border rounded-4 text-center" style="transition: 0.3s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--track-green)';" onmouseout="this.style.transform='none'; this.style.borderColor='#dee2e6';">
-                            <small class="text-muted d-block fw-bold mb-1" style="font-size: 0.7rem;">RICE</small>
-                            <span class="h4 fw-800 mb-0 text-success">40%</span>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="p-3 bg-white border rounded-4 text-center" style="transition: 0.3s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='none';">
-                            <small class="text-muted d-block fw-bold mb-1" style="font-size: 0.7rem;">CORN</small>
-                            <span class="h4 fw-800 mb-0 text-warning">25%</span>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="p-3 bg-white border rounded-4 text-center" style="transition: 0.3s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='none';">
-                            <small class="text-muted d-block fw-bold mb-1" style="font-size: 0.7rem;">FISHERY</small>
-                            <span class="h4 fw-800 mb-0 text-primary">20%</span>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="p-3 bg-white border rounded-4 text-center" style="transition: 0.3s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='none';">
-                            <small class="text-muted d-block fw-bold mb-1" style="font-size: 0.7rem;">OTHERS</small>
-                            <span class="h4 fw-800 mb-0 text-info">15%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-4 fade-in-up delay-5">
-            <div class="stat-card h-100">
-                <h5 class="fw-bold mb-4 pb-3 border-bottom text-dark"><i class="bi bi-activity text-success me-2"></i> Recent Activity</h5>
-                <div class="activity-item d-flex align-items-center">
-                    <div class="icon-box bg-success bg-opacity-10 text-success mb-0 me-3 rounded-circle" style="width: 45px; height: 45px;">
-                        <i class="bi bi-file-earmark-check border-0"></i>
-                    </div>
-                    <div>
-                        <p class="mb-0 fw-bold" style="font-size: 0.95rem; color: var(--track-dark);">COC 2026 Uploaded</p>
-                        <small class="text-muted fw-semibold">2 hours ago</small>
-                    </div>
-                </div>
-                <div class="activity-item d-flex align-items-center">
-                    <div class="icon-box bg-warning bg-opacity-10 text-warning mb-0 me-3 rounded-circle" style="width: 45px; height: 45px;">
-                        <i class="bi bi-person-check border-0"></i>
-                    </div>
-                    <div>
-                        <p class="mb-0 fw-bold" style="font-size: 0.95rem; color: var(--track-dark);">New Member Verified</p>
-                        <small class="text-muted fw-semibold">5 hours ago</small>
-                    </div>
-                </div>
-                <div class="activity-item d-flex align-items-center opacity-75">
-                    <div class="icon-box bg-secondary bg-opacity-10 text-secondary mb-0 me-3 rounded-circle" style="width: 45px; height: 45px;">
-                        <i class="bi bi-cloud-arrow-up border-0"></i>
-                    </div>
-                    <div>
-                        <p class="mb-0 fw-bold" style="font-size: 0.95rem; color: var(--track-dark);">Cloud Backup Sync</p>
-                        <small class="text-muted fw-semibold">Yesterday</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Access Tools -->
-    <div class="row g-4 mb-5 mt-2">
-    <div class="col-lg-3 col-md-6 fade-in-up delay-1">
-        <div class="quick-tool-card p-4 rounded-3" onclick="showToolModal('dashboard')" style="background: white; border: 2px solid rgba(32, 160, 96, 0.1); cursor: pointer; height: 100%;">
-            <div class="text-primary fw-bold mb-3" style="font-size: 2rem;"><i class="bi bi-speedometer2"></i></div>
-            <div class="fw-bold text-dark mb-2">Access Dashboard</div>
-            <small class="text-muted">View overview metrics</small>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 fade-in-up delay-2">
-        <div class="quick-tool-card p-4 rounded-3" onclick="showToolModal('engagement')" style="background: white; border: 2px solid rgba(32, 160, 96, 0.1); cursor: pointer; height: 100%;">
-            <div class="text-success fw-bold mb-3" style="font-size: 2rem;"><i class="bi bi-bar-chart-line"></i></div>
-            <div class="fw-bold text-dark mb-2">Interpret Engagement Graphs</div>
-            <small class="text-muted">Member activity trends</small>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 fade-in-up delay-3">
-        <div class="quick-tool-card p-4 rounded-3" onclick="showToolModal('members')" style="background: white; border: 2px solid rgba(32, 160, 96, 0.1); cursor: pointer; height: 100%;">
-            <div class="text-warning fw-bold mb-3" style="font-size: 2rem;"><i class="bi bi-people-fill"></i></div>
-            <div class="fw-bold text-dark mb-2">Identify Active/At-Risk Members</div>
-            <small class="text-muted">Member status analysis</small>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 fade-in-up delay-4">
-        <div class="quick-tool-card p-4 rounded-3" onclick="showToolModal('heatmap')" style="background: white; border: 2px solid rgba(32, 160, 96, 0.1); cursor: pointer; height: 100%;">
-            <div class="text-danger fw-bold mb-3" style="font-size: 2rem;"><i class="bi bi-diagram-3"></i></div>
-            <div class="fw-bold text-dark mb-2">View Sector Engagement Heatmap</div>
-            <small class="text-muted">Sector performance heat map</small>
-        </div>
-    </div>
-</div>
-
-<!-- Sample Charts Section -->
-<div class="row g-4 mb-5">
-    <div class="col-lg-6 fade-in-up delay-1">
-        <div class="stat-card h-100">
-            <h6 class="fw-bold text-dark mb-4"><i class="bi bi-graph-up text-success me-2"></i> Member Growth Trend</h6>
-            <div style="position: relative; height: 300px;">
-                <canvas id="memberGrowthChart"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6 fade-in-up delay-2">
-        <div class="stat-card h-100">
-            <h6 class="fw-bold text-dark mb-4"><i class="bi bi-check-circle text-primary me-2"></i> Monthly Contributions</h6>
-            <div style="position: relative; height: 300px;">
-                <canvas id="contributionsChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4 mb-5">
-    <div class="col-lg-6 fade-in-up delay-3">
-        <div class="stat-card h-100">
-            <h6 class="fw-bold text-dark mb-4"><i class="bi bi-exclamation-triangle text-warning me-2"></i> Risk Distribution</h6>
-            <div style="position: relative; height: 300px;">
-                <canvas id="riskChart"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6 fade-in-up delay-4">
-        <div class="stat-card h-100">
-            <h6 class="fw-bold text-dark mb-4"><i class="bi bi-activity text-info me-2"></i> Activity Timeline</h6>
-            <div style="position: relative; height: 300px;">
-                <canvas id="activityChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-
-<!-- ===== TOOL MODALS ===== -->
-<!-- Dashboard Tool Modal -->
-<div class="modal fade" id="toolDashboardModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
-                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-speedometer2 text-primary me-2"></i> Access Dashboard</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
-            </div>
-            <div class="modal-body" style="padding: 24px; background: #f8fafc;">
-                <div class="mb-3">
-                    <label class="fw-bold small text-muted">Filter by Member Type:</label>
-                    <select class="form-select" style="border-radius: 12px; border: 2px solid #e5e5c0;">
-                        <option>All Members</option>
-                        <option>Active</option>
-                        <option>Pending</option>
-                        <option>Inactive</option>
-                    </select>
-                </div>
-                <div style="position: relative; height: 350px;">
-                    <canvas id="dashboardToolChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Engagement Tool Modal -->
-<div class="modal fade" id="toolEngagementModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
-                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-bar-chart-line text-success me-2"></i> Interpret Engagement Graphs</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
-            </div>
-            <div class="modal-body" style="padding: 24px; background: #f8fafc;">
-                <div class="row g-2 mb-3">
-                    <div class="col-md-6">
-                        <label class="fw-bold small text-muted">Date Range:</label>
-                        <input type="date" class="form-control" style="border-radius: 12px; border: 2px solid #e5e5c0;">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="fw-bold small text-muted">Sector:</label>
-                        <select class="form-select" style="border-radius: 12px; border: 2px solid #e5e5c0;">
-                            <option>All Sectors</option>
-                            <option>Rice</option>
-                            <option>Corn</option>
-                            <option>Fishery</option>
-                            <option>Livestock</option>
-                            <option>High Value Crops</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="position: relative; height: 350px;">
-                    <canvas id="engagementToolChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Members Tool Modal -->
-<div class="modal fade" id="toolMembersModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
-                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-people-fill text-warning me-2"></i> Identify Active/At-Risk Members</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
-            </div>
-            <div class="modal-body" style="padding: 24px; background: #f8fafc;">
-                <div class="mb-3">
-                    <label class="fw-bold small text-muted">Filter by Status:</label>
-                    <select class="form-select" style="border-radius: 12px; border: 2px solid #e5e5c0;">
-                        <option>All Members</option>
-                        <option>Active</option>
-                        <option>At-Risk</option>
-                    </select>
-                </div>
-                <div style="position: relative; height: 350px; display: flex; justify-content: center;">
-                    <canvas id="membersToolChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Heatmap Tool Modal -->
-<div class="modal fade" id="toolHeatmapModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
-                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-diagram-3 text-danger me-2"></i> View Sector Engagement Heatmap</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
-            </div>
-            <div class="modal-body" style="padding: 24px; background: #f8fafc;">
-                <div class="mb-3">
-                    <label class="fw-bold small text-muted">Quarter:</label>
-                    <select class="form-select" style="border-radius: 12px; border: 2px solid #e5e5c0;">
-                        <option>Q1 2026</option>
-                        <option>Q4 2025</option>
-                        <option>Q3 2025</option>
-                        <option>Year to Date</option>
-                    </select>
-                </div>
-                <div style="position: relative; height: 350px;">
-                    <canvas id="heatmapToolChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-<!-- ===== GALLERY MANAGEMENT MODAL ===== -->
-<div class="modal fade" id="uploadMediaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header d-flex align-items-center" style="background-color: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 20px 24px; color: white;">
-                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-images text-success me-2"></i> Manage Gallery</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
-            </div>
-            
-            <div class="modal-body" style="padding: 24px; background: white;">
-                <ul class="nav nav-pills mb-4" id="galleryTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active px-4 fw-bold rounded-pill" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload" type="button" role="tab"><i class="bi bi-cloud-upload-fill me-2"></i> Upload New</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link px-4 fw-bold rounded-pill" id="manage-tab" data-bs-toggle="pill" data-bs-target="#manage" type="button" role="tab"><i class="bi bi-list-check me-2"></i> Manage Photos</button>
-                    </li>
-                </ul>
-
-                <div class="tab-content" id="galleryTabsContent">
-                    <!-- UPLOAD TAB -->
-                    <div class="tab-pane fade show active" id="upload" role="tabpanel">
-                        <form action="../media/media_actions.php" method="POST" enctype="multipart/form-data" id="uploadForm" onsubmit="return TrackUI.confirmForm(event, 'Publish this activity photo to the public gallery?', 'Upload Media', 'primary', 'Publish Now', 'Review')">
-                            <input type="hidden" name="upload_media" value="1">
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small text-muted">Activity Title</label>
-                                <input type="text" name="title" class="form-control" placeholder="e.g. Rice Farming Workshop" required style="border-radius:12px;">
-                            </div>
-
-                            <div class="row mb-3 g-2">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-muted">Category</label>
-                                    <select name="category" class="form-select" required style="border-radius:12px;">
-                                        <option value="Training">Training</option>
-                                        <option value="Harvesting">Harvesting</option>
-                                        <option value="Meeting">Meeting</option>
-                                        <option value="Livelihood">Livelihood</option>
-                                        <option value="Other">Other</option>
-                                    </select>
+<div class="sidebar-layout">
+    <?php 
+        $user_role = 'Admin';
+        $active_page = 'dashboard';
+        $membership_type = 'Admin';
+        $full_name = htmlspecialchars($full_name);
+        include('../includes/dashboard_sidebar.php'); 
+    ?>
+    <div class="main-content-wrapper">
+        <div class="admin-header" data-aos="fade-in">
+            <div class="container py-4">
+                <div class="row g-4 mb-4">
+                    <!-- Total Members Card -->
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="stat-card p-4 border-0" style="background: #164a36; border-radius: 32px; box-shadow: 0 15px 35px rgba(22, 74, 54, 0.25);">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box me-3 mb-0" style="background: rgba(255, 255, 255, 0.1); color: #ffffff; width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                    <i class="bi bi-people-fill fs-4"></i>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-muted">Activity Date</label>
-                                    <input type="date" name="activity_date" class="form-control" value="<?php echo date('Y-m-d'); ?>" required style="border-radius:12px;">
-                                </div>
+                                <h6 class="text-white fw-800 text-uppercase mb-0" style="letter-spacing: 1px; font-size: 0.75rem; color: #ffffff !important;">Total Members</h6>
                             </div>
-
-                            <div class="mb-3">
-                                <label class="form-label fw-bold small text-muted">Short Description</label>
-                                <textarea name="description" class="form-control" rows="2" placeholder="Briefly describe what happened..." required style="border-radius:12px;"></textarea>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h1 class="fw-900 mb-0" style="font-size: 3.5rem; letter-spacing: -2px; color: #ffffff; text-shadow: 0 4px 12px rgba(0,0,0,0.1);"><?php echo number_format($member_count); ?></h1>
+                                <span class="badge bg-white bg-opacity-10 text-white fw-bold p-2" style="font-size: 0.72rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <i class="bi bi-check-circle-fill me-1" style="color: #4ade80;"></i>ACTIVE
+                                </span>
                             </div>
-
-                            <div class="mb-2">
-                                <label class="form-label fw-bold small text-muted">Select Photo</label>
-                                <input type="file" name="media_file" id="media_file" class="form-control mb-2" accept="image/*" required onchange="previewDashboardImage(event)" style="border-radius:12px;">
-                                <div class="image-preview-box" id="previewAreaDashboard" style="width:100%;height:160px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#94a3b8;overflow:hidden;">
-                                    <i class="bi bi-image fs-2 opacity-25"></i>
-                                    <span class="small mt-1">No Image Selected</span>
-                                </div>
-                            </div>
-                            
-                            <div class="modal-footer mt-4" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; margin: 0 -24px -24px -24px; border-radius: 0 0 24px 24px; color: white;">
-                                <button type="button" class="btn cancel-btn rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn upload-btn px-4 fw-bold rounded-pill">
-                                    <i class="bi bi-cloud-upload-fill me-2"></i> Upload Photo
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <!-- MANAGE TAB -->
-                    <div class="tab-pane fade" id="manage" role="tabpanel">
-                        <div class="table-responsive pe-2" style="max-height: 420px; overflow-y: auto;">
-                            <table class="table align-middle table-borderless" style="border-collapse: separate; border-spacing: 0 8px;">
-                                <thead style="position: sticky; top: -8px; background: white; z-index: 2; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
-                                    <tr>
-                                        <th class="text-uppercase small text-muted fw-bold ps-3 py-3" style="letter-spacing: 1px;">Photo</th>
-                                        <th class="text-uppercase small text-muted fw-bold py-3" style="letter-spacing: 1px;">Details</th>
-                                        <th class="text-uppercase small text-muted fw-bold py-3" style="letter-spacing: 1px;">Date</th>
-                                        <th class="text-uppercase small text-muted fw-bold text-end pe-3 py-3" style="letter-spacing: 1px;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if(count($media_activities_query) > 0): ?>
-                                        <?php foreach($media_activities_query as $m): ?>
-                                        <tr class="manage-row bg-white" style="border: 1px solid #f1f5f9; border-radius: 16px;">
-                                            <td class="ps-3 py-2" style="border-top-left-radius: 16px; border-bottom-left-radius: 16px;">
-                                                <div class="manage-photo-wrapper">
-                                                    <img src="../<?php echo htmlspecialchars($m['file_path']); ?>" class="manage-photo-img" style="width:70px;height:55px;object-fit:cover;">
-                                                </div>
-                                            </td>
-                                            <td class="py-2">
-                                                <div class="fw-bold text-dark mb-1" style="font-size:0.95rem;"><?php echo htmlspecialchars($m['title']); ?></div>
-                                                <span class="badge" style="background: rgba(32,160,96,0.1); color: var(--track-green); border: 1px solid rgba(32,160,96,0.2); border-radius: 50px; padding: 4px 10px;">
-                                                    <i class="bi bi-tag-fill me-1 opacity-75"></i> <?php echo htmlspecialchars($m['category']); ?>
-                                                </span>
-                                            </td>
-                                            <td class="text-muted small fw-bold py-2">
-                                                <i class="bi bi-calendar3 me-2 opacity-50"></i><?php echo date('M d, Y', strtotime($m['activity_date'])); ?>
-                                            </td>
-                                            <td class="text-end pe-3 py-2" style="border-top-right-radius: 16px; border-bottom-right-radius: 16px;">
-                                                <div class="d-flex justify-content-end gap-2 action-btns">
-                                                    <button type="button" class="btn btn-sm edit-btn rounded-circle" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Edit"
-                                                        onclick="openGalleryEditModal(
-                                                            <?php echo $m['id']; ?>,
-                                                            '<?php echo addslashes(htmlspecialchars($m['title'])); ?>',
-                                                            '<?php echo addslashes(htmlspecialchars($m['description'])); ?>',
-                                                            '<?php echo $m['category']; ?>',
-                                                            '<?php echo $m['activity_date']; ?>'
-                                                        )">
-                                                        <i class="bi bi-pencil-fill"></i>
-                                                    </button>
-                                                    <a href="../media/media_actions.php?delete_id=<?php echo $m['id']; ?>" class="btn btn-sm delete-btn rounded-circle" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Delete"
-                                                       onclick="return TrackUI.confirmLink(event, 'Permanently delete this activity photo?', 'Delete Media', 'danger', 'Delete Now', 'Keep It')">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="4" class="text-center py-5 text-muted">
-                                                <i class="bi bi-images fs-1 opacity-25 d-block mb-3"></i>
-                                                <div class="fw-bold">No Photos Found</div>
-                                                <small>Your gallery is empty. Upload one from the Upload Tab.</small>
-                                            </td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                            <p class="text-white small mt-2 mb-0 fw-bold">Live database registry</p>
                         </div>
-                        <div class="modal-footer mt-4" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; margin: 0 -24px -24px -24px; border-radius: 0 0 24px 24px; color: white;">
-                            <button type="button" class="btn close-btn rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Close Gallery</button>
+                    </div>
+
+                    <!-- Active Sectors Card -->
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                        <div class="stat-card p-4 border-0" style="background: #164a36; border-radius: 32px; box-shadow: 0 15px 35px rgba(22, 74, 54, 0.25);">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box me-3 mb-0" style="background: rgba(255, 255, 255, 0.1); color: #ffffff; width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                    <i class="bi bi-grid-fill fs-4"></i>
+                                </div>
+                                <h6 class="text-white fw-800 text-uppercase mb-0" style="letter-spacing: 1px; font-size: 0.75rem; color: #ffffff !important;">Active Sectors</h6>
+                            </div>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h1 class="fw-900 mb-0" style="font-size: 3.5rem; letter-spacing: -2px; color: #ffffff; text-shadow: 0 4px 12px rgba(0,0,0,0.1);">5</h1>
+                                <span class="badge bg-white bg-opacity-10 text-white fw-bold p-2" style="font-size: 0.72rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <i class="bi bi-geo-alt-fill me-1" style="color: #4ade80;"></i>LIVE
+                                </span>
+                            </div>
+                            <p class="text-white small mt-2 mb-0 fw-bold">Operational agricultural zones</p>
+                        </div>
+                    </div>
+
+                    <!-- Total Documents Card -->
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                        <div class="stat-card p-4 border-0" style="background: #164a36; border-radius: 32px; box-shadow: 0 15px 35px rgba(22, 74, 54, 0.25);">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box me-3 mb-0" style="background: rgba(255, 255, 255, 0.1); color: #ffffff; width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                    <i class="bi bi-file-earmark-text-fill fs-4"></i>
+                                </div>
+                                <h6 class="text-white fw-800 text-uppercase mb-0" style="letter-spacing: 1px; font-size: 0.75rem; color: #ffffff !important;">Total Documents</h6>
+                            </div>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h1 class="fw-900 mb-0" style="font-size: 3.5rem; letter-spacing: -2px; color: #ffffff; text-shadow: 0 4px 12px rgba(0,0,0,0.1);"><?php echo number_format($doc_count); ?></h1>
+                                <span class="badge bg-white bg-opacity-10 text-white fw-bold p-2" style="font-size: 0.72rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <i class="bi bi-cloud-check-fill me-1" style="color: #4ade80;"></i>SECURE
+                                </span>
+                            </div>
+                            <p class="text-white small mt-2 mb-0 fw-bold">Digital storage registry</p>
+                        </div>
+                    </div>
+
+                    <!-- Total Announcements Card -->
+                    <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                        <div class="stat-card p-4 border-0" style="background: #164a36; border-radius: 32px; box-shadow: 0 15px 35px rgba(22, 74, 54, 0.25);">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="icon-box me-3 mb-0" style="background: rgba(255, 255, 255, 0.1); color: #ffffff; width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                    <i class="bi bi-megaphone-fill fs-4"></i>
+                                </div>
+                                <h6 class="text-white fw-800 text-uppercase mb-0" style="letter-spacing: 1px; font-size: 0.75rem; color: #ffffff !important;">Total Announcements</h6>
+                            </div>
+                            <div class="d-flex align-items-baseline gap-2">
+                                <h1 class="fw-900 mb-0" style="font-size: 3.5rem; letter-spacing: -2px; color: #ffffff; text-shadow: 0 4px 12px rgba(0,0,0,0.1);"><?php echo number_format($ann_count); ?></h1>
+                                <span class="badge bg-white bg-opacity-10 text-white fw-bold p-2" style="font-size: 0.72rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <i class="bi bi-broadcast me-1" style="color: #4ade80;"></i>BROADCAST
+                                </span>
+                            </div>
+                            <p class="text-white small mt-2 mb-0 fw-bold">Live community alerts</p>
                         </div>
                     </div>
                 </div>
+
+                <hr class="border-light opacity-50 mb-4">
             </div>
         </div>
-    </div>
-</div>
 
-<!-- ===== PREDICTIVE INSIGHTS MODAL ===== -->
-<div class="modal fade" id="dataCenterModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header d-flex align-items-center" style="background: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 24px; color: white;">
-                <h5 class="modal-title fw-bold text-white mb-0">Predictive Insights</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
-            </div>
-            
-            <div class="modal-body" style="padding: 24px; background: #f8fafc;">
-                <!-- View Predicted Member Status -->
-                <div class="insight-section mb-4 fade-in-card" style="animation: slideInDown 0.6s ease-out;">
-                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                        <div class="icon-box bg-success bg-opacity-10 text-success rounded-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                            <i class="bi bi-graph-up"></i>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-0 ms-3">View Predicted Member Status</h6>
+        <div class="container py-2">
+        <div class="row g-4 mb-5">
+            <!-- Chart 1: Member Growth -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="elite-card p-4 h-100" style="background: #164a36; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-800 mb-0" style="color: #ffffff; letter-spacing: -0.5px;">Member Growth <span class="text-white opacity-50 fw-bold ms-2" style="font-size: 0.8rem;">(Last 6 Months)</span></h5>
+                        <i class="bi bi-graph-up-arrow text-white"></i>
                     </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="status-preview p-3 rounded-3" style="background: white; border: 2px solid rgba(32, 160, 96, 0.1); transition: all 0.3s ease;" onmouseover="this.style.borderColor='rgb(32, 160, 96)'; this.style.boxShadow='0 8px 16px rgba(32, 160, 96, 0.1)';" onmouseout="this.style.borderColor='rgba(32, 160, 96, 0.1)'; this.style.boxShadow='none';">
-                                <div class="fw-bold text-muted small mb-2">Active Members</div>
-                                <h3 class="fw-800 text-success mb-0">1,087</h3>
-                                <small class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Stable participation</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="status-preview p-3 rounded-3" style="background: white; border: 2px solid rgba(32, 160, 96, 0.1); transition: all 0.3s ease;" onmouseover="this.style.borderColor='rgb(32, 160, 96)'; this.style.boxShadow='0 8px 16px rgba(32, 160, 96, 0.1)';" onmouseout="this.style.borderColor='rgba(32, 160, 96, 0.1)'; this.style.boxShadow='none';">
-                                <div class="fw-bold text-muted small mb-2">At-Risk Members</div>
-                                <h3 class="fw-800 text-warning mb-0">98</h3>
-                                <small class="text-warning"><i class="bi bi-exclamation-circle-fill me-1"></i> Needs attention</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Understand Risk Classification -->
-                <div class="insight-section mb-4 fade-in-card" style="animation: slideInDown 0.6s ease-out 0.1s both;">
-                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                        <div class="icon-box bg-info bg-opacity-10 text-info rounded-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                            <i class="bi bi-shield-check"></i>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-0 ms-3">Understand Risk Classification</h6>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <div class="risk-badge p-2 rounded-3 text-center" style="background: rgba(32, 160, 96, 0.05); border: 1px solid rgb(32, 160, 96);">
-                                <div class="fw-bold text-success mb-1" style="font-size: 0.85rem;">LOW RISK</div>
-                                <div class="text-muted small"><i class="bi bi-check-lg me-1"></i>Active (0-45 days)</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="risk-badge p-2 rounded-3 text-center" style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgb(255, 193, 7);">
-                                <div class="fw-bold text-warning mb-1" style="font-size: 0.85rem;">MEDIUM RISK</div>
-                                <div class="text-muted small"><i class="bi bi-exclamation-lg me-1"></i>Delaying (45-90 days)</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="risk-badge p-2 rounded-3 text-center" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgb(220, 53, 69);">
-                                <div class="fw-bold text-danger mb-1" style="font-size: 0.85rem;">HIGH RISK</div>
-                                <div class="text-muted small"><i class="bi bi-x-lg me-1"></i>Dormant (90+ days)</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Interpret Prediction Results -->
-                <div class="insight-section mb-4 fade-in-card" style="animation: slideInDown 0.6s ease-out 0.2s both;">
-                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                        <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                            <i class="bi bi-chat-dots"></i>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-0 ms-3">Interpret Prediction Results</h6>
-                    </div>
-                    <div class="prediction-cards">
-                        <div class="prediction-item p-3 rounded-3 mb-2" style="background: white; border-left: 4px solid rgb(32, 160, 96); transition: all 0.3s ease;" onmouseover="this.style.transform='translateX(8px)'; this.style.boxShadow='0 4px 12px rgba(32, 160, 96, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="fw-bold text-dark mb-1">Stable Participation Trend</div>
-                                    <small class="text-muted">Low-risk members showing consistent engagement and contribution patterns.</small>
-                                </div>
-                                <badge class="badge bg-success" style="border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-check"></i></badge>
-                            </div>
-                        </div>
-                        <div class="prediction-item p-3 rounded-3 mb-2" style="background: white; border-left: 4px solid rgb(255, 193, 7); transition: all 0.3s ease;" onmouseover="this.style.transform='translateX(8px)'; this.style.boxShadow='0 4px 12px rgba(255, 193, 7, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="fw-bold text-dark mb-1">Retention Risk Alert</div>
-                                    <small class="text-muted">Members with activity gaps showing early signs of disengagement requiring outreach.</small>
-                                </div>
-                                <badge class="badge bg-warning" style="border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: #fff;"><i class="bi bi-exclamation"></i></badge>
-                            </div>
-                        </div>
-                        <div class="prediction-item p-3 rounded-3" style="background: white; border-left: 4px solid rgb(220, 53, 69); transition: all 0.3s ease;" onmouseover="this.style.transform='translateX(8px)'; this.style.boxShadow='0 4px 12px rgba(220, 53, 69, 0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="fw-bold text-dark mb-1">Dormancy Forecast</div>
-                                    <small class="text-muted">Critical engagement gaps indicating imminent or ongoing membership dormancy status.</small>
-                                </div>
-                                <badge class="badge bg-danger" style="border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-x"></i></badge>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Identify Members Requiring Intervention -->
-                <div class="insight-section fade-in-card" style="animation: slideInDown 0.6s ease-out 0.3s both;">
-                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                        <div class="icon-box bg-danger bg-opacity-10 text-danger rounded-3" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
-                            <i class="bi bi-bullseye"></i>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-0 ms-3">Identify Members Requiring Intervention</h6>
-                    </div>
-                    <div class="intervention-table table-responsive" style="max-height: 250px; overflow-y: auto;">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead style="position: sticky; top: 0; background: white; z-index: 2;">
-                                <tr style="border-bottom: 2px solid #f1f5f9;">
-                                    <th class="fw-bold text-muted small" style="letter-spacing: 0.5px;">Member</th>
-                                    <th class="fw-bold text-muted small text-center" style="letter-spacing: 0.5px;">Risk</th>
-                                    <th class="fw-bold text-muted small text-center" style="letter-spacing: 0.5px;">Last Activity</th>
-                                    <th class="fw-bold text-muted small text-end" style="letter-spacing: 0.5px;">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="intervention-row" style="animation: fadeIn 0.4s ease-out 0.2s both;">
-                                    <td><strong class="text-dark">Maria Santos</strong><br><small class="text-muted">Rice Farming</small></td>
-                                    <td class="text-center"><span class="badge bg-danger rounded-pill">HIGH</span></td>
-                                    <td class="text-center"><small class="text-muted">137 days ago</small></td>
-                                    <td class="text-end"><button class="btn btn-sm rounded-2" style="font-size: 0.75rem; background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 4px 12px rgba(32, 160, 96, 0.3)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none';">Contact</button></td>
-                                </tr>
-                                <tr class="intervention-row" style="animation: fadeIn 0.4s ease-out 0.3s both;">
-                                    <td><strong class="text-dark">Juan dela Cruz</strong><br><small class="text-muted">Corn Production</small></td>
-                                    <td class="text-center"><span class="badge bg-warning rounded-pill">MEDIUM</span></td>
-                                    <td class="text-center"><small class="text-muted">68 days ago</small></td>
-                                    <td class="text-end"><button class="btn btn-sm rounded-2" style="font-size: 0.75rem; background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 4px 12px rgba(32, 160, 96, 0.3)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none';">Monitor</button></td>
-                                </tr>
-                                <tr class="intervention-row" style="animation: fadeIn 0.4s ease-out 0.4s both;">
-                                    <td><strong class="text-dark">Rosa Gonzales</strong><br><small class="text-muted">Fishery</small></td>
-                                    <td class="text-center"><span class="badge bg-success rounded-pill">LOW</span></td>
-                                    <td class="text-center"><small class="text-muted">12 days ago</small></td>
-                                    <td class="text-end"><button class="btn btn-sm rounded-2" style="font-size: 0.75rem; background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 4px 12px rgba(32, 160, 96, 0.3)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none';">Active</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div style="height: 300px;">
+                        <canvas id="memberGrowthChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; color: white;">
-                <button type="button" class="btn rounded-pill px-4 fw-bold" style="background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn px-4 fw-bold rounded-pill" style="background:var(--track-green);color:white;box-shadow: 0 4px 12px rgba(32, 160, 96, 0.2);">
-                    <i class="bi bi-download me-2"></i> Generate Report
-                </button>
+            <!-- Chart 2: Sector Distribution -->
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="elite-card p-4 h-100" style="background: #164a36; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-800 mb-0" style="color: #ffffff; letter-spacing: -0.5px;">Sector Distribution <span class="text-white opacity-50 fw-bold ms-2" style="font-size: 0.8rem;">(Active Members)</span></h5>
+                        <i class="bi bi-pie-chart-fill text-white"></i>
+                    </div>
+                    <div style="height: 300px;">
+                        <canvas id="sectorDistributionChart"></canvas>
+                    </div>
+                </div>
             </div>
+
         </div>
-    </div>
-</div>
-
-<!-- ===== EDIT ACTIVITY MODAL ===== -->
-<div class="modal fade" id="editGalleryMediaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius:24px;border:none;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.15);">
-            <div class="modal-header d-flex align-items-center" style="background-color: rgba(22, 74, 54, 0.95); border-bottom: 1px solid rgba(22, 74, 54, 0.3); padding: 20px 24px; color: white;">
-                <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-pencil-square text-primary me-2"></i> Edit Activity</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
-            </div>
-            
-            <form action="../media/media_actions.php" method="POST">
-                <input type="hidden" name="edit_media" id="edit_media_id" value="">
-                
-                <div class="modal-body" style="padding: 24px; background: white;">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Activity Title</label>
-                        <input type="text" name="title" id="edit_gallery_title" class="form-control" required style="border-radius:12px;">
-                    </div>
-
-                    <div class="row mb-3 g-2">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">Category</label>
-                            <select name="category" id="edit_gallery_category" class="form-select" required style="border-radius:12px;">
-                                <option value="Training">Training</option>
-                                <option value="Harvesting">Harvesting</option>
-                                <option value="Meeting">Meeting</option>
-                                <option value="Livelihood">Livelihood</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">Activity Date</label>
-                            <input type="date" name="activity_date" id="edit_gallery_activity_date" class="form-control" required style="border-radius:12px;">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Short Description</label>
-                        <textarea name="description" id="edit_gallery_description" class="form-control" rows="3" required style="border-radius:12px;"></textarea>
-                    </div>
-                </div>
-
-                <div class="modal-footer" style="background-color: rgba(22, 74, 54, 0.95); border-top: 1px solid rgba(22, 74, 54, 0.3); padding: 16px 24px; color: white;">
-                    <button type="button" class="btn rounded-pill px-4 fw-bold" style="background: #206970; color: white; border: none; transition: all 0.3s ease;" onmouseover="this.style.background='#20a060'; this.style.boxShadow='0 8px 20px rgba(32, 160, 96, 0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#206970'; this.style.boxShadow='none'; this.style.transform='translateY(0)';" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary px-4 fw-bold rounded-pill">
-                        <i class="bi bi-check-circle-fill me-2"></i> Save Changes
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
-</div>
-
+    </div> <!-- .main-content-wrapper -->
+</div> <!-- .sidebar-layout -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<?php include('../includes/footer.php'); ?>
+
 <script>
 AOS.init({ once: true, duration: 800 });
 
-// Member Growth Chart
-const memberGrowthCtx = document.getElementById('memberGrowthChart').getContext('2d');
-const memberGrowthChart = new Chart(memberGrowthCtx, {
+// Chart.js Default Styling
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.color = "#ffffff"; 
+Chart.defaults.scale.ticks.color = "#ffffff";
+Chart.defaults.scale.grid.color = "rgba(255, 255, 255, 0.1)";
+
+// Data from PHP
+const chartMonths = <?php echo json_encode($months); ?>;
+const memberCounts = <?php echo json_encode($counts); ?>;
+const sectorLabels = <?php echo json_encode($sector_labels); ?>;
+const sectorData = <?php echo json_encode($sector_counts); ?>;
+
+// 1. Member Growth Chart
+new Chart(document.getElementById('memberGrowthChart'), {
     type: 'line',
     data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: chartMonths,
         datasets: [{
-            label: 'Total Members',
-            data: [1050, 1100, 1150, 1180, 1220, 1240],
-            borderColor: '#20a060',
-            backgroundColor: 'rgba(32, 160, 96, 0.1)',
-            borderWidth: 3,
+            label: 'New Members',
+            data: memberCounts,
+            borderColor: '#4ade80', 
+            backgroundColor: 'rgba(74, 222, 128, 0.15)',
             fill: true,
             tension: 0.4,
-            pointRadius: 6,
-            pointBackgroundColor: '#20a060',
-            pointBorderColor: '#fff',
+            borderWidth: 4,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#4ade80',
             pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            shadowOffsetX: 0,
-            shadowOffsetY: 2,
-            shadowBlur: 4,
-            shadowColor: 'rgba(32, 160, 96, 0.2)'
+            pointRadius: 5
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: {
-            duration: 1500,
-            easing: 'easeInOutQuart',
-            delay: (ctx) => ctx.dataIndex * 100
-        },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: { 
-                display: false,
-                labels: { font: { size: 12, weight: 600 }, padding: 15 }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                padding: 12,
-                cornerRadius: 12,
-                displayColors: true,
-                borderColor: '#20a060',
+        plugins: { 
+            legend: { display: false },
+            tooltip: { 
+                backgroundColor: 'rgba(22, 74, 54, 0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: 'rgba(255,255,255,0.1)',
                 borderWidth: 1
             }
         },
         scales: {
-            y: {
-                beginAtZero: true,
-                grid: { drawBorder: false, color: 'rgba(0, 0, 0, 0.05)', lineWidth: 1 },
-                ticks: { font: { size: 11, weight: 500 } }
+            y: { 
+                beginAtZero: true, 
+                ticks: { color: '#ffffff' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' } 
             },
-            x: {
-                grid: { display: false },
-                ticks: { font: { size: 11, weight: 500 } }
+            x: { 
+                ticks: { color: '#ffffff' },
+                grid: { display: false } 
             }
         }
     }
 });
 
-// Contributions Chart
-const contributionsCtx = document.getElementById('contributionsChart').getContext('2d');
-const contributionsChart = new Chart(contributionsCtx, {
-    type: 'bar',
-    data: {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-        datasets: [{
-            label: 'Contributions (₱)',
-            data: [12000, 15000, 14500, 18000],
-            backgroundColor: ['rgba(32, 160, 96, 0.8)', 'rgba(32, 160, 96, 0.9)', 'rgba(32, 160, 96, 0.85)', 'rgba(32, 160, 96, 0.95)'],
-            borderColor: '#20a060',
-            borderWidth: 2,
-            borderRadius: 12,
-            hoverBackgroundColor: '#20a060',
-            shadowOffsetX: 0,
-            shadowOffsetY: 4,
-            shadowBlur: 8,
-            shadowColor: 'rgba(32, 160, 96, 0.2)'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-            duration: 1500,
-            easing: 'easeInOutQuart',
-            delay: (ctx) => ctx.dataIndex * 120
-        },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: { display: false }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: { drawBorder: false, color: 'rgba(0, 0, 0, 0.05)', lineWidth: 1 },
-                ticks: { font: { size: 11, weight: 500 } }
-            },
-            x: {
-                grid: { display: false },
-                ticks: { font: { size: 11, weight: 500 } }
-            }
-        }
-    }
-});
-
-// Risk Distribution Chart
-const riskCtx = document.getElementById('riskChart').getContext('2d');
-const riskChart = new Chart(riskCtx, {
+// 2. Sector Distribution Chart
+new Chart(document.getElementById('sectorDistributionChart'), {
     type: 'doughnut',
     data: {
-        labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+        labels: sectorLabels,
         datasets: [{
-            data: [72, 18, 10],
-            backgroundColor: ['#20a060', '#ffc107', '#dc3545'],
-            borderColor: '#fff',
-            borderWidth: 3,
-            shadowOffsetX: 0,
-            shadowOffsetY: 2,
-            shadowBlur: 8,
-            shadowColor: 'rgba(0, 0, 0, 0.1)'
+            data: sectorData,
+            backgroundColor: ['#4ade80', '#2dd4bf', '#34d399', '#ffffff', '#10b981'],
+            borderWidth: 2,
+            borderColor: '#164a36',
+            hoverOffset: 15
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: {
-            duration: 1500,
-            easing: 'easeInOutQuart',
-            animateScale: true
-        },
-        interaction: { mode: 'point', intersect: false },
+        cutout: '70%',
         plugins: {
-            legend: {
-                position: 'bottom',
-                labels: { 
-                    padding: 20, 
-                    font: { size: 12, weight: 'bold' },
-                    usePointStyle: true,
-                    pointStyle: 'circle'
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                padding: 12,
-                cornerRadius: 12,
-                displayColors: true,
-                borderColor: '#20a060',
-                borderWidth: 1
+            legend: { 
+                position: 'bottom', 
+                labels: { color: '#ffffff', usePointStyle: true, padding: 20 } 
             }
         }
     }
 });
-
-// Activity Timeline Chart
-const activityCtx = document.getElementById('activityChart').getContext('2d');
-const activityChart = new Chart(activityCtx, {
-    type: 'line',
-    data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-            label: 'Activities',
-            data: [45, 52, 48, 65, 70, 38, 42],
-            borderColor: '#20a060',
-            backgroundColor: 'rgba(32, 160, 96, 0.15)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 6,
-            pointBackgroundColor: '#20a060',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointHoverRadius: 8,
-            shadowOffsetX: 0,
-            shadowOffsetY: 2,
-            shadowBlur: 4,
-            shadowColor: 'rgba(32, 160, 96, 0.2)'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-            duration: 1500,
-            easing: 'easeInOutQuart',
-            delay: (ctx) => ctx.dataIndex * 100
-        },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                titleFont: { size: 13, weight: 'bold' },
-                bodyFont: { size: 12 },
-                padding: 12,
-                cornerRadius: 12,
-                displayColors: true,
-                borderColor: '#20a060',
-                borderWidth: 1
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: { drawBorder: false, color: 'rgba(0, 0, 0, 0.05)', lineWidth: 1 },
-                ticks: { font: { size: 11, weight: 500 } }
-            },
-            x: {
-                grid: { display: false },
-                ticks: { font: { size: 11, weight: 500 } }
-            }
-        }
-    }
-});
-
-// Tool Modal Functions
-function showToolModal(toolType) {
-    let modalId = '#toolDashboardModal';
-    
-    if (toolType === 'dashboard') {
-        modalId = '#toolDashboardModal';
-    } else if (toolType === 'engagement') {
-        modalId = '#toolEngagementModal';
-    } else if (toolType === 'members') {
-        modalId = '#toolMembersModal';
-    } else if (toolType === 'heatmap') {
-        modalId = '#toolHeatmapModal';
-    }
-    
-    const modal = new bootstrap.Modal(document.querySelector(modalId));
-    modal.show();
-    
-    // Initialize chart after modal is visible
-    setTimeout(() => {
-        initializeToolCharts(toolType);
-    }, 300);
-}
-
-function initializeToolCharts(toolType) {
-    if (toolType === 'dashboard') {
-        const chartCanvas = document.getElementById('dashboardToolChart');
-        if (chartCanvas && !chartCanvas.dataset.initialized) {
-            const ctx = chartCanvas.getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Rice', 'Corn', 'Fishery', 'Livestock', 'High Value Crops'],
-                    datasets: [{
-                        label: 'Members per Sector',
-                        data: [495, 305, 245, 175, 220],
-                        backgroundColor: ['rgba(32, 160, 96, 0.9)', 'rgba(32, 160, 96, 0.8)', 'rgba(32, 160, 96, 0.85)', 'rgba(32, 160, 96, 0.75)', 'rgba(32, 160, 96, 0.82)'],
-                        borderColor: '#20a060',
-                        borderWidth: 2,
-                        borderRadius: 12,
-                        hoverBackgroundColor: '#20a060'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeInOutQuart',
-                        delay: (ctx) => ctx.dataIndex * 100
-                    },
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: { 
-                        legend: { 
-                            display: true,
-                            labels: { font: { size: 11, weight: 600 }, padding: 15 }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                            titleFont: { size: 12, weight: 'bold' },
-                            bodyFont: { size: 11 },
-                            padding: 10,
-                            cornerRadius: 10,
-                            borderColor: '#20a060',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, grid: { drawBorder: false, color: 'rgba(0, 0, 0, 0.05)' }, ticks: { font: { size: 10, weight: 500 } } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 500 } } }
-                    }
-                }
-            });
-            chartCanvas.dataset.initialized = 'true';
-        }
-    }
-    else if (toolType === 'engagement') {
-        const chartCanvas = document.getElementById('engagementToolChart');
-        if (chartCanvas && !chartCanvas.dataset.initialized) {
-            const ctx = chartCanvas.getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-                    datasets: [{
-                        label: 'Engagement Score',
-                        data: [72, 78, 75, 82, 88],
-                        borderColor: '#20a060',
-                        backgroundColor: 'rgba(32, 160, 96, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#20a060',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointHoverRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeInOutQuart',
-                        delay: (ctx) => ctx.dataIndex * 100
-                    },
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: { 
-                        legend: { 
-                            display: true,
-                            labels: { font: { size: 11, weight: 600 }, padding: 15 }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                            titleFont: { size: 12, weight: 'bold' },
-                            bodyFont: { size: 11 },
-                            padding: 10,
-                            cornerRadius: 10,
-                            borderColor: '#20a060',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, grid: { drawBorder: false, color: 'rgba(0, 0, 0, 0.05)' }, ticks: { font: { size: 10, weight: 500 } } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 500 } } }
-                    }
-                }
-            });
-            chartCanvas.dataset.initialized = 'true';
-        }
-    }
-    else if (toolType === 'members') {
-        const chartCanvas = document.getElementById('membersToolChart');
-        if (chartCanvas && !chartCanvas.dataset.initialized) {
-            const ctx = chartCanvas.getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Active', 'At-Risk', 'Inactive'],
-                    datasets: [{
-                        data: [75, 18, 7],
-                        backgroundColor: ['#20a060', '#ffc107', '#dc3545'],
-                        borderColor: '#fff',
-                        borderWidth: 3,
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeInOutQuart',
-                        animateScale: true
-                    },
-                    interaction: { mode: 'point', intersect: false },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { 
-                                padding: 20, 
-                                font: { size: 11, weight: 'bold' },
-                                usePointStyle: true,
-                                pointStyle: 'circle'
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                            titleFont: { size: 12, weight: 'bold' },
-                            bodyFont: { size: 11 },
-                            padding: 10,
-                            cornerRadius: 10,
-                            borderColor: '#20a060',
-                            borderWidth: 1
-                        }
-                    }
-                }
-            });
-            chartCanvas.dataset.initialized = 'true';
-        }
-    }
-    else if (toolType === 'heatmap') {
-        const chartCanvas = document.getElementById('heatmapToolChart');
-        if (chartCanvas && !chartCanvas.dataset.initialized) {
-            const ctx = chartCanvas.getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Rice', 'Corn', 'Fishery', 'Livestock', 'High Value Crops'],
-                    datasets: [{
-                        label: 'Engagement Intensity',
-                        data: [92, 78, 85, 68, 80],
-                        backgroundColor: ['rgba(32, 160, 96, 0.9)', 'rgba(32, 160, 96, 0.7)', 'rgba(32, 160, 96, 0.95)', 'rgba(32, 160, 96, 0.65)', 'rgba(32, 160, 96, 0.8)'],
-                        borderColor: '#20a060',
-                        borderWidth: 2,
-                        borderRadius: 12,
-                        hoverBackgroundColor: '#20a060'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeInOutQuart',
-                        delay: (ctx) => ctx.dataIndex * 100
-                    },
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(26, 26, 26, 0.9)',
-                            titleFont: { size: 12, weight: 'bold' },
-                            bodyFont: { size: 11 },
-                            padding: 10,
-                            cornerRadius: 10,
-                            borderColor: '#20a060',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: {
-                        x: { beginAtZero: true, grid: { drawBorder: false, color: 'rgba(0, 0, 0, 0.05)' }, ticks: { font: { size: 10, weight: 500 } } },
-                        y: { grid: { display: false }, ticks: { font: { size: 10, weight: 500 } } }
-                    }
-                }
-            });
-            chartCanvas.dataset.initialized = 'true';
-        }
-    }
-}
-
-// Add hover effects to quick tool cards
-document.querySelectorAll('.quick-tool-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-8px)';
-        this.style.boxShadow = '0 12px 24px rgba(32, 160, 96, 0.15)';
-        this.style.borderColor = 'rgb(32, 160, 96)';
-    });
-    card.addEventListener('mouseleave', function() {
-        this.style.transform = 'none';
-        this.style.boxShadow = 'none';
-        this.style.borderColor = 'rgba(32, 160, 96, 0.1)';
-    });
-});
-
-function previewDashboardImage(event) {
-    const previewArea = document.getElementById('previewAreaDashboard');
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewArea.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;" alt="Preview">';
-        }
-        reader.readAsDataURL(file);
-    }
-}
-
-function openGalleryEditModal(id, title, description, category, activity_date) {
-    document.getElementById('edit_media_id').value = id;
-    document.getElementById('edit_gallery_title').value = title;
-    document.getElementById('edit_gallery_description').value = description;
-    document.getElementById('edit_gallery_activity_date').value = activity_date;
-    
-    // Select the right category
-    const sel = document.getElementById('edit_gallery_category');
-    for (let i = 0; i < sel.options.length; i++) {
-        if (sel.options[i].value === category) { sel.selectedIndex = i; break; }
-    }
-    
-    // Hide the main upload modal temporarily to avoid backdrop z-index issues
-    const mainModalEl = document.getElementById('uploadMediaModal');
-    const mainModal = bootstrap.Modal.getInstance(mainModalEl);
-    if(mainModal) mainModal.hide();
-
-    // Show the edit modal
-    const editModal = new bootstrap.Modal(document.getElementById('editGalleryMediaModal'));
-    editModal.show();
-}
 </script>
 
 <?php if(isset($_GET['upload']) || isset($_GET['updated']) || isset($_GET['delete'])): ?>
@@ -1668,5 +1042,7 @@ function openGalleryEditModal(id, title, description, category, activity_date) {
 </script>
 <?php endif; ?>
 
+</body>
+</html>
 </body>
 </html>

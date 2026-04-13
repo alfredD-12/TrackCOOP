@@ -1,69 +1,40 @@
 /* ===== FOOTER STYLES ===== */
 .footer-track {
-    background-color: rgba(22, 74, 54, 0.95);
-    border-top: 1px solid rgba(22, 74, 54, 0.3);
-    padding: 60px 0;
+    background: #164a36 !important;
+    padding: 80px 0;
     margin-top: auto;
-    text-align: center;
     color: #ffffff !important;
+    position: relative;
+    border-top: 5px solid #20a060;
 }
 
-.footer-track .navbar-brand {
-    font-weight: 800;
-    font-size: 1.5rem;
-    letter-spacing: -0.8px;
-    color: #ffffff !important;
-    text-decoration: none;
+.footer-track h6 {
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
 }
 
-.footer-track .navbar-brand span:first-child {
-    color: #ffffff !important;
+.footer-track p {
+    margin-bottom: 0;
+    line-height: 1.8;
 }
 
-.footer-track .navbar-brand span:last-child {
-    color: #20a060 !important;
+.footer-track .text-white-50 {
+    color: rgba(255, 255, 255, 0.6) !important;
 }
 
-.footer-description {
-    color: #ffffff !important;
-    max-width: 400px;
-}
-
-.social-btn {
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.15);
-    color: #20a060;
-    border: 1px solid rgba(32, 160, 96, 0.3);
-    text-decoration: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.social-btn:hover {
-    background-color: #20a060;
-    color: white;
-    transform: translateY(-3px);
-    border-color: #20a060;
-}
-
-.footer-track .small {
-    color: #ffffff !important;
-}
-
-/* Override Bootstrap text utilities */
-.footer-track .text-muted,
-.footer-track .text-secondary,
-.footer-track .text-dark {
-    color: #ffffff !important;
-}
-
-@media (max-width: 992px) {
+@media (max-width: 991.98px) {
     .footer-track {
         text-align: center;
-        padding: 50px 0;
+        padding: 60px 0;
+    }
+
+    .footer-track .col-lg-4 {
+        margin-bottom: 40px;
+    }
+
+    .footer-track .col-lg-4:last-child {
+        margin-bottom: 0;
     }
 }

@@ -62,14 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --track-green: #206970;
+            --track-green: #27ae60;
             --track-green-light: #e9f5ee;
             --track-dark: #1a1a1a;
             --track-bg: #f8fafc;
             --track-beige: #F5F5DC;
             --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --text-main: #212529;
-            --text-muted: #555555;
+            --text-muted: #64748b;
         }
 
         body { background-color: var(--track-bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
@@ -81,16 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
             color: var(--track-dark) !important; 
             text-decoration: none;
         }
-        .navbar-brand span { color: var(--track-green); }
-        .page-header { background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%); padding: 50px 0 36px; border-bottom: 1px solid rgba(229,229,192,0.4); margin-bottom: 40px; }
-        .form-card { background: white; border-radius: 20px; border: 1px solid rgba(226,232,240,0.8); padding: 36px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-top: 5px solid var(--track-green); }
+        .navbar-brand span { color: #27ae60; }
+        .page-header { background: transparent; padding: 50px 0 0; margin-bottom: 20px; }
+        .form-card { background: white; border-radius: 20px; border: 1px solid rgba(226,232,240,0.8); padding: 36px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .form-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
         .form-control, .form-select { border-radius: 12px; padding: 14px 18px; border: 1.5px solid #e2e8f0; background-color: #f8fafc; transition: 0.3s; font-size: 0.95rem; }
         .form-control:focus, .form-select:focus { border-color: var(--track-green); box-shadow: 0 0 0 4px rgba(32,160,96,0.12); background-color: #fff; }
-        .btn-track { background: var(--track-green); color: white; border-radius: 12px; padding: 14px 28px; font-weight: 700; border: none; transition: var(--transition-smooth); }
-        .btn-track:hover { background: #20a060; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(32,160,96,0.3); color: white; }
-        .btn-cancel { background: #206970; color: white; border-radius: 12px; padding: 14px 28px; font-weight: 600; text-decoration: none; border: none; transition: 0.3s; }
-        .btn-cancel:hover { background: #20a060; color: white; transform: translateY(-2px); }
+        .btn-track { background: #27ae60; color: white; border-radius: 12px; padding: 14px 28px; font-weight: 700; border: none; transition: var(--transition-smooth); box-shadow: 0 4px 14px rgba(39, 174, 96, 0.2); }
+        .btn-track:hover { background: #1a8548; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3); color: white; }
+        .btn-cancel { background: #f1f5f9; color: #64748b; border-radius: 12px; padding: 14px 28px; font-weight: 600; text-decoration: none; border: none; transition: 0.3s; }
+        .btn-cancel:hover { background: #e2e8f0; color: #334155; transform: translateY(-2px); }
         .btn-back { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; border: 1.5px solid #e5e5c0; background: white; color: var(--text-muted); text-decoration: none; transition: 0.3s; margin-right: 16px; }
     </style>
     <link rel="stylesheet" href="../includes/footer.css">
@@ -105,12 +105,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
 
 <div class="page-header">
     <div class="container">
-        <div class="d-flex align-items-center mb-3">
+        <div class="d-flex align-items-center mb-0">
             <a href="announcements.php" class="btn-back"><i class="bi bi-arrow-left fs-5"></i></a>
-            <div class="badge bg-white text-primary border-primary border rounded-pill px-3 py-1 fw-bold text-uppercase small" style="font-size:0.7rem;">Editing Mode</div>
+            <div class="badge bg-white text-emerald border-emerald border rounded-pill px-3 py-1 fw-bold text-uppercase small" style="font-size:0.7rem; border-color: #27ae60 !important; color: #27ae60 !important;">Editing Mode</div>
         </div>
-        <h1 class="fw-800 display-5 mb-1" style="letter-spacing:-1.5px;">Edit Announcement</h1>
-        <p class="fs-6 mb-0 text-muted">Update your announcement details below.</p>
     </div>
 </div>
 
@@ -159,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_announcement']
     </div>
 </div>
 
-<?php include('../includes/footer.php'); ?>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

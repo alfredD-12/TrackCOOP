@@ -66,12 +66,12 @@ if ($u = $q->get_result()->fetch_assoc()) {
         .image-preview-box img { width: 100%; height: 100%; object-fit: cover; }
         
         .btn-track {
-            background: linear-gradient(135deg, var(--track-green), #1a8548);
+            background: #20a060;
             border: none; border-radius: 14px; padding: 12px 25px;
-            color: white; font-weight: 700; box-shadow: 0 10px 20px rgba(32, 160, 96, 0.2);
+            color: white; font-weight: 700; box-shadow: 0 4px 14px rgba(32, 160, 96, 0.3);
             transition: all 0.3s ease;
         }
-        .btn-track:hover { transform: translateY(-2px); background: linear-gradient(135deg, #20a060, #1a8548); box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3); color: white; }
+        .btn-track:hover { transform: translateY(-2px); background: #1a8548; box-shadow: 0 8px 20px rgba(32, 160, 96, 0.4); color: white; }
 
         .logout-btn { color: #ef4444; background: #fee2e2; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; text-decoration: none; }
         .logout-btn:hover { background: #ef4444; color: white; transform: rotate(90deg); }
@@ -179,6 +179,6 @@ function previewImage(event) {
 }
 </script>
 
-<?php include '../includes/footer.php'; ?>
+
 </body>
 </html>

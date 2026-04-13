@@ -55,9 +55,9 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
 
     <style>
         :root {
-            --track-green: #206970;
-            --track-green-dark: #167e4a;
-            --track-green-light: #e9f5ee;
+            --track-green: #27ae60;
+            --track-green-dark: #1a8548;
+            --track-green-light: #eefdf5;
             --track-dark: #1a1a1a;
             --track-beige: #f5f5dc;
             --track-beige-dark: #eaeacc;
@@ -109,12 +109,12 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
             color: var(--track-dark) !important;
             text-decoration: none;
         }
-        .pub-navbar .navbar-brand span { color: var(--track-green); }
+        .pub-navbar .navbar-brand span { color: #27ae60; }
 
         .btn-back-home {
             background: white;
-            border: 1.5px solid rgba(32, 160, 96, 0.25);
-            color: var(--track-green);
+            border: 1.5px solid rgba(39, 174, 96, 0.25);
+            color: #27ae60;
             border-radius: 50px;
             padding: 8px 20px;
             font-weight: 600;
@@ -126,18 +126,18 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
             gap: 7px;
         }
         .btn-back-home:hover {
-            background: var(--track-green);
+            background: #27ae60;
             color: white;
-            border-color: var(--track-green);
+            border-color: #27ae60;
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(32, 160, 96, 0.25);
+            box-shadow: 0 6px 18px rgba(39, 174, 96, 0.25);
         }
 
         /* ── Hero Section ── */
         .page-hero {
-            background: linear-gradient(135deg, #f0faf4 0%, var(--track-beige) 100%);
+            background: linear-gradient(135deg, #f0faf4 0%, #f1f8f4 100%);
             padding: 80px 0 60px;
-            border-bottom: 1px solid rgba(229, 229, 192, 0.5);
+            border-bottom: 1px solid rgba(39, 174, 96, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -161,8 +161,8 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
             align-items: center;
             gap: 7px;
             background: white;
-            border: 1px solid rgba(32, 160, 96, 0.2);
-            color: var(--track-green);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+            color: #27ae60;
             font-weight: 700;
             font-size: 0.78rem;
             letter-spacing: 1.2px;
@@ -170,7 +170,7 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
             padding: 6px 16px;
             border-radius: 50px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(32, 160, 96, 0.1);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.1);
         }
         .hero-badge .badge-dot {
             width: 7px; height: 7px;
@@ -193,13 +193,13 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
 
         /* ── Pinned Feature Card ── */
         .pinned-card {
-            background: linear-gradient(135deg, var(--track-green) 0%, var(--track-green-dark) 100%);
+            background: linear-gradient(135deg, #27ae60 0%, #1a8548 100%);
             border-radius: 24px;
             padding: 40px;
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(32, 160, 96, 0.25);
+            box-shadow: 0 20px 50px rgba(39, 174, 96, 0.25);
             animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         .pinned-card::before {
@@ -207,7 +207,7 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
             position: absolute;
             top: -40%; right: -10%;
             width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
         }
         .pinned-card .pinned-badge {
             display: inline-flex;
@@ -267,15 +267,17 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
         }
         .search-input-group input {
             padding-left: 44px;
-            border: 2px solid #e5e5c0;
+            border: 1.5px solid #e2e8f0;
             border-radius: 14px;
             font-size: 0.95rem;
             transition: var(--transition-smooth);
+            background: #f8fafc;
         }
         .search-input-group input:focus {
-            border-color: var(--track-green);
-            box-shadow: 0 0 0 3px rgba(32, 160, 96, 0.12);
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
             outline: none;
+            background: white;
         }
         .filter-pill {
             display: inline-flex;
@@ -292,11 +294,11 @@ $pinned = !empty($announcements) ? $announcements[0] : ['title' => 'Welcome', 'c
             background: white;
         }
         .filter-pill:hover, .filter-pill.active {
-            background: var(--track-green);
-            border-color: var(--track-green);
+            background: #27ae60;
+            border-color: #27ae60;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(32, 160, 96, 0.2);
+            box-shadow: 0 4px 14px rgba(39, 174, 96, 0.2);
         }
         .filter-pill .count-badge {
             background: rgba(0,0,0,0.1);

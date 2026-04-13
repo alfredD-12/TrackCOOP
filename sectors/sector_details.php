@@ -82,10 +82,12 @@ $approved_count = count(array_filter($members_rows, fn($m) => $m['status'] === '
         }
 
         body {
-            background-color: var(--track-bg);
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-main);
-            min-height: 100vh; display: flex; flex-direction: column;
+            background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('../Home.jpeg') top center / 100% 100% no-repeat fixed;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
         /* ── Navbar ── */
@@ -120,17 +122,21 @@ $approved_count = count(array_filter($members_rows, fn($m) => $m['status'] === '
 
         /* ── Page Header ── */
         .page-header {
-            background: linear-gradient(135deg, var(--track-bg) 0%, var(--track-beige) 100%);
+            background: transparent;
             padding: 50px 0 36px;
-            border-bottom: 1px solid rgba(229,229,192,0.4);
+            border-bottom: none;
             margin-bottom: 40px; position: relative; overflow: hidden;
             animation: fadeInUpCustom 0.8s cubic-bezier(0.16,1,0.3,1) both;
+            color: #ffffff !important;
         }
-        .page-header::after {
-            content: ''; position: absolute; top: -20%; right: -5%;
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(32,160,96,0.08) 0%, transparent 70%);
-            border-radius: 50%;
+        .page-header h1 { 
+            color: #20a060 !important; 
+            letter-spacing: -1.5px;
+            font-weight: 800 !important;
+        }
+        .page-header p, .page-header .text-muted { 
+            color: #ffffff !important; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .badge-platform {
             background: white; color: var(--track-green); font-weight: 700; padding: 6px 14px;
@@ -196,11 +202,12 @@ $approved_count = count(array_filter($members_rows, fn($m) => $m['status'] === '
 
         /* ── Action icons ── */
         .action-icon {
-            display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
-            border-radius: 8px; color: var(--text-muted); transition: 0.3s;
-            background: #f8fafc; border: 1px solid #e2e8f0; text-decoration: none;
+            display: inline-flex; width: 34px; height: 34px; align-items: center; justify-content: center;
+            border-radius: 8px; color: #3b82f6; transition: all 0.3s ease;
+            background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.3); text-decoration: none;
+            font-size: 1rem;
         }
-        .action-icon:hover { background: var(--track-green); color: white; border-color: var(--track-green); }
+        .action-icon:hover { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
 
         /* ── Stagger ── */
         .fade-in-up { opacity: 0; animation: fadeInUpCustom 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
@@ -253,10 +260,6 @@ $approved_count = count(array_filter($members_rows, fn($m) => $m['status'] === '
     <div class="container position-relative" style="z-index:1;">
         <div class="d-flex align-items-center mb-3">
             <a href="sectors.php" class="btn-back" title="Back to Sectors"><i class="bi bi-arrow-left fs-5"></i></a>
-            <div class="badge-platform mb-0">
-                <span class="spinner-grow spinner-grow-sm me-2 text-success" role="status" style="width:10px;height:10px;"></span>
-                System Live
-            </div>
         </div>
         <h1 class="fw-800 display-5 mb-1" style="letter-spacing:-1.5px;"><?php echo htmlspecialchars($sector['name']); ?></h1>
         <p class="fs-6 mb-0 text-muted"><?php echo $sector['description'] ? htmlspecialchars($sector['description']) : 'Sector details and member list.'; ?></p>
@@ -264,41 +267,6 @@ $approved_count = count(array_filter($members_rows, fn($m) => $m['status'] === '
 </div>
 
 <div class="container pb-5">
-
-    <!-- STAT CARDS -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-3 fade-in-up delay-1">
-            <div class="stat-card">
-                <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-people-fill fs-4"></i></div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Total Members</h6>
-                <h2 class="fw-800 mb-0 text-dark"><?php echo $member_count; ?></h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-2">
-            <div class="stat-card">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="icon-box bg-primary bg-opacity-10 text-primary"><i class="bi bi-person-check-fill fs-4"></i></div>
-                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill fw-bold" style="font-size:0.7rem;">Active</span>
-                </div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Approved Members</h6>
-                <h2 class="fw-800 mb-0 text-dark"><?php echo $approved_count; ?></h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-3">
-            <div class="stat-card">
-                <div class="icon-box bg-warning bg-opacity-10 text-warning"><i class="bi bi-wallet2 fs-4"></i></div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Total Capital</h6>
-                <h2 class="fw-800 mb-0 text-dark">₱<?php echo number_format($total_capital, 2); ?></h2>
-            </div>
-        </div>
-        <div class="col-md-3 fade-in-up delay-4">
-            <div class="stat-card">
-                <div class="icon-box bg-success bg-opacity-10 text-success"><i class="bi bi-person-badge-fill fs-4"></i></div>
-                <h6 class="text-uppercase fw-bold small mb-1 text-muted" style="letter-spacing:0.5px;">Chairperson</h6>
-                <h5 class="fw-800 mb-0 text-dark" style="font-size:1.1rem;"><?php echo $sector['chairperson'] ? htmlspecialchars($sector['chairperson']) : '—'; ?></h5>
-            </div>
-        </div>
-    </div>
 
     <!-- MEMBERS TABLE -->
     <div class="table-card" data-aos="fade-up" data-aos-delay="100">
@@ -379,7 +347,7 @@ $approved_count = count(array_filter($members_rows, fn($m) => $m['status'] === '
 
 </div>
 
-<?php include('../includes/footer.php'); ?>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
