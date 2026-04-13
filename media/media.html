@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="icon" type="image/png" href="/TrackCOOP/trackCOOP.ico">
+<title>Media Gallery | TrackCOOP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../includes/footer.css">
+    
+    <style>
+        :root { --track-green: #206970; --track-dark: #1e272e; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        
+        .navbar { background: white; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 15px 0; }
+        .navbar-brand { font-weight: 800; color: var(--track-dark); }
+        .navbar-brand span { color: var(--track-green); }
+
+        .gallery-header { 
+            padding: 80px 0 60px; 
+            background: linear-gradient(135deg, #f1f8f5 0%, #ffffff 100%);
+            border-bottom: 1px solid rgba(32, 160, 96, 0.1);
+        }
+
+        .filter-btn {
+            padding: 10px 24px; border-radius: 50px; border: 1px solid rgba(32, 160, 96, 0.2);
+            background: white; color: var(--track-dark); font-weight: 600; font-size: 0.85rem;
+            transition: all 0.3s ease; text-decoration: none; display: inline-block; margin: 0 5px 10px;
+        }
+        .filter-btn:hover, .filter-btn.active { 
+            background: var(--track-green); color: white; border-color: var(--track-green);
+            box-shadow: 0 8px 15px rgba(32, 160, 96, 0.2);
+        }
+
+        .media-card {
+            background: white; border-radius: 28px; border: none;
+            overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); height: 100%;
+            position: relative;
+        }
+        .media-card:hover { transform: translateY(-10px); box-shadow: 0 20px 50px rgba(0,0,0,0.08); }
+        
+        .media-img-container { width: 100%; height: 240px; overflow: hidden; position: relative; }
+        .media-img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s ease; }
+        .media-card:hover img { transform: scale(1.1); }
+
+        .category-badge {
+            position: absolute; top: 15px; left: 15px;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px);
+            padding: 5px 15px; border-radius: 50px; font-size: 0.75rem;
+            font-weight: 800; color: var(--track-green); border: 1px solid rgba(32, 160, 96, 0.2);
+        }
+
+        .media-body { padding: 25px; }
+        .media-title { font-weight: 800; font-size: 1.1rem; color: var(--track-dark); margin-bottom: 8px; letter-spacing: -0.5px; }
+        .media-desc { font-size: 0.85rem; color: #64748b; line-height: 1.6; margin-bottom: 15px; }
+        
+        .media-footer { border-top: 1px solid #f1f5f9; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .uploader-info { display: flex; align-items: center; font-size: 0.75rem; color: #94a3b8; }
+        .uploader-avatar { width: 24px; height: 24px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 8px; font-weight: bold; color: var(--track-green); }
+
+        .btn-delete { color: #ef4444; border: none; background: #fee2e2; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .btn-delete:hover { background: #ef4444; color: white; }
+
+        .empty-state { padding: 100px 0; text-align: center; color: #94a3b8; }
+        .empty-state i { font-size: 4rem; margin-bottom: 20px; display: block; opacity: 0.3; }
+        
+        .btn-upload {
+            background: linear-gradient(135deg, var(--track-green), #1a8548);
+            border: none; border-radius: 50px; padding: 12px 30px;
+            color: white; font-weight: 700; box-shadow: 0 10px 20px rgba(32, 160, 96, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-upload:hover { background: linear-gradient(135deg, #20a060, #1a8548); transform: translateY(-2px); box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3); color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="../index.html">Track<span>COOP</span></a>
+        <div class="ms-auto">
+            <a href="../index.html" class="btn btn-outline-success btn-sm rounded-pill px-4 fw-bold">Back to Home</a>
+        </div>
+    </div>
+</nav>
+
+<div class="gallery-header">
+    <div class="container text-center">
+        <h1 class="fw-800 display-4 mb-3" style="letter-spacing: -2px; color: var(--track-dark);">Cooperative Activities</h1>
+        <p class="text-muted fs-5 mb-5 mx-auto" style="max-width: 600px;">Experience the growth and milestones of Nasugbu's farmers and fisherfolks through our digital gallery.</p>
+        
+        <div class="d-flex flex-wrap justify-content-center mt-4">
+            <a href="?category=All" class="filter-btn ">All Activities</a>
+            <a href="?category=Training" class="filter-btn ">Trainings</a>
+            <a href="?category=Harvesting" class="filter-btn ">Harvesting</a>
+            <a href="?category=Meeting" class="filter-btn ">Meetings</a>
+            <a href="?category=Livelihood" class="filter-btn ">Livelihood</a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    
+        <div class="row g-4">
+            
+                <div class="col-lg-4 col-md-6">
+                    <div class="media-card">
+                        <div class="media-img-container">
+                            <img src="../" alt="">
+                            <div class="category-badge"></div>
+                        </div>
+                        <div class="media-body">
+                            <h5 class="media-title"></h5>
+                            <p class="media-desc small"></p>
+                            
+                            <div class="media-footer">
+                                <div class="uploader-info">
+                                    <div class="uploader-avatar"></div>
+                                    <span></span>
+                                </div>
+                                
+                                    <a href="media_actions.html?delete_id=" class="btn-delete" 
+                                       onclick="return TrackUI.confirmLink(event, 'Permanently delete this activity photo?', 'Delete Media', 'danger', 'Delete Now', 'Keep It')">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+        </div>
+    
+        <div class="empty-state">
+            <i class="bi bi-images"></i>
+            <h3>No media found</h3>
+            <p>We haven't shared any activities in this category yet. Check back soon!</p>
+        </div>
+    
+</div>
+
+
+
+<footer class="footer-track">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0 d-flex align-items-center justify-content-center justify-content-lg-start" style="gap: 0;">
+                <img src="/TrackCOOP/TrackCOOP%20Logo.svg" alt="TrackCOOP Logo" style="height: 70px; width: auto; filter: drop-shadow(0 8px 16px rgba(32, 160, 96, 0.25)); margin-right: -15px;">
+                <a class="navbar-brand d-inline-block d-flex align-items-center flex-column" href="/TrackCOOP/index.html" style="gap: 0; padding: 0; margin-left: -15px;">
+                    <span style="font-weight: 900; font-size: 2.2rem; line-height: 0.9; letter-spacing: -2px; color: #ffffff;">TRACK</span>
+                    <span style="font-weight: 900; font-size: 2.2rem; line-height: 0.9; letter-spacing: -2px; color: #20a060;">COOP</span>
+                </a>
+            </div>
+            <div class="col-lg-6 text-center text-lg-end">
+                <div class="d-flex justify-content-center justify-content-lg-end gap-2 gap-lg-3 mb-3">
+                    <a href="#" class="social-btn" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-btn" title="Email"><i class="bi bi-envelope"></i></a>
+                    <a href="#" class="social-btn" title="Website"><i class="bi bi-globe"></i></a>
+                </div>
+                <p class="small mb-0">&copy; 2026 <strong>TrackCOOP</strong>. Official NFFAC Platform. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+/* --- PREMIUM CONFIRMATION MODAL --- */
+#trackGlobalConfirmModal .modal-content {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(25px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(32, 160, 96, 0.1) !important;
+    border-radius: 32px !important;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.1) !important;
+    overflow: visible !important; 
+}
+
+#trackGlobalConfirmModal .modal-backdrop.show {
+    backdrop-filter: blur(8px);
+    background-color: rgba(15, 23, 42, 0.5);
+}
+
+#trackGlobalConfirmModal .icon-circle {
+    width: 84px !important;
+    height: 84px !important;
+    box-shadow: 0 15px 35px rgba(32, 160, 96, 0.15);
+    border: 6px solid white !important;
+    background: white !important;
+    transform: translateY(-50%);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -42px;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+#trackGlobalConfirmModal .modal-body {
+    padding: 60px 24px 32px !important;
+}
+
+@keyframes trackModalZoom {
+    from { opacity: 0; transform: scale(0.85) translateY(30px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#trackGlobalConfirmModal.show .modal-dialog {
+    animation: trackModalZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+#trackGlobalConfirmModal .btn-confirm {
+    padding: 14px 20px !important;
+    border-radius: 18px !important;
+    font-weight: 800 !important;
+    background: #206970 !important;
+    color: white !important;
+    transition: all 0.3s ease !important;
+    letter-spacing: -0.3px !important;
+    border: none !important;
+    box-shadow: 0 10px 20px rgba(32, 126, 112, 0.2) !important;
+}
+
+#trackGlobalConfirmModal .btn-confirm:hover {
+    background: #20a060 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3) !important;
+}
+
+#trackGlobalConfirmModal .btn-confirm:active {
+    transform: translateY(-1px);
+}
+
+#trackGlobalConfirmModal .btn-cancel {
+    padding: 14px 20px !important;
+    border-radius: 18px !important;
+    font-weight: 700 !important;
+    color: white !important;
+    background: #206970 !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 10px 20px rgba(32, 126, 112, 0.2) !important;
+}
+
+#trackGlobalConfirmModal .btn-cancel:hover {
+    background: #20a060 !important;
+    color: white !important;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(32, 160, 96, 0.3) !important;
+}
+</style>
+
+<!-- Global Confirmation Modal -->
+<div class="modal fade" id="trackGlobalConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content">
+            <div id="confirmIconContainer" class="icon-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-question-circle" style="font-size: 2.8rem; color: var(--track-green);"></i>
+            </div>
+            <div class="modal-body text-center">
+                <h4 class="fw-800 mb-2" id="confirmTitle" style="color: var(--track-dark); letter-spacing: -1.2px;">Confirm Action</h4>
+                <p class="text-muted mb-0 px-2" id="confirmMessage" style="font-size: 0.95rem; line-height: 1.6;">Are you sure you want to proceed? This will update the cooperative database records.</p>
+                
+                <div class="d-flex gap-3 mt-4 pt-2">
+                    <button type="button" class="btn btn-cancel w-100" data-bs-dismiss="modal">Keep</button>
+                    <button type="button" id="confirmButton" class="btn btn-confirm w-100 text-white">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.TrackUI = {
+    confirmModal: null,
+    resolvePromise: null,
+    isInitialized: false,
+    
+    init() {
+        if (this.isInitialized) return;
+        
+        const modalEl = document.getElementById('trackGlobalConfirmModal');
+        if (modalEl && window.bootstrap) {
+            try {
+                this.confirmModal = new bootstrap.Modal(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                this.isInitialized = true;
+            } catch (e) {
+                console.warn("TrackUI: Modal initialization failed, using fallbacks.");
+            }
+        }
+
+        const btnConfirm = document.getElementById('confirmButton');
+        const btnCancel = modalEl ? modalEl.querySelector('.btn-cancel') : null;
+
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', () => {
+                if (this.resolvePromise) {
+                    this.confirmModal.hide();
+                    const resolve = this.resolvePromise;
+                    this.resolvePromise = null;
+                    resolve(true);
+                }
+            });
+        }
+
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => {
+                if (this.resolvePromise) {
+                    const resolve = this.resolvePromise;
+                    this.resolvePromise = null;
+                    resolve(false);
+                }
+            });
+        }
+    },
+
+    show(message, title = 'Confirm', type = 'primary', btnConfirm = 'Confirm', btnCancel = 'Cancel') {
+        this.init();
+        if (!this.confirmModal) return Promise.resolve(false);
+
+        // Update content
+        document.getElementById('confirmMessage').textContent = message;
+        document.getElementById('confirmTitle').textContent = title;
+        
+        const btnCancelEl = document.querySelector('#trackGlobalConfirmModal .btn-cancel');
+        if (btnCancelEl) btnCancelEl.textContent = btnCancel;
+        
+        const icon = document.querySelector('#confirmIconContainer i');
+        const iconCircle = document.getElementById('confirmIconContainer');
+        const btn = document.getElementById('confirmButton');
+        
+        if (btn) btn.textContent = btnConfirm;
+
+        // Apply Premium themes for Icon (Dynamic for warning)
+        if (type === 'danger' || type === 'logout') {
+            if (icon) icon.className = (type === 'logout') ? 'bi bi-box-arrow-right' : 'bi bi-exclamation-triangle-fill';
+            if (icon) icon.style.color = '#ef4444';
+            if (iconCircle) iconCircle.style.boxShadow = '0 15px 35px rgba(239, 68, 68, 0.15)';
+        } else {
+            if (icon) icon.className = 'bi bi-check-circle-fill';
+            if (icon) icon.style.color = 'var(--track-green)';
+            if (iconCircle) iconCircle.style.boxShadow = '0 15px 35px rgba(32, 160, 96, 0.15)';
+        }
+
+        // FORCE GREEN BUTTON System-wide (Professional & Uniform)
+        if (btn) {
+            btn.style.background = 'linear-gradient(135deg, var(--track-green), #1a8548)';
+            btn.style.boxShadow = '0 10px 20px rgba(32, 160, 96, 0.2)';
+        }
+
+        return new Promise((resolve) => {
+            this.resolvePromise = resolve;
+            this.confirmModal.show();
+        });
+    },
+
+    async confirmLink(event, message, title = 'Confirm', type = 'primary', btnC = 'Confirm', btnX = 'Cancel') {
+        const url = event.currentTarget.href;
+        
+        // Fail-safe: If modal logic is missing or fails, just follow the link
+        if (!window.bootstrap || !document.getElementById('trackGlobalConfirmModal')) {
+            return true;
+        }
+
+        event.preventDefault();
+        if (await this.show(message, title, type, btnC, btnX)) {
+            window.location.href = url;
+        }
+        return false;
+    },
+
+    async confirmForm(event, message, title = 'Submit', type = 'primary', btnC = 'Continue', btnX = 'Back') {
+        event.preventDefault();
+        const form = event.currentTarget;
+        if (await this.show(message, title, type, btnC, btnX)) {
+            form.submit();
+        }
+        return false;
+    },
+
+    toast(message, type = 'primary') {
+        this.show(message, (type === 'success' ? 'Success' : 'Notification'), type, 'Okay', 'Dismiss');
+    }
+};
+</script>
+
+</body>
+</html>
+
+
+

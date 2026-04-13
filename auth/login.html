@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="icon" type="image/png" href="/TrackCOOP/trackCOOP.ico">
+<title>TrackCOOP Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center" style="min-height:100vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h1 class="h4 fw-bold mb-3 text-center">TrackCOOP Static Login</h1>
+                        <p class="small text-muted text-center mb-4">Choose a role to auto-fill credentials.</p>
+                        <form id="staticLoginForm">
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <select id="loginRole" class="form-select" required>
+                                    <option value="">-- Choose Role --</option>
+                                    <option value="Admin">Administrator</option>
+                                    <option value="Bookkeeper">Bookkeeper</option>
+                                    <option value="Member">Member</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input id="loginUsername" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input id="loginPassword" type="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Login</button>
+                        </form>
+                        <a href="../index.html" class="btn btn-link w-100 mt-2">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const staticUsers = {
+            Admin: { username: 'admin', password: '123456789', redirect: '../admin/admin_dashboard.html' },
+            Bookkeeper: { username: 'bookkeeper', password: '123456789', redirect: '../bookkeeper/bookkeeper_dashboard.html' },
+            Member: { username: 'member', password: '123456789', redirect: '../member/member_dashboard.html' }
+        };
+

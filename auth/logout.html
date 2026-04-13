@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="icon" type="image/png" href="/TrackCOOP/trackCOOP.ico">
+<title>Logging Out</title>
+</head>
+<body>
+    <script>
+        localStorage.removeItem('trackcoopRememberedUser');
+        sessionStorage.removeItem('trackcoopCurrentUser');
+        sessionStorage.removeItem('trackcoopCurrentRole');
+        window.location.replace('../index.html');
+    </script>
+</body>
+</html>
+
