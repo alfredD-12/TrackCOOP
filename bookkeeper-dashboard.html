@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Overview - TrackCOOP (Bookkeeper)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>tailwind.config={theme:{extend:{colors:{primary:'#1b5e3f',background:'#fafaf9',card:'#ffffff',muted:'#f4f4f3','muted-foreground':'#6b7280',border:'#e5e5e4',sidebar:'#1b5e3f','sidebar-accent':'#22704d','sidebar-border':'#22704d'},fontFamily:{display:['Crimson Pro','serif'],body:['Sora','sans-serif']}}}}</script>
+  <style>body{font-family:'Sora',sans-serif}.font-display{font-family:'Crimson Pro',serif}</style>
+</head>
+<body class="h-screen flex bg-background">
+  <aside class="w-64 bg-sidebar text-white flex flex-col shadow-lg shrink-0">
+    <div class="p-6 border-b border-sidebar-border"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-primary"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div><h1 class="text-xl font-display font-bold"><span class="text-white">Track</span><span class="text-green-300">COOP</span></h1><p class="text-xs text-white/70">Bookkeeper</p></div></div></div>
+    <nav class="flex-1 p-4 overflow-y-auto"><ul class="space-y-1">
+      <li><a href="bookkeeper-dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white text-primary shadow-md font-medium"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Dashboard</span></a></li>
+      <li><a href="share-capital.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:bg-sidebar-accent"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/><path d="M2 12h20"/></svg><span>Share Capital</span></a></li>
+      <li><a href="financial.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:bg-sidebar-accent"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/></svg><span>Financial</span></a></li>
+      <li><a href="expenditures.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:bg-sidebar-accent"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Expenditures</span></a></li>
+    </ul></nav>
+    <div class="p-4 border-t border-sidebar-border"><a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-white/80 hover:bg-sidebar-accent"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Logout</span></a></div>
+  </aside>
+
+  <main class="flex-1 overflow-auto">
+    <div class="p-8">
+      <div class="mb-8"><h1 class="text-3xl font-display mb-2">Financial Overview</h1><p class="text-muted-foreground">Cooperative financial summary and cash flow analysis</p></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-card rounded-xl p-6 border border-border shadow-sm"><div class="bg-green-500 w-12 h-12 rounded-lg flex items-center justify-center mb-4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/><path d="M2 12h20"/></svg></div><h3 class="text-sm text-muted-foreground mb-2">Total Share Capital Collected</h3><div class="text-3xl font-bold mb-2">&#8369;32,500,000</div><div class="text-sm text-green-600">+&#8369;2,800,000 (+9.4%)</div></div>
+        <div class="bg-card rounded-xl p-6 border border-border shadow-sm"><div class="bg-red-500 w-12 h-12 rounded-lg flex items-center justify-center mb-4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg></div><h3 class="text-sm text-muted-foreground mb-2">Total Expenditures (MTD)</h3><div class="text-3xl font-bold mb-2">&#8369;1,245,000</div><div class="text-sm text-red-600">+&#8369;125,000 (+11.2%)</div></div>
+        <div class="bg-card rounded-xl p-6 border border-border shadow-sm"><div class="bg-primary w-12 h-12 rounded-lg flex items-center justify-center mb-4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div><h3 class="text-sm text-muted-foreground mb-2">Current Net Balance</h3><div class="text-3xl font-bold mb-2">&#8369;31,255,000</div><div class="text-sm text-green-600">+&#8369;2,675,000 (+9.4%)</div></div>
+      </div>
+
+      <!-- Cash Flow Chart Placeholder -->
+      <div class="bg-card rounded-xl p-6 border border-border shadow-sm mb-8">
+        <div class="mb-6"><h2 class="text-xl font-display mb-1">Monthly Cash Flow</h2><p class="text-sm text-muted-foreground">Income vs. Expenses over the last 6 months</p></div>
+        <div class="h-80 flex items-end gap-4 px-8">
+          <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex gap-1"><div class="flex-1 bg-green-500 rounded-t" style="height:260px"></div><div class="flex-1 bg-red-500 rounded-t" style="height:60px"></div></div><span class="text-xs text-muted-foreground mt-2">Nov</span></div>
+          <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex gap-1"><div class="flex-1 bg-green-500 rounded-t" style="height:280px"></div><div class="flex-1 bg-red-500 rounded-t" style="height:70px"></div></div><span class="text-xs text-muted-foreground mt-2">Dec</span></div>
+          <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex gap-1"><div class="flex-1 bg-green-500 rounded-t" style="height:300px"></div><div class="flex-1 bg-red-500 rounded-t" style="height:65px"></div></div><span class="text-xs text-muted-foreground mt-2">Jan</span></div>
+          <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex gap-1"><div class="flex-1 bg-green-500 rounded-t" style="height:285px"></div><div class="flex-1 bg-red-500 rounded-t" style="height:73px"></div></div><span class="text-xs text-muted-foreground mt-2">Feb</span></div>
+          <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex gap-1"><div class="flex-1 bg-green-500 rounded-t" style="height:315px"></div><div class="flex-1 bg-red-500 rounded-t" style="height:76px"></div></div><span class="text-xs text-muted-foreground mt-2">Mar</span></div>
+          <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex gap-1"><div class="flex-1 bg-green-500 rounded-t" style="height:240px"></div><div class="flex-1 bg-red-500 rounded-t" style="height:78px"></div></div><span class="text-xs text-muted-foreground mt-2">Apr</span></div>
+        </div>
+        <div class="flex items-center gap-6 mt-4"><div class="flex items-center gap-2"><div class="w-3 h-3 bg-green-500 rounded"></div><span class="text-xs">Income</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 bg-red-500 rounded"></div><span class="text-xs">Expenses</span></div></div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-border"><h2 class="text-xl font-display">Recent Transactions</h2></div>
+        <div class="overflow-x-auto"><table class="w-full"><thead class="bg-muted/50"><tr>
+          <th class="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Date</th>
+          <th class="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Type</th>
+          <th class="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Description</th>
+          <th class="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Amount</th>
+          <th class="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Status</th>
+        </tr></thead><tbody>
+          <tr class="border-t border-border hover:bg-muted/30"><td class="px-6 py-4 text-sm text-muted-foreground">Apr 14, 2026</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">Contribution</span></td><td class="px-6 py-4 text-sm">Share Capital Payment - Maria Santos</td><td class="px-6 py-4 font-bold text-green-600">+&#8369;25,000</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">Completed</span></td></tr>
+          <tr class="border-t border-border hover:bg-muted/30"><td class="px-6 py-4 text-sm text-muted-foreground">Apr 13, 2026</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-sm bg-red-100 text-red-700">Expense</span></td><td class="px-6 py-4 text-sm">Office Supplies Purchase</td><td class="px-6 py-4 font-bold text-red-600">-&#8369;15,000</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">Completed</span></td></tr>
+          <tr class="border-t border-border hover:bg-muted/30"><td class="px-6 py-4 text-sm text-muted-foreground">Apr 12, 2026</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">Contribution</span></td><td class="px-6 py-4 text-sm">Share Capital Payment - Juan Dela Cruz</td><td class="px-6 py-4 font-bold text-green-600">+&#8369;18,000</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">Completed</span></td></tr>
+          <tr class="border-t border-border hover:bg-muted/30"><td class="px-6 py-4 text-sm text-muted-foreground">Apr 11, 2026</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-sm bg-red-100 text-red-700">Expense</span></td><td class="px-6 py-4 text-sm">Utility Bills - April 2026</td><td class="px-6 py-4 font-bold text-red-600">-&#8369;45,000</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">Completed</span></td></tr>
+          <tr class="border-t border-border hover:bg-muted/30"><td class="px-6 py-4 text-sm text-muted-foreground">Apr 10, 2026</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">Contribution</span></td><td class="px-6 py-4 text-sm">Share Capital Payment - Rosa Garcia</td><td class="px-6 py-4 font-bold text-green-600">+&#8369;32,000</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs bg-amber-100 text-amber-700">Pending</span></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

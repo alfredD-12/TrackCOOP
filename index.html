@@ -1,1290 +1,380 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="trackCOOP.ico">
-    <title>TRACKCOOP | NFFAC Nasugbu</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <style>
-        :root {
-            --track-green: #206970;
-            --primary-green: #20a060;
-            --dark-green: #1a8548;
-            --track-green-light: #e9f5ee;
-            --track-dark: #1a1a1a;
-            --track-bg: #f8fafc;
-            --track-beige: #F5F5DC;
-            --text-main: #212529;
-            --text-muted: #555555;
-            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackCOOP - Intelligent Document Management and Analytics System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1b5e3f',
+            'primary-foreground': '#ffffff',
+            background: '#fafaf9',
+            foreground: '#1a1a1a',
+            card: '#ffffff',
+            muted: '#f4f4f3',
+            'muted-foreground': '#6b7280',
+            border: '#e5e5e4',
+            secondary: '#e8f5ee',
+            'secondary-foreground': '#1b5e3f',
+            accent: '#d1f0df',
+            'accent-foreground': '#1b5e3f',
+            input: '#e5e5e4',
+            'input-background': '#ffffff',
+            sidebar: '#1b5e3f',
+          },
+          fontFamily: {
+            display: ['Crimson Pro', 'serif'],
+            body: ['Sora', 'sans-serif'],
+          }
         }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text-main);
-            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('Home.jpeg') top center / 100% 100% no-repeat fixed;
-            background-color: #f8fafc; /* Fallback */
-            overflow-x: hidden;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        main { flex: 1 0 auto; }
-        html { scroll-behavior: smooth; height: 100%; }
-
-        /* --- Custom Animations --- */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-        .floating-icon { animation: float 4s ease-in-out infinite; }
-
-        @keyframes slideFade {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* --- Navbar --- */
-        .navbar {
-            background-color: rgba(22, 74, 54, 0.95) !important;
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(22, 74, 54, 0.3);
-            transition: var(--transition-smooth);
-            z-index: 1050;
-        }
-        .navbar .nav-link { 
-            color: rgba(255, 255, 255, 0.8) !important; 
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin: 0 15px; 
-            padding: 8px 0 !important;
-            position: relative;
-            transition: var(--transition-smooth);
-        }
-        .navbar-brand {
-            font-weight: 800;
-            font-size: 1.7rem;
-            letter-spacing: -1.5px;
-            color: #ffffff !important;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-        .navbar-brand span { color: #20a060; }
-        .nav-link::after {
-            content: ''; position: absolute; bottom: 0; left: 0;
-            width: 0; height: 2px; background-color: var(--track-green);
-            transition: width 0.3s ease;
-        }
-        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
-        .nav-link:hover, .nav-link.active { color: #20a060 !important; }
-
-        .btn-nav-login {
-            background: #20a060;
-            color: white !important;
-            padding: 10px 24px !important;
-            border-radius: 50px;
-            font-weight: 700;
-            transition: var(--transition-smooth);
-            border: none;
-            box-shadow: 0 8px 20px rgba(32, 160, 96, 0.2);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-nav-login:hover {
-            background: #1b8a52;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(32, 160, 96, 0.4);
-            color: white !important;
-        }
-
-        /* --- Components & Sections --- */
-        .hero { padding: 60px 0 60px; min-height: 80vh; display: flex; align-items: center; color: white; }
-        .hero-title { font-weight: 800; font-size: clamp(2.5rem, 6vw, 4rem); line-height: 1.1; margin-bottom: 25px; letter-spacing: -1px; color: #20a060; text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .stats-wrapper { margin-top: -100px; position: relative; z-index: 10; }
-        
-        .stat-card-modern {
-            background: #ffffff; border: 3px solid #20a060; padding: 40px 30px; border-radius: 35px;
-            text-align: center; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 35px rgba(32, 160, 96, 0.15); position: relative; overflow: hidden;
-        }
-        .stat-card-modern:hover { transform: translateY(-12px) scale(1.02); border-color: var(--primary-green); box-shadow: 0 20px 60px rgba(32, 160, 96, 0.3); }
-        .stat-val { font-size: 3.2rem; font-weight: 900; display: block; color: var(--primary-green); line-height: 1; margin-bottom: 8px; letter-spacing: -1px; }
-        .stat-desc { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700; }
-
-        .py-60px { padding-top: 60px !important; padding-bottom: 60px !important; }
-        .py-100px { padding-top: 100px !important; padding-bottom: 100px !important; }
-
-        /* Gallery Cards */
-        .gallery-card-premium {
-            background: white; border-radius: 32px; border: 2px solid rgba(32, 160, 96, 0.25); 
-            overflow: hidden; height: 100%; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; flex-direction: column; box-shadow: 0 10px 35px rgba(32, 160, 96, 0.12); position: relative;
-        }
-        .gallery-card-premium:hover { transform: translateY(-18px); box-shadow: 0 30px 70px rgba(32, 160, 96, 0.25); border-color: var(--primary-green); }
-        .card-img-wrapper { height: 260px; width: 100%; overflow: hidden; position: relative; background: linear-gradient(135deg, #f5f5f5, #e8e8e8); }
-        .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: brightness(0.95); }
-        .gallery-card-premium:hover .card-img-wrapper img { transform: scale(1.12); filter: brightness(1); }
-        .category-tag { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); padding: 8px 18px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; color: #20a060; border: 1.5px solid rgba(32, 160, 96, 0.2); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .b-gallery-btn { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: linear-gradient(135deg, #206970 0%, #1a5a55 100%) !important; color: white !important; border: none !important; box-shadow: 0 12px 30px rgba(32, 126, 112, 0.25) !important; font-weight: 700 !important; }
-        .b-gallery-btn:hover { background: linear-gradient(135deg, #20a060 0%, #1a8a6e 100%) !important; transform: translateY(-3px); box-shadow: 0 18px 45px rgba(32, 160, 96, 0.4) !important; }
-
-        /* Features */
-        .feature-card {
-            border: 2px solid rgba(32, 160, 96, 0.25); background: #fff; padding: 50px 40px; border-radius: 32px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); height: 100%; box-shadow: 0 10px 35px rgba(32, 160, 96, 0.1);
-        }
-        .feature-card:hover { transform: translateY(-18px); box-shadow: 0 25px 60px rgba(32, 160, 96, 0.2); border-color: var(--primary-green); }
-        .icon-box {
-            width: 80px; height: 80px; background: linear-gradient(135deg, #eef7f2 0%, #e0f0e8 100%); color: var(--primary-green);
-            border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 35px; transition: all 0.4s ease;
-        }
-        .feature-card:hover .icon-box { background: linear-gradient(135deg, var(--primary-green) 0%, #1a8a6e 100%); color: white; transform: scale(1.1) rotate(5deg); }
-
-        /* Announcements */
-        .ann-card-v2 {
-            border: 3px solid #20a060; background: #ffffff; padding: 40px 30px; border-radius: 35px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 30px rgba(32, 160, 96, 0.1); cursor: pointer;
-        }
-        .ann-card-v2:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 25px 50px rgba(32, 160, 96, 0.2); border-color: #28c76f; }
-        .ann-icon-box { width: 70px; height: 70px; background: #20a060; color: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; margin-bottom: 25px; }
-        .ann-category-tag { position: absolute; top: 30px; right: 25px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: white; background: #20a060; padding: 6px 16px; border-radius: 50px; }
-        .ann-card-v2 .title { font-weight: 700; font-size: 1.25rem; margin-bottom: 12px; color: #20a060; }
-        .ann-card-v2 .snippet { color: #334155; font-size: 0.95rem; margin-bottom: 25px; flex-grow: 1; }
-        .ann-footer { border-top: 1px solid #f1f5f9; padding-top: 20px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: #64748b; }
-        .ann-footer i { color: #20a060; }
-
-        /* FAQ / Form */
-        .faq-wrapper-card, .message-wrapper-card { background: white; border: 3px solid #20a060; border-radius: 40px; padding: 40px; height: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        .faq-accordion .accordion-item { border: 1.5px solid #e2e8f0; border-radius: 20px !important; margin-bottom: 15px; overflow: hidden; }
-        .faq-accordion .accordion-button { padding: 20px 25px; font-weight: 700; color: #20a060; font-size: 1.05rem; box-shadow: none; }
-        .faq-accordion .accordion-button:not(.collapsed) { background: #f8fafc; }
-        .form-control, .form-select { background: #f8f9fa; border: 1px solid #eee; height: 55px; border-radius: 12px !important; transition: var(--transition-smooth); }
-        .form-control:focus, .form-select:focus { background: #fff; border-color: var(--primary-green); box-shadow: 0 0 0 4px rgba(32, 160, 96, 0.1); }
-        .btn-submit-green { background: #20a060 !important; color: white !important; font-weight: 700; border-radius: 50px; padding: 15px; transition: 0.3s; border: none; }
-        .btn-submit-green:hover { background: #1b8a52 !important; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(32, 160, 96, 0.2); }
-
-        /* Modal Styles */
-        .modal-content { border-radius: 35px; border: none; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.25); }
-        .modal-header-botanical { background-color: #143c2c; padding: 25px; display: flex; align-items: center; justify-content: center; color: white; border: none; position: relative; }
-        .btn-close-custom { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.3s ease; cursor: pointer; }
-        .btn-close-custom:hover { background: #e63946 !important; transform: rotate(90deg); box-shadow: 0 0 15px rgba(230, 57, 70, 0.4); }
-        
-        /* Modal Form Elements */
-        .form-label-custom { font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 4px; display: block; letter-spacing: 0.2px; }
-        .form-control-botanical { border-radius: 12px !important; padding: 12px 18px; border: 1px solid #e2e8f0; font-size: 0.9rem; background-color: #fcfdfc; transition: all 0.2s ease; }
-        .form-control-botanical:focus { border-color: #20a060; box-shadow: 0 0 0 3px rgba(32, 160, 96, 0.1); background-color: #ffffff; }
-        .password-toggle-wrapper { position: relative; display: flex; align-items: center; }
-        .password-toggle-btn { position: absolute; right: 15px; background: none; border: none; color: #64748b; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: var(--transition-smooth); z-index: 5; }
-        .password-toggle-btn:hover { color: var(--track-green); }
-        
-        .btn-reg-next, .btn-login-modal { background: #20a060; color: white; border-radius: 50px; padding: 14px 28px; font-weight: 700; border: none; transition: all 0.2s ease; }
-        .btn-reg-next:hover, .btn-login-modal:hover { background: #1a8a52; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(32, 160, 96, 0.3); color: white;}
-        .btn-reg-back { background: #20a060; color: white; border: none; border-radius: 50px; padding: 14px 24px; font-weight: 700; transition: all 0.2s ease; }
-        .btn-reg-cancel, .btn-cancel-modal { background: #e63946; color: white; border-radius: 50px; padding: 14px 24px; font-weight: 700; border: none; transition: all 0.2s ease; }
-        .btn-reg-cancel:hover, .btn-cancel-modal:hover { background: #d62d3a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230, 57, 70, 0.3); color: white;}
-
-        .reg-step { transition: all 0.3s ease; }
-        .reg-step.d-none { display: none !important; }
-        .section-title-pill { color: #20a060; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; display: inline-block; }
-        .step-indicator { color: #20a060; font-size: 0.75rem; font-weight: 600; text-align: center; margin-bottom: 15px; }
-        .strength-text { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-top: 4px; display: block; letter-spacing: 0.5px; }
-        .text-weak { color: #ef4444; } .text-good { color: #f59e0b; } .text-strong { color: #20a060; }
-        
-        .modal-filter-btn { padding: 8px 24px; border-radius: 50px; border: none; background: white; color: #475569; font-weight: 700; font-size: 0.85rem; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .modal-filter-btn.active, .modal-filter-btn:hover { background: #20a060; color: white; box-shadow: 0 10px 20px rgba(32, 160, 96, 0.25); }
-
-    </style>
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Sora', sans-serif; }
+    .font-display { font-family: 'Crimson Pro', serif; }
+  </style>
 </head>
-<body>
+<body class="min-h-screen bg-white">
 
-    <main>
-        <nav class="navbar navbar-expand-lg fixed-top">
-            <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="#home" style="padding-left: 0; margin-left: -20px;">
-                    <img src="TrackCOOP Logo.svg" alt="TRACKCOOP Logo" class="navbar-logo" style="height: 40px; margin-right: 10px;">
-                    TRACK<span style="color: #20a060;">COOP</span>
-                </a>
-                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="bi bi-list fs-1 text-success"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mx-auto align-items-center">
-                        <li class="nav-item"><a class="nav-link mx-2" href="#home"><i class="bi bi-house-door me-1"></i> Home</a></li>
-                        <li class="nav-item"><a class="nav-link mx-2" href="#gallery"><i class="bi bi-images me-1"></i> Gallery</a></li>
-                        <li class="nav-item"><a class="nav-link mx-2" href="#features"><i class="bi bi-star me-1"></i> Features</a></li>
-                        <li class="nav-item"><a class="nav-link mx-2" href="#announcements"><i class="bi bi-bell-fill me-1" style="color:#ffffff;"></i> Announcements</a></li>
-                        <li class="nav-item"><a class="nav-link mx-2" href="#contact"><i class="bi bi-question-circle me-1"></i> FAQ</a></li>
-                    </ul>
-                    <ul class="navbar-nav align-items-center">
-                        <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
-                            <button class="btn btn-nav-login" data-bs-toggle="modal" data-bs-target="#loginModal">
-                                <i class="bi bi-key-fill me-1"></i> Login
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-primary border-b border-green-700 shadow-lg">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-primary">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="text-xl font-display font-bold">
+            <span class="text-white">Track</span><span class="text-green-300">COOP</span>
+          </span>
+        </div>
+        <nav class="hidden md:flex items-center gap-8">
+          <a href="#about" class="text-green-100 hover:text-white transition-colors">About</a>
+          <a href="#features" class="text-green-100 hover:text-white transition-colors">Features</a>
+          <a href="#gallery" class="text-green-100 hover:text-white transition-colors">Gallery</a>
+          <a href="#faq" class="text-green-100 hover:text-white transition-colors">FAQ</a>
+          <a href="#contact" class="text-green-100 hover:text-white transition-colors">Contact</a>
         </nav>
-
-        <header class="hero pb-lg-100px" id="home">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-7" data-aos="fade-right">
-                        <h1 class="hero-title">Intelligent <br>Management for Nasugbu Farmers.</h1>
-                        <p class="text-white opacity-75 mb-5 fs-5 text-shadow" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Empowering our local agriculture cooperative with a centralized digital system for document tracking and membership growth.</p>
-                    </div>
-                    <div class="col-lg-5 text-center" data-aos="fade-left" data-aos-delay="300">
-                        <div class="d-flex flex-column gap-3 align-items-center justify-content-center">
-                            <button class="btn btn-lg px-5 py-3 shadow-lg rounded-pill fw-bold w-100 text-white" style="max-width: 320px; background: #20a060; border: none; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 25px rgba(32,160,96,0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';" data-bs-toggle="modal" data-bs-target="#registerModal">Become a Member</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <div class="container stats-wrapper mb-5 mb-lg-60px">
-            <div class="row g-4 justify-content-center">
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="stat-card-modern">
-                        <span class="stat-val">100%</span>
-                        <span class="stat-desc">Digital Tracking</span>
-                    </div>
-                </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="stat-card-modern">
-                        <span class="stat-val">2026</span>
-                        <span class="stat-desc">System Year</span>
-                    </div>
-                </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="stat-card-modern">
-                        <span class="stat-val">5+</span>
-                        <span class="stat-desc">Agri Sectors</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <section class="py-60px" id="gallery" style="background: transparent;">
-            <div class="container py-5">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5" data-aos="fade-up">
-                    <div class="text-center text-md-start mb-4 mb-md-0">
-                        <h2 class="fw-bold fs-1 mb-2" style="letter-spacing: -1.5px; color: #20a060; font-weight: 900 !important; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">Cooperative Activities</h2>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#galleryModal" class="btn rounded-pill px-5 py-3 fw-bold text-white b-gallery-btn" style="background: #20a060 !important; border: 2px solid #20a060 !important; box-shadow: 0 4px 15px rgba(32, 160, 96, 0.3);">
-                            Browse Full Archive <i class="bi bi-arrow-right ms-2"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row g-4">
-                    <div class="col-lg-4" data-aos="zoom-in">
-                        <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 3px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='translateY(0)';" data-title="Team Building Event 2026" data-date="March 15, 2026" data-category="Events" data-img="event.png" data-desc="Our cooperative members gathered for an exciting team building activity to strengthen bonds and improve collaboration. This event featured various activities designed to enhance teamwork and communication among participants." onclick="openActivityDetail(this)">
-                            <div class="card-img-wrapper" style="height: 220px; position: relative; background: url('event.png') center/cover no-repeat;">
-                                <span class="category-tag bg-white fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem; pointer-events: none; color: #20a060;">Events</span>
-                            </div>
-                            <div class="card-content p-4 d-flex flex-column" style="flex: 1; pointer-events: none;">
-                                <h4 class="fw-bold mb-3" style="color: #20a060; font-size: 1.35rem;">Team Building Event 2026</h4>
-                                <p class="text-dark small mb-0 mt-auto" style="font-size: 0.95rem;"><i class="bi bi-calendar me-2"></i>March 15, 2026</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
-                        <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 3px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='translateY(0)';" data-title="Harvest Season Activity" data-date="March 10, 2026" data-category="Agriculture" data-img="agriculture.webp" data-desc="A successful harvest season engaging our farmers. Our cooperative members gathered for an exciting activity to strengthen bonds and celebrate a bountiful yield." onclick="openActivityDetail(this)">
-                            <div class="card-img-wrapper" style="height: 220px; position: relative; background: url('agriculture.webp') center/cover no-repeat;">
-                                <span class="category-tag bg-white fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem; pointer-events: none; color: #20a060;">Agriculture</span>
-                            </div>
-                            <div class="card-content p-4 d-flex flex-column" style="flex: 1; pointer-events: none;">
-                                <h4 class="fw-bold mb-3" style="color: #20a060; font-size: 1.35rem;">Harvest Season Activity</h4>
-                                <p class="text-dark small mb-0 mt-auto" style="font-size: 0.95rem;"><i class="bi bi-calendar me-2"></i>March 10, 2026</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">
-                        <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 3px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='translateY(0)';" data-title="Member Conference 2026" data-date="February 28, 2026" data-category="Meetings" data-img="meeting.jpg" data-desc="Annual strategic member conference to discuss future goals, financial reviews, and cooperative developments for the upcoming year." onclick="openActivityDetail(this)">
-                            <div class="card-img-wrapper" style="height: 220px; position: relative; background: url('meeting.jpg') center/cover no-repeat;">
-                                <span class="category-tag bg-white fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem; pointer-events: none; color: #20a060;">Meetings</span>
-                            </div>
-                            <div class="card-content p-4 d-flex flex-column" style="flex: 1; pointer-events: none;">
-                                <h4 class="fw-bold mb-3" style="color: #20a060; font-size: 1.35rem;">Member Conference 2026</h4>
-                                <p class="text-dark small mb-0 mt-auto" style="font-size: 0.95rem;"><i class="bi bi-calendar me-2"></i>February 28, 2026</p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-        <section class="py-100px mt-5" id="features" style="background: transparent;">
-            <div class="container py-60px">
-                <div class="text-start mb-5" data-aos="fade-up">
-                    <h2 class="fw-bold fs-1" style="color: #20a060; letter-spacing: -1.5px; font-weight: 900 !important; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">Platform Features</h2>
-                </div>
-                <div class="row g-4">
-                    <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-                        <div class="feature-card">
-                            <div class="icon-box"><i class="bi bi-file-earmark-bar-graph"></i></div>
-                            <h4 class="fw-bold">Document Analytics</h4>
-                            <p class="text-muted">Secure digital archives with real-time tracking for every NFFAC cooperative document and report.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-                        <div class="feature-card">
-                            <div class="icon-box"><i class="bi bi-people-fill"></i></div>
-                            <h4 class="fw-bold">Member Lifecycle</h4>
-                            <p class="text-muted">Automated registration process for farmers and fisherfolks with detailed sector monitoring.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-                        <div class="feature-card">
-                            <div class="icon-box"><i class="bi bi-megaphone-fill"></i></div>
-                            <h4 class="fw-bold">Smart Broadcast</h4>
-                            <p class="text-muted">Instant announcements and policy updates delivered to all cooperative members across Nasugbu.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="announcements" class="py-100px" style="background: transparent;">
-            <div class="container py-5">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5" data-aos="fade-up">
-                    <div class="text-start mb-4 mb-md-0">
-                        <h2 class="fw-bold fs-1 mb-3" style="color: #20a060; letter-spacing: -1.5px; font-weight: 900 !important; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">Cooperative Announcements</h2>
-                    </div>
-                    <div>
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#announcementsModal" class="btn rounded-pill px-5 py-3 fw-bold text-white b-gallery-btn" style="background: #20a060 !important; border: 2px solid #20a060 !important; box-shadow: 0 4px 15px rgba(32, 160, 96, 0.3); transition: all 0.3s ease;">
-                            View All Announcements
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row g-4 justify-content-center">
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                        <div class="ann-card-v2" style="cursor: pointer;" onclick="openAnnouncementDetail(this)" data-title="Welcome to TrackCOOP" data-category="General" data-date="Apr 2, 2026" data-author="Admin User" data-content="TrackCOOP is now live! Join our community and start tracking your cooperative activities.">
-                            <span class="ann-category-tag">General</span>
-                            <div class="ann-icon-box">AU</div>
-                            <h4 class="title">Welcome to TrackCOOP</h4>
-                            <p class="snippet">TrackCOOP is now live! Join our community and start tracking your cooperative activities...</p>
-                            <div class="ann-footer">
-                                <span class="author"><i class="bi bi-person me-1"></i> Admin User</span>
-                                <span class="date"><i class="bi bi-calendar4-event me-1"></i> Apr 2, 2026</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                        <div class="ann-card-v2" style="cursor: pointer;" onclick="openAnnouncementDetail(this)" data-title="New Share Capital System" data-category="Sector News" data-date="Apr 1, 2026" data-author="Bookkeeper" data-content="Our new share capital tracking system is now available. All members can monitor their contributions.">
-                            <span class="ann-category-tag">Sector News</span>
-                            <div class="ann-icon-box">B</div>
-                            <h4 class="title">New Share Capital System</h4>
-                            <p class="snippet">Our new share capital tracking system is now available. All members can monitor their contrib...</p>
-                            <div class="ann-footer">
-                                <span class="author"><i class="bi bi-person me-1"></i> Bookkeeper</span>
-                                <span class="date"><i class="bi bi-calendar4-event me-1"></i> Apr 1, 2026</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="ann-card-v2" style="cursor: pointer;" onclick="openAnnouncementDetail(this)" data-title="Member Meeting Notice" data-category="Meetings" data-date="Mar 31, 2026" data-author="Admin User" data-content="General assembly meeting will be held on April 15, 2026. All members are invited to attend and participate in important discussions.">
-                            <span class="ann-category-tag">Meetings</span>
-                            <div class="ann-icon-box">AU</div>
-                            <h4 class="title">Member Meeting Notice</h4>
-                            <p class="snippet">General assembly meeting will be held on April 15, 2026. All members are invited to attend and p...</p>
-                            <div class="ann-footer">
-                                <span class="author"><i class="bi bi-person me-1"></i> Admin User</span>
-                                <span class="date"><i class="bi bi-calendar4-event me-1"></i> Mar 31, 2026</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="py-100px" id="contact" style="background: transparent !important;">
-            <div class="container py-60px">
-                <div class="text-start mb-5" data-aos="fade-right">
-                    <h2 class="fw-bold" style="color: #20a060 !important; font-weight: 900; font-size: 2.8rem; letter-spacing: -1.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">Frequently Asked Questions</h2>
-                </div>
-                
-                <div class="row g-4 overflow-hidden">
-                    <div class="col-lg-7" data-aos="fade-right" data-aos-delay="200">
-                        <div class="faq-wrapper-card">
-                            <div class="accordion faq-accordion" id="faqAccordion">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">Who can register in TrackCOOP?</button>
-                                    </h2>
-                                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">Farmers and fisherfolks connected to NFFAC Nasugbu can register. Select the correct sector during signup so your account profile is properly categorized.</div>
-                                    </div>
-                                </div>
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">Why can't I log in right after registering?</button>
-                                    </h2>
-                                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">All new accounts require administrative verification. Please wait for an SMS or email notification once your account has been reviewed and approved.</div>
-                                    </div>
-                                </div>
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">What password format is required?</button>
-                                    </h2>
-                                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">For security, your password must be at least 8 characters long and include a mix of uppercase letters, lowercase letters, and numbers.</div>
-                                    </div>
-                                </div>
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">How do I know the latest cooperative updates?</button>
-                                    </h2>
-                                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">You can check the "Cooperative Announcements" section on the homepage or log in to your dashboard to view more detailed management news.</div>
-                                    </div>
-                                </div>
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">Who should I contact for account concerns?</button>
-                                    </h2>
-                                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                        <div class="accordion-body">For urgent concerns, you can use the message form on this page or visit our Official Coop Office during working hours.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-5" data-aos="fade-left" data-aos-delay="400">
-                        <div class="message-wrapper-card">
-                            <div class="text-start mb-4">
-                                <h3 class="fw-bold" style="color: #20a060; letter-spacing: -0.5px;">Send us a Message</h3>
-                                <p class="text-muted small" style="text-align: justify;">Need more help? Send your question and our team will get back to you.</p>
-                            </div>
-                            <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Message sent successfully (Demo)');">
-                                <div class="row g-3">
-                                    <div class="col-md-4"><input type="text" class="form-control" placeholder="First Name" required></div>
-                                    <div class="col-md-4"><input type="text" class="form-control" placeholder="Middle Name"></div>
-                                    <div class="col-md-4"><input type="text" class="form-control" placeholder="Last Name" required></div>
-                                    <div class="col-12"><input type="email" class="form-control" placeholder="Email Address" required></div>
-                                    <div class="col-12"><textarea class="form-control" rows="5" placeholder="How can we help?" required></textarea></div>
-                                    <div class="col-12 pt-2">
-                                        <button type="submit" class="btn btn-submit-green w-100">Submit Message</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="footer-track py-5" style="background: #164a36 !important; border-top: 5px solid #20a060;">
-        <div class="container py-4">
-            <div class="row g-5 align-items-center">
-                <div class="col-lg-4 text-center text-lg-start" data-aos="fade-up">
-                    <div class="d-flex align-items-center justify-content-center justify-content-lg-start mb-3">
-                        <a class="navbar-brand d-flex align-items-center" href="#home" style="font-size: 1.8rem; letter-spacing: -1.5px; padding-left: 0; margin-left: -35px;">
-                            <img src="TrackCOOP Logo.svg" alt="Logo" class="navbar-logo" style="height: 50px; margin-right: -20px !important; margin-left: 0 !important;">
-                            TRACK<span style="color: #20a060;">COOP</span>
-                        </a>
-                    </div>
-                    <p class="small text-white opacity-75 lh-base mb-0" style="max-width: 350px;">Digital cooperative management platform for NFFAC Nasugbu farmers and fisherfolks.</p>
-                </div>
-                
-                <div class="col-lg-4 text-center" data-aos="fade-up" data-aos-delay="200">
-                    <h6 class="fw-bold mb-3" style="color: #20a060; letter-spacing: 0.5px; font-size: 1rem;">Office Info</h6>
-                    <div class="small text-white">
-                        <p class="mb-1">Camp Avejar, Nasugbu, Batangas</p>
-                        <p class="mb-0">Mon - Fri: 8:00 AM - 5:00 PM</p>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 text-center text-lg-end" data-aos="fade-up" data-aos-delay="400">
-                    <h6 class="fw-bold mb-3" style="color: #20a060; letter-spacing: 0.5px; font-size: 1rem;">All Rights Reserved</h6>
-                    <p class="small text-white mb-0">© 2026 TrackCOOP. All rights reserved.</p>
-                    <p class="small text-white mb-0">Official NFFAC Platform.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
-            <div class="modal-content border-0">
-                <div class="modal-header-botanical position-relative" style="padding: 25px; display: flex; justify-content: center;">
-                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.1); border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: none; color: #ffffff;">
-                        <i class="bi bi-x-lg" style="font-size: 1rem;"></i>
-                    </button>
-                    <div class="d-flex align-items-center gap-0">
-                        <img src="TrackCOOP Logo.svg" alt="Logo" style="height: 42px; width: auto; margin-right: -14px;">
-                        <div class="modal-brand m-0" style="font-weight: 800; font-size: 1.6rem; letter-spacing: -1.5px; color: #ffffff;">
-                            TRACK<span style="color: #20a060;">COOP</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-4 pt-5">
-                    <form action="#" method="POST" onsubmit="return handleStaticLogin(event)">
-                        <div class="mb-3">
-                            <label class="small fw-bold mb-2 text-dark" style="letter-spacing: 0.5px;">USERNAME</label>
-                            <input type="text" id="loginUsername" name="username" class="form-control px-4" placeholder="Enter username" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="small fw-bold mb-2 text-dark" style="letter-spacing: 0.5px;">PASSWORD</label>
-                            <div class="password-toggle-wrapper">
-                                <input type="password" id="loginPassword" name="password" class="form-control px-4" placeholder="Enter password" required maxlength="15" style="padding-right: 45px;">
-                                <button type="button" class="password-toggle-btn" onclick="togglePassVisibility('loginPassword', 'loginEye')" style="right: 15px;">
-                                    <i id="loginEye" class="bi bi-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="small fw-bold mb-2 text-dark" style="letter-spacing: 0.5px;">SELECT ROLE</label>
-                            <select id="loginRole" name="selected_role" class="form-select px-4" required onchange="autoFillCredentials(this.value)">
-                                <option value="">-- Choose Role --</option>
-                                <option value="Admin">Administrator</option>
-                                <option value="Bookkeeper">Bookkeeper</option>
-                                <option value="Member">Member</option>
-                            </select>
-                        </div>
-
-                        <div class="form-check mb-4 ps-1">
-                            <input class="form-check-input" type="checkbox" name="remember-me" id="rememberMe" style="margin-left: 0; margin-right: 10px; cursor: pointer;">
-                            <label class="form-check-label small fw-bold text-muted" for="rememberMe" style="cursor: pointer; vertical-align: middle;">Remember Me</label>
-                        </div>
-
-                        <div class="mb-4 d-flex justify-content-center">
-                            <div class="fake-recaptcha d-flex align-items-center justify-content-between p-3 border-1 rounded-3 shadow-sm" style="width: 100%; background: #fdfdfd; border: 1px solid #e2e8f0; border-radius: 12px !important;">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="form-check m-0">
-                                        <input class="form-check-input" type="checkbox" id="fakeRobotCheck" required style="width: 24px; height: 24px; cursor: pointer; border-color: #cbd5e1; border-radius: 4px;">
-                                    </div>
-                                    <span class="small fw-bold text-muted" style="font-size: 0.85rem;">I'm not a robot</span>
-                                </div>
-                                <div class="text-center" style="line-height: 1;">
-                                    <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA" style="width: 28px; opacity: 0.9;">
-                                    <div class="text-muted" style="font-size: 0.55rem; font-weight: 700; margin-top: 2px;">reCAPTCHA</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="text-center mb-4">
-                            <p class="small text-muted mb-0">Don't have an account? <a href="javascript:void(0)" onclick="TrackUI.switchModals('#loginModal', '#registerModal')" class="fw-bold text-success text-decoration-none" style="color: #20a060 !important;">Register here</a></p>
-                        </div>
-
-                        <div class="row g-3 mt-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-cancel-modal w-100 py-3" data-bs-dismiss="modal">
-                                    <i class="bi bi-x-circle me-2"></i>Cancel
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button type="submit" class="btn btn-login-modal w-100 py-3">
-                                    <i class="bi bi-key-fill me-2"></i>Login
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <a href="login.html" class="bg-white text-primary px-6 py-2.5 rounded-lg hover:bg-green-50 transition-all shadow-sm font-medium">
+          Access Portal
+        </a>
+      </div>
     </div>
+  </header>
 
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 850px;">
-            <div class="modal-content shadow-lg border-0">
-                <div class="modal-header-botanical position-relative" style="padding: 25px; display: flex; justify-content: center;">
-                    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.1); border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border: none; color: #ffffff;">
-                        <i class="bi bi-x-lg" style="font-size: 1rem;"></i>
-                    </button>
-                    <div class="d-flex align-items-center gap-0">
-                        <img src="TrackCOOP Logo.svg" alt="Logo" style="height: 42px; width: auto; margin-right: -14px;">
-                        <div class="modal-brand m-0" style="font-weight: 800; font-size: 1.6rem; letter-spacing: -1.5px; color: #ffffff;">
-                            TRACK<span style="color: #20a060;">COOP</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-2 px-md-3">
-                    <form action="#" id="registrationForm" method="POST" onsubmit="return handleStaticRegister(event)">
-                        
-                        <div id="regStep1" class="reg-step reg-step-1">
-                            <div class="step-indicator mb-1">Page 1 of 2</div>
-                            <div class="section-title-pill mb-3">PERSONAL DETAILS</div>
-                            
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">FIRST NAME</label>
-                                    <input type="text" name="fname" class="form-control form-control-botanical" placeholder="First name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">MIDDLE NAME</label>
-                                    <input type="text" name="mname" class="form-control form-control-botanical" placeholder="Middle name">
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">LAST NAME</label>
-                                    <input type="text" name="lname" class="form-control form-control-botanical" placeholder="Last name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">EMAIL</label>
-                                    <input type="email" name="email" class="form-control form-control-botanical" placeholder="Email address" required>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">PHONE</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text form-control-botanical border-end-0" style="background-color: #f1f5f9; color: #475569; font-weight: 700; border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;">+63</span>
-                                        <input type="text" name="phone" class="form-control form-control-botanical border-start-0" placeholder="9123456789" required maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" style="border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important;">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">STATUS</label>
-                                    <select name="status" class="form-select form-control-botanical" required>
-                                        <option value="">-- Select Status --</option>
-                                        <option value="Single">Single</option>
-                                        <option value="Married">Married</option>
-                                        <option value="Widowed">Widowed</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">PLACE OF BIRTH</label>
-                                    <input type="text" name="pob" class="form-control form-control-botanical" placeholder="Place of birth" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">BIRTHDAY</label>
-                                    <input type="date" name="dob" class="form-control form-control-botanical" required>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">CURRENT HOME</label>
-                                    <select name="barangay" class="form-select form-control-botanical" required>
-                                        <option value="">-- Select Barangay --</option>
-                                        <option value="Aga">Aga</option>
-                                        <option value="Balayag-Manoc">Balayag-Manoc</option>
-                                        <option value="Banilad">Banilad</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label-custom">WORK/OCCUPATION</label>
-                                    <input type="text" name="occupation" class="form-control form-control-botanical" placeholder="Occupation" required>
-                                </div>
-                            </div>
-                            
-                            <div class="row g-2 mt-3">
-                                <div class="col-6">
-                                    <button type="button" class="btn-reg-cancel w-100" data-bs-dismiss="modal">
-                                        <i class="bi bi-x-circle me-2"></i>Cancel
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <button type="button" class="btn-reg-next w-100" onclick="TrackUI.showRegStep(2)">
-                                        Next <i class="bi bi-chevron-right ms-2"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="regStep2" class="reg-step reg-step-2 d-none">
-                            <div class="step-indicator">Page 2 of 2</div>
-                            
-                            <div class="section-title-pill mb-3">FAMILY INFORMATION</div>
-                            <div class="row g-2 mb-3">
-                                <div class="col-md-4">
-                                    <label class="form-label-custom small">FATHER'S NAME</label>
-                                    <input type="text" name="father_name" class="form-control form-control-botanical" placeholder="Father's name">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom small">MOTHER'S NAME</label>
-                                    <input type="text" name="mother_name" class="form-control form-control-botanical" placeholder="Mother's name">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom small">WIFE'S NAME</label>
-                                    <input type="text" name="wife_name" class="form-control form-control-botanical" placeholder="Wife's name (if married)">
-                                </div>
-                            </div>
-
-                            <div class="section-title-pill mb-2">CHILDREN INFORMATION</div>
-                            <div id="childrenContainer">
-                                <div class="child-row row g-2">
-                                    <div class="col-md-5 col-12">
-                                        <label class="form-label-custom small">CHILD'S NAME</label>
-                                        <input type="text" name="child_names[]" class="form-control form-control-botanical" placeholder="Child's name">
-                                    </div>
-                                    <div class="col-md-2 col-4">
-                                        <label class="form-label-custom small">AGE</label>
-                                        <input type="number" name="child_ages[]" class="form-control form-control-botanical" placeholder="Age">
-                                    </div>
-                                    <div class="col-md-4 col-6">
-                                        <label class="form-label-custom small">BENEFIT</label>
-                                        <select name="child_benefits[]" class="form-select form-control-botanical">
-                                            <option value="">None</option>
-                                            <option value="SSS">SSS</option>
-                                            <option value="PhilHealth">PhilHealth</option>
-                                            <option value="Pag-IBIG">Pag-IBIG</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-1 col-2 text-center d-flex align-items-center justify-content-center">
-                                        <button type="button" class="btn-add-child" onclick="TrackUI.addChildRow()" title="Add another child" style="margin-top: 18px; background: #20a060; color: white; border: none; border-radius: 50%; width: 24px; height: 24px;">
-                                            <i class="bi bi-plus-lg"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-4"></div>
-
-                            <div class="section-title-pill mb-3">ACCOUNT SECURITY</div>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">USERNAME</label>
-                                    <input type="text" name="username" class="form-control form-control-botanical" placeholder="Create username" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">PASSWORD</label>
-                                    <div class="position-relative">
-                                        <input type="password" id="regPasswordV2" name="password" class="form-control form-control-botanical" 
-                                               placeholder="Create password" required maxlength="15" 
-                                               oninput="checkPasswordStrengthV2(this.value)">
-                                        <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer text-muted" 
-                                           onclick="togglePassVisibility('regPasswordV2', this.id)" id="eyeRegV2"></i>
-                                    </div>
-                                    <span id="strengthTextV2" class="strength-text" style="display: none;">Weak</span>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label-custom">CONFIRM PASSWORD</label>
-                                    <div class="position-relative">
-                                        <input type="password" id="regConfirmPasswordV2" name="confirm_password" class="form-control form-control-botanical" 
-                                               placeholder="Confirm password" required maxlength="15" oninput="checkPasswordMatchV2()">
-                                        <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer text-muted" 
-                                           onclick="togglePassVisibility('regConfirmPasswordV2', this.id)" id="eyeConfRegV2"></i>
-                                    </div>
-                                </div>
-                                <div class="col-12 d-flex justify-content-between align-items-center mt-0">
-                                    <div id="matchStatusV2" class="fw-bold" style="font-size: 0.65rem; display: none;"></div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-                                <div class="form-check m-0">
-                                    <input class="form-check-input" type="checkbox" id="termsCheck" required style="cursor: pointer;">
-                                    <label class="form-check-label small text-muted" for="termsCheck" style="cursor: pointer;">
-                                        I agree to the <a href="#" class="text-success fw-bold text-decoration-none">Terms and Conditions</a>
-                                    </label>
-                                </div>
-                                <p class="small text-muted mb-0">Already have an account? <a href="javascript:void(0)" onclick="TrackUI.switchModals('#registerModal', '#loginModal')" class="fw-bold text-success text-decoration-none">Login here</a></p>
-                            </div>
-
-                            <div class="row g-2">
-                                <div class="col-4">
-                                    <button type="button" class="btn-reg-cancel w-100" data-bs-dismiss="modal">
-                                        <i class="bi bi-x-circle me-1"></i> Cancel
-                                    </button>
-                                </div>
-                                <div class="col-4">
-                                    <button type="button" class="btn-reg-back w-100" onclick="TrackUI.showRegStep(1)">
-                                        <i class="bi bi-chevron-left me-2"></i>Back
-                                    </button>
-                                </div>
-                                <div class="col-4">
-                                    <button type="submit" class="btn-reg-next w-100">
-                                        <i class="bi bi-check2-circle me-2"></i>Register
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-        </div>
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-green-50 to-white py-20 md:py-32 overflow-hidden">
+    <div class="absolute inset-0 opacity-5">
+      <img src="https://images.unsplash.com/photo-1544005355-5f8237dc27e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920" alt="Agricultural background" class="w-full h-full object-cover" />
     </div>
-
-    <div class="modal fade" id="trackGlobalConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
-            <div class="modal-content" style="background: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(25px) saturate(200%) !important; border: 1px solid rgba(32, 160, 96, 0.1) !important; border-radius: 32px !important; box-shadow: 0 40px 100px rgba(0, 0, 0, 0.1) !important; overflow: visible !important;">
-                <div id="confirmIconContainer" style="width: 84px !important; height: 84px !important; box-shadow: 0 15px 35px rgba(32, 160, 96, 0.15); border: 6px solid white !important; background: white !important; transform: translateY(-50%); position: absolute; top: 0; left: 50%; margin-left: -42px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                    <i class="bi bi-question-circle" style="font-size: 2.8rem; color: #20a060;"></i>
-                </div>
-                <div class="modal-body text-center" style="padding: 60px 24px 32px !important;">
-                    <h4 class="fw-bold mb-2" id="confirmTitle" style="color: #1a1a1a; letter-spacing: -1.2px;">Confirm Action</h4>
-                    <p class="text-muted mb-0 px-2" id="confirmMessage" style="font-size: 0.95rem; line-height: 1.6;"></p>
-                    <div class="d-flex gap-3 mt-4 pt-2">
-                        <button type="button" class="btn w-100 text-white" style="padding: 14px 20px !important; border-radius: 18px !important; font-weight: 700 !important; background: #206970 !important; border: none !important;" data-bs-dismiss="modal">Back</button>
-                        <button type="button" id="confirmButton" class="btn w-100 text-white" style="padding: 14px 20px !important; border-radius: 18px !important; font-weight: 800 !important; background: #20a060 !important; border: none !important;">Continue</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl md:text-6xl font-display font-bold text-gray-900 mb-6 leading-tight">
+          TrackCOOP: Intelligent Document Management and Analytics System
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-700 mb-10 leading-relaxed">
+          Empowering the <span class="font-semibold text-primary">Nasugbu Farmers and Fisherfolks Agriculture Cooperative (NFFAC)</span> through data-driven insights and a centralized digital ecosystem
+        </p>
+        <a href="login.html" class="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-lg hover:opacity-90 transition-all shadow-lg text-lg font-medium">
+          Log In to Portal
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
     </div>
+  </section>
 
-    <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" style="border-radius: 40px; border: none; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.2); height: 75vh;">
-                <div class="modal-header border-0 py-4 px-4 d-flex align-items-center position-relative w-100" style="background: rgba(22, 74, 54, 0.95) !important; border-bottom: 1px solid rgba(22, 74, 54, 0.3) !important; color: white;">
-                    <div class="w-100 d-flex flex-wrap gap-2 justify-content-center">
-                        <button type="button" class="modal-filter-btn active" onclick="filterModalGallery('All', this)">All</button>
-                        <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Events', this)">Events</button>
-                        <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Agriculture', this)">Agriculture</button>
-                        <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Meetings', this)">Meetings</button>
-                        <button type="button" class="modal-filter-btn" onclick="filterModalGallery('Sector News', this)">Sector News</button>
-                    </div>
-                    <button type="button" class="btn btn-light rounded-circle shadow-sm detail-close-btn" data-bs-dismiss="modal" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; outline: none; border: none; z-index: 2;">
-                        <i class="bi bi-x-lg fs-5"></i>
-                    </button>
-                </div>
-                <div class="modal-body px-4 pb-5">
-                    <div class="row g-4 mt-2" id="modalGalleryGrid">
-                        
-                        <div class="col-lg-4 col-md-6 modal-gallery-item" data-category="Events">
-                            <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 2px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer;" data-title="Team Building Event 2026" data-date="Mar 15, 2026" data-category="Events" data-img="event.png" data-desc="..." onclick="openActivityDetail(this)">
-                                <div class="card-img-wrapper" style="height: 180px; position: relative; background: url('event.png') center/cover no-repeat; border-bottom: 2px solid #20a060;">
-                                    <span class="category-tag bg-white text-success fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem;">Events</span>
-                                </div>
-                                <div class="card-content p-3 d-flex flex-column" style="flex: 1;">
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem; color: #20a060;">Team Building Event 2026</h6>
-                                    <p class="text-dark mb-0 mt-auto" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i>Mar 15, 2026</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 modal-gallery-item" data-category="Agriculture">
-                            <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 2px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer;" data-title="Harvest Season Activity" data-date="Mar 10, 2026" data-category="Agriculture" data-img="agriculture.webp" data-desc="..." onclick="openActivityDetail(this)">
-                                <div class="card-img-wrapper" style="height: 180px; position: relative; background: url('agriculture.webp') center/cover no-repeat; border-bottom: 2px solid #20a060;">
-                                    <span class="category-tag bg-white text-success fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem;">Agriculture</span>
-                                </div>
-                                <div class="card-content p-3 d-flex flex-column" style="flex: 1;">
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem; color: #20a060;">Harvest Season Activity</h6>
-                                    <p class="text-dark mb-0 mt-auto" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i>Mar 10, 2026</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 modal-gallery-item" data-category="Meetings">
-                            <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 2px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer;" data-title="Member Conference 2026" data-date="Feb 28, 2026" data-category="Meetings" data-img="meeting.jpg" data-desc="..." onclick="openActivityDetail(this)">
-                                <div class="card-img-wrapper" style="height: 180px; position: relative; background: url('meeting.jpg') center/cover no-repeat; border-bottom: 2px solid #20a060;">
-                                    <span class="category-tag bg-white text-success fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem;">Meetings</span>
-                                </div>
-                                <div class="card-content p-3 d-flex flex-column" style="flex: 1;">
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem; color: #20a060;">Member Conference 2026</h6>
-                                    <p class="text-dark mb-0 mt-auto" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i>Feb 28, 2026</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 modal-gallery-item" data-category="Sector News">
-                            <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 2px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer;" data-title="Sector Launch - Rice" data-date="Feb 20, 2026" data-category="Sector News" data-img="sector.jpg" data-desc="..." onclick="openActivityDetail(this)">
-                                <div class="card-img-wrapper" style="height: 180px; position: relative; background: url('sector.jpg') center/cover no-repeat; border-bottom: 2px solid #20a060;">
-                                    <span class="category-tag bg-white text-success fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem;">Sector News</span>
-                                </div>
-                                <div class="card-content p-3 d-flex flex-column" style="flex: 1;">
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem; color: #20a060;">Sector Launch - Rice</h6>
-                                    <p class="text-dark mb-0 mt-auto" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i>Feb 20, 2026</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-4 col-md-6 modal-gallery-item" data-category="Meetings">
-                            <div class="gallery-card-premium bg-white shadow-sm" style="border-radius: 20px; overflow: hidden; border: 2px solid #20a060; display: flex; flex-direction: column; height: 100%; cursor: pointer;" data-title="Annual General Meeting" data-date="Feb 10, 2026" data-category="Meetings" data-img="meeting.jpg" data-desc="..." onclick="openActivityDetail(this)">
-                                <div class="card-img-wrapper" style="height: 180px; position: relative; background: url('meeting.jpg') center/cover no-repeat; border-bottom: 2px solid #20a060;">
-                                    <span class="category-tag bg-white text-success fw-bold px-3 py-1 rounded-pill shadow-sm" style="position: absolute; top: 15px; left: 15px; font-size: 0.8rem;">Meetings</span>
-                                </div>
-                                <div class="card-content p-3 d-flex flex-column" style="flex: 1;">
-                                    <h6 class="fw-bold mb-1" style="font-size: 0.95rem; color: #20a060;">Annual General Meeting</h6>
-                                    <p class="text-dark mb-0 mt-auto" style="font-size: 0.75rem;"><i class="bi bi-calendar-event me-1"></i>Feb 10, 2026</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+  <!-- About -->
+  <section id="about" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-6">Transforming Cooperative Management</h2>
+          <p class="text-lg text-gray-700 leading-relaxed mb-6">TrackCOOP represents a revolutionary shift from traditional, manual paper-based recordkeeping to a sophisticated digital infrastructure. Our platform eliminates the inefficiencies of physical document handling, replacing them with intelligent automation and secure cloud storage.</p>
+          <p class="text-lg text-gray-700 leading-relaxed mb-6">Built specifically for the Nasugbu Farmers and Fisherfolks Agriculture Cooperative, TrackCOOP combines cutting-edge OCR technology, predictive analytics, and real-time dashboards to provide unprecedented visibility into cooperative operations.</p>
+          <p class="text-lg text-gray-700 leading-relaxed">With role-based access control, automated member engagement tracking, and sector-specific communication tools, TrackCOOP empowers every stakeholder--from the Chairman to individual members--with the tools they need to succeed.</p>
         </div>
-    </div>
-
-    <div class="modal fade" id="announcementsModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" style="border-radius: 40px; border: none; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.2); height: 80vh;">
-                <div class="modal-header border-0 py-4 px-4 d-flex align-items-center position-relative w-100" style="background: rgba(22, 74, 54, 0.95) !important; color: white;">
-                    <div class="w-100 d-flex flex-wrap gap-2 justify-content-center">
-                        <button type="button" class="modal-filter-btn ann-filter active" onclick="filterAnnouncements('All', this)">All</button>
-                        <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('General', this)">General</button>
-                        <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Events', this)">Events</button>
-                        <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Meetings', this)">Meetings</button>
-                        <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Deadlines', this)">Deadlines</button>
-                        <button type="button" class="modal-filter-btn ann-filter" onclick="filterAnnouncements('Sector News', this)">Sector News</button>
-                    </div>
-                    <button type="button" class="btn btn-light rounded-circle shadow-sm detail-close-btn" data-bs-dismiss="modal" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; outline: none; border: none; z-index: 2;">
-                        <i class="bi bi-x-lg fs-5"></i>
-                    </button>
-                </div>
-                <div class="modal-body p-4 bg-light">
-                    <div class="d-flex flex-column gap-3" id="modalAnnouncementsList">
-                        
-                        <div class="modal-ann-row-item" data-category="General">
-                            <div class="ann-horizontal-card bg-white p-4 d-flex align-items-center gap-4 position-relative" style="border-radius: 25px; border: 1.5px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer;" onclick="openAnnouncementDetail(this)" data-title="Welcome to TrackCOOP" data-category="General" data-date="Apr 2, 2026" data-author="Admin User" data-content="TrackCOOP is now live! Join our community and start tracking your cooperative activities.">
-                                <div class="ann-horizontal-icon" style="width: 80px; height: 80px; background: #20a060; color: white; border-radius: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800;">AU</div>
-                                <div class="flex-grow-1 text-start pe-5">
-                                    <h5 class="fw-bold mb-2" style="color: #1a332a; font-size: 1.2rem;">Welcome to TrackCOOP</h5>
-                                    <p class="text-muted small mb-3 lh-base" style="max-width: 90%;">TrackCOOP is now live! Join our community and start tracking your cooperative activities.</p>
-                                    <div class="ann-row-footer d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: #f1f5f9 !important;">
-                                        <span class="small fw-600 text-muted"><i class="bi bi-person me-1 text-success"></i> Admin User</span>
-                                        <span class="small fw-600 text-muted"><i class="bi bi-calendar4-event me-1 text-success"></i> Apr 2, 2026</span>
-                                    </div>
-                                </div>
-                                <span class="badge rounded-pill px-3 py-2" style="position: absolute; top: 25px; right: 30px; background: #eef7f2; color: #20a060; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">General</span>
-                            </div>
-                        </div>
-
-                        <div class="modal-ann-row-item" data-category="Sector News">
-                            <div class="ann-horizontal-card bg-white p-4 d-flex align-items-center gap-4 position-relative" style="border-radius: 25px; border: 1.5px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer;" onclick="openAnnouncementDetail(this)" data-title="New Share Capital System" data-category="Sector News" data-date="Apr 1, 2026" data-author="Bookkeeper" data-content="Our new share capital tracking system is now available. All members can monitor their contributions.">
-                                <div class="ann-horizontal-icon" style="width: 80px; height: 80px; background: #20a060; color: white; border-radius: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800;">B</div>
-                                <div class="flex-grow-1 text-start pe-5">
-                                    <h5 class="fw-bold mb-2" style="color: #1a332a; font-size: 1.2rem;">New Share Capital System</h5>
-                                    <p class="text-muted small mb-3 lh-base" style="max-width: 90%;">Our new share capital tracking system is now available. All members can monitor their contributions.</p>
-                                    <div class="ann-row-footer d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: #f1f5f9 !important;">
-                                        <span class="small fw-600 text-muted"><i class="bi bi-person me-1 text-success"></i> Bookkeeper</span>
-                                        <span class="small fw-600 text-muted"><i class="bi bi-calendar4-event me-1 text-success"></i> Apr 1, 2026</span>
-                                    </div>
-                                </div>
-                                <span class="badge rounded-pill px-3 py-2" style="position: absolute; top: 25px; right: 30px; background: #eef7f2; color: #20a060; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">Sector News</span>
-                            </div>
-                        </div>
-
-                        <div class="modal-ann-row-item" data-category="Meetings">
-                            <div class="ann-horizontal-card bg-white p-4 d-flex align-items-center gap-4 position-relative" style="border-radius: 25px; border: 1.5px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.03); cursor: pointer;" onclick="openAnnouncementDetail(this)" data-title="Member Meeting Notice" data-category="Meetings" data-date="Mar 31, 2026" data-author="Admin User" data-content="General assembly meeting will be held on April 15, 2026. All members are invited to attend.">
-                                <div class="ann-horizontal-icon" style="width: 80px; height: 80px; background: #20a060; color: white; border-radius: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800;">AU</div>
-                                <div class="flex-grow-1 text-start pe-5">
-                                    <h5 class="fw-bold mb-2" style="color: #1a332a; font-size: 1.2rem;">Member Meeting Notice</h5>
-                                    <p class="text-muted small mb-3 lh-base" style="max-width: 90%;">General assembly meeting will be held on April 15, 2026. All members are invited to attend.</p>
-                                    <div class="ann-row-footer d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: #f1f5f9 !important;">
-                                        <span class="small fw-600 text-muted"><i class="bi bi-person me-1 text-success"></i> Admin User</span>
-                                        <span class="small fw-600 text-muted"><i class="bi bi-calendar4-event me-1 text-success"></i> Mar 31, 2026</span>
-                                    </div>
-                                </div>
-                                <span class="badge rounded-pill px-3 py-2" style="position: absolute; top: 25px; right: 30px; background: #eef7f2; color: #20a060; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;">Meetings</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+        <div class="relative">
+          <div class="bg-gradient-to-br from-primary/10 to-green-50 rounded-2xl p-8 shadow-xl border border-green-100">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Digital dashboard mockup" class="w-full rounded-lg shadow-lg" />
+            <div class="mt-6 grid grid-cols-3 gap-4">
+              <div class="bg-white p-4 rounded-lg shadow-sm text-center">
+                <div class="text-2xl font-bold text-primary">1,247</div>
+                <div class="text-sm text-gray-600">Active Members</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow-sm text-center">
+                <div class="text-2xl font-bold text-primary">&#8369;32.5M</div>
+                <div class="text-sm text-gray-600">Share Capital</div>
+              </div>
+              <div class="bg-white p-4 rounded-lg shadow-sm text-center">
+                <div class="text-2xl font-bold text-primary">5</div>
+                <div class="text-sm text-gray-600">Sectors</div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </section>
 
-    <div class="modal fade" id="announcementDetailModal" tabindex="-1" aria-hidden="true" style="z-index: 2000;">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 35px; border: none; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.3);">
-                <div class="modal-header border-0 py-4 px-4 d-flex align-items-center justify-content-between" style="background: rgba(22, 74, 54, 0.95); color: white;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div id="annDetailInitialBox" class="d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; background: #20a060; color: white; border-radius: 12px; font-size: 22px; font-weight: 800; border: 2px solid rgba(255,255,255,0.2);">A</div>
-                        <div>
-                            <h4 class="fw-bold mb-0" id="annDetailTitle" style="color: #20a060; font-size: 1.3rem; letter-spacing: -0.5px;">Title</h4>
-                            <span id="annDetailCategory" class="text-white-50 small fw-bold text-uppercase" style="letter-spacing: 1px;">CATEGORY</span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn rounded-circle p-0 d-flex align-items-center justify-content-center" data-bs-dismiss="modal" style="width: 44px; height: 44px; color: white; border: 2px solid rgba(255,255,255,0.4);">
-                        <i class="bi bi-x-lg fs-5"></i>
-                    </button>
-                </div>
-                <div class="modal-body p-4 p-md-5 bg-white">
-                    <div id="annDetailContent" class="text-dark lh-lg" style="font-size: 1.1rem; color: #334155 !important;">Content...</div>
-                </div>
-                <div class="modal-footer border-0 p-4 pt-0 bg-white">
-                    <div class="w-100 d-flex justify-content-between align-items-center py-3 border-top" style="border-color: #f1f5f9 !important;">
-                        <div class="text-muted small fw-bold d-flex align-items-center gap-2" style="color: #20a060 !important;">
-                            <i class="bi bi-person fs-5"></i> <span id="annDetailAuthor">Author</span>
-                        </div>
-                        <div class="text-muted small fw-bold d-flex align-items-center gap-2" style="color: #20a060 !important;">
-                             <span id="annDetailDate">Date</span> <i class="bi bi-calendar4-event fs-5"></i>
-                        </div>
-                    </div>
-                </div>
+  <!-- Key Features -->
+  <section id="features" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-4">Powerful Features for Modern Cooperatives</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Leveraging advanced technology to streamline operations and drive informed decision-making</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
+          <div class="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-600"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3 class="text-xl font-display font-bold text-gray-900 mb-3">Smart Document Classification</h3>
+          <p class="text-gray-600 leading-relaxed">Automated OCR and NLP processing for files. Instantly categorize and extract key information from scanned documents.</p>
+        </div>
+        <div class="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
+          <div class="w-14 h-14 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-purple-600"><path d="M12 2a8 8 0 0 0-8 8c0 6 8 12 8 12s8-6 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3 class="text-xl font-display font-bold text-gray-900 mb-3">Predictive Member Engagement</h3>
+          <p class="text-gray-600 leading-relaxed">Machine learning algorithms (Random Forest) for attrition forecasting. Identify at-risk members before they disengage.</p>
+        </div>
+        <div class="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
+          <div class="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center mb-6">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-green-600"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <h3 class="text-xl font-display font-bold text-gray-900 mb-3">Interactive Analytics Dashboard</h3>
+          <p class="text-gray-600 leading-relaxed">Real-time visual insights and sector heatmaps. Monitor membership trends and financial performance at a glance.</p>
+        </div>
+        <div class="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow border border-gray-100">
+          <div class="w-14 h-14 bg-amber-100 rounded-lg flex items-center justify-center mb-6">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-600"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <h3 class="text-xl font-display font-bold text-gray-900 mb-3">Sector-Based Communication</h3>
+          <p class="text-gray-600 leading-relaxed">Targeted announcements for specific farming sectors. Reach the right members with relevant updates and alerts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dedicated User Portals -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-4">Designed for Every Cooperative Role</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Tailored dashboards and tools for each user type</p>
+      </div>
+      <div class="space-y-6">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-8 md:p-10 text-white shadow-lg hover:shadow-xl transition-shadow">
+          <div class="flex items-center gap-6">
+            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shrink-0">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-white"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="activityDetailModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.3);">
-                <div id="detailModalImage" style="height: 350px; background: url('') center/cover no-repeat; position: relative;">
-                    <button type="button" class="btn btn-light rounded-circle shadow-sm" data-bs-dismiss="modal" style="position: absolute; right: 20px; top: 20px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; outline: none; border: none; color: #20a060;">
-                        <i class="bi bi-x-lg fs-5"></i>
-                    </button>
-                </div>
-                <div class="modal-body p-4 p-md-5 bg-white text-start">
-                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-1 gap-2">
-                        <h3 class="fw-bold mb-0" id="detailModalTitle" style="color: #20a060;">Title</h3>
-                        <div class="text-muted" style="font-size: 0.95rem; display: flex; align-items: center; white-space: nowrap; font-weight: 500; color: #64748b !important;">
-                            <i class="bi bi-calendar3 me-2" style="color: #74B816;"></i> <span id="detailModalDate">Date</span>
-                        </div>
-                    </div>
-                    <h6 class="mb-4" id="detailModalCategory" style="color: #20a060; font-weight: 600; font-size: 0.9rem;">Category</h6>
-                    <p class="text-dark mb-0" id="detailModalDesc" style="line-height: 1.8; font-size: 1rem; color: #334155 !important;">Desc...</p>
-                </div>
+            <div class="flex-1">
+              <h3 class="text-2xl font-display font-bold mb-2">Chairman Portal</h3>
+              <p class="text-blue-50 text-lg">Access predictive analytics and proactive decision-support tools. Monitor cooperative health and identify opportunities for growth.</p>
             </div>
+          </div>
         </div>
+        <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-8 md:p-10 text-white shadow-lg hover:shadow-xl transition-shadow">
+          <div class="flex items-center gap-6">
+            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shrink-0">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-white"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/><path d="M2 12h20"/></svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-2xl font-display font-bold mb-2">Bookkeeper Portal</h3>
+              <p class="text-green-50 text-lg">Manage financial records and track share capital contributions securely. Real-time visibility into cooperative finances with Philippine Peso (&#8369;) precision.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-8 md:p-10 text-white shadow-lg hover:shadow-xl transition-shadow">
+          <div class="flex items-center gap-6">
+            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shrink-0">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-white"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-2xl font-display font-bold mb-2">Member Portal</h3>
+              <p class="text-purple-50 text-lg">View personal share capital updates, status reports, and announcements. Stay connected with your cooperative and track your financial progress.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <!-- Gallery -->
+  <section id="gallery" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-4">Cooperative in Action</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Celebrating our community of farmers and fisherfolks</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all aspect-[4/3]">
+          <img src="https://images.unsplash.com/photo-1545377142-41e5221d99ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Farmers working together" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6"><p class="text-white font-medium">Community Farming</p></div>
+        </div>
+        <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all aspect-[4/3]">
+          <img src="https://images.unsplash.com/photo-1677475490399-eaf9f500ad97?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Fishing boat" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6"><p class="text-white font-medium">Fishing Operations</p></div>
+        </div>
+        <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all aspect-[4/3]">
+          <img src="https://images.unsplash.com/photo-1708513520656-dd5d6d8a71fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Women farmers" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6"><p class="text-white font-medium">Women in Agriculture</p></div>
+        </div>
+        <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all aspect-[4/3]">
+          <img src="https://images.unsplash.com/photo-1590486622283-e7be05144a21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Rice farming" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6"><p class="text-white font-medium">Rice Cultivation</p></div>
+        </div>
+        <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all aspect-[4/3]">
+          <img src="https://images.unsplash.com/photo-1696611891378-f2d77ef14782?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Cooperative meeting" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6"><p class="text-white font-medium">Field Activities</p></div>
+        </div>
+        <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all aspect-[4/3]">
+          <img src="https://images.unsplash.com/photo-1554993410-4387583b7575?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Fishing boats" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6"><p class="text-white font-medium">Maritime Resources</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-        AOS.init({ duration: 1000, once: true });
+  <!-- FAQ -->
+  <section id="faq" class="py-20 bg-white">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+        <p class="text-xl text-gray-600">Everything you need to know about TrackCOOP</p>
+      </div>
+      <div class="space-y-4">
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <details>
+            <summary class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer list-none">
+              <span class="text-lg font-medium text-gray-900 text-left">How do I access my <span class="text-gray-900">Track</span><span class="text-green-600">COOP</span> account?</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-500 shrink-0"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="px-6 pb-5 text-gray-700 leading-relaxed">Click the "Access Portal" or "Log In to Portal" button on this page. You'll need your registered email address and password. If you're a new member, your credentials will be provided by the cooperative administrator during onboarding.</div>
+          </details>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <details>
+            <summary class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer list-none">
+              <span class="text-lg font-medium text-gray-900 text-left">What happens to the physical documents after scanning?</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-500 shrink-0"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="px-6 pb-5 text-gray-700 leading-relaxed">Physical documents are securely archived after being digitized through our OCR scanning process. The digital copies are stored in encrypted cloud storage with automatic backups. Original documents are retained according to cooperative policy and regulatory requirements.</div>
+          </details>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <details>
+            <summary class="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors cursor-pointer list-none">
+              <span class="text-lg font-medium text-gray-900 text-left">Is my share capital data secure?</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-500 shrink-0"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="px-6 pb-5 text-gray-700 leading-relaxed">Absolutely. <span class="text-gray-900">Track</span><span class="text-green-600">COOP</span> employs bank-level encryption for all financial data. Your share capital information is protected with role-based access control, meaning only authorized users can view your specific data. All transactions are logged and audited for maximum transparency and security.</div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        // --- SMART NAVIGATION MONITOR (SCROLLSPY) ---
-        const sections = document.querySelectorAll("section[id], header[id]");
-        const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+  <!-- Contact -->
+  <section id="contact" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-4">Send Us a Message</h2>
+        <p class="text-xl text-gray-600">We'd love to hear from you</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div>
+          <h3 class="text-2xl font-display font-bold text-gray-900 mb-8">Get in Touch</h3>
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div><h4 class="font-medium text-gray-900 mb-1">Address</h4><p class="text-gray-600">Camp Avejar, Nasugbu, Batangas</p></div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div><h4 class="font-medium text-gray-900 mb-1">Email</h4><p class="text-gray-600">info@trackcoop.org</p><p class="text-gray-600">support@trackcoop.org</p></div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <div><h4 class="font-medium text-gray-900 mb-1">Phone</h4><p class="text-gray-600">+63 912 345 6789</p><p class="text-gray-600">+63 917 876 5432</p></div>
+            </div>
+          </div>
+          <div class="mt-10 p-6 bg-white rounded-xl border border-gray-200">
+            <h4 class="font-medium text-gray-900 mb-3">Office Hours</h4>
+            <div class="space-y-2 text-gray-600">
+              <p>Monday - Friday: 8:00 AM - 5:00 PM</p>
+              <p>Saturday: 9:00 AM - 1:00 PM</p>
+              <p>Sunday: Closed</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl p-8 shadow-sm border border-gray-200">
+          <form class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">Full Name</label>
+              <input type="text" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Juan dela Cruz" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">Email Address</label>
+              <input type="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="juan@email.com" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">Sector</label>
+              <select class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                <option value="">Select your sector</option>
+                <option>Rice Farming</option>
+                <option>Corn</option>
+                <option>Fishery</option>
+                <option>Livestock</option>
+                <option>High-Value Crops</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-900 mb-2">Message</label>
+              <textarea rows="4" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Your message..."></textarea>
+            </div>
+            <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg hover:opacity-90 transition-all shadow-sm font-medium">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        window.addEventListener("scroll", () => {
-            let current = "";
-            sections.forEach((section) => {
-                const sectionTop = section.offsetTop;
-                if (pageYOffset >= sectionTop - 150) {
-                    current = section.getAttribute("id");
-                }
-            });
+  <!-- Footer -->
+  <footer class="bg-primary text-white py-12">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-primary">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="text-xl font-display font-bold"><span class="text-white">Track</span><span class="text-green-300">COOP</span></span>
+        </div>
+        <p class="text-green-100 text-sm">&copy; 2026 TrackCOOP. All rights reserved. Nasugbu Farmers and Fisherfolks Agriculture Cooperative.</p>
+      </div>
+    </div>
+  </footer>
 
-            navLinks.forEach((link) => {
-                link.classList.remove("active");
-                if (link.getAttribute("href") === `#${current}`) {
-                    link.classList.add("active");
-                }
-            });
-        });
-        window.dispatchEvent(new Event('scroll'));
-
-        // --- UI UTILITIES ---
-        window.TrackUI = {
-            confirmModal: null, resolvePromise: null, isInitialized: false,
-            init() {
-                if (this.isInitialized) return;
-                const modalEl = document.getElementById('trackGlobalConfirmModal');
-                if (modalEl && window.bootstrap) {
-                    this.confirmModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
-                    this.isInitialized = true;
-                }
-                const btnConfirm = document.getElementById('confirmButton');
-                if (btnConfirm) {
-                    btnConfirm.addEventListener('click', () => {
-                        if (this.resolvePromise) {
-                            this.confirmModal.hide();
-                            const resolve = this.resolvePromise;
-                            this.resolvePromise = null;
-                            resolve(true);
-                        }
-                    });
-                }
-            },
-            show(message, title = 'Confirm', type = 'primary', btnConfirm = 'Confirm', btnCancel = 'Cancel') {
-                this.init();
-                if (!this.confirmModal) return Promise.resolve(false);
-                document.getElementById('confirmMessage').textContent = message;
-                document.getElementById('confirmTitle').textContent = title;
-                const btnCancelEl = document.querySelector('#trackGlobalConfirmModal .btn-cancel') || document.querySelector('#trackGlobalConfirmModal .btn[data-bs-dismiss="modal"]');
-                if (btnCancelEl) btnCancelEl.textContent = btnCancel;
-                const btn = document.getElementById('confirmButton');
-                if (btn) btn.textContent = btnConfirm;
-                return new Promise((resolve) => {
-                    this.resolvePromise = resolve;
-                    this.confirmModal.show();
-                });
-            },
-            switchModals(fromId, toId) {
-                const fromModal = bootstrap.Modal.getInstance(document.querySelector(fromId));
-                if (fromModal) fromModal.hide();
-                setTimeout(() => {
-                    const toModal = new bootstrap.Modal(document.querySelector(toId));
-                    toModal.show();
-                }, 400);
-            },
-            showRegStep(step) {
-                document.querySelectorAll('.reg-step').forEach(s => s.classList.add('d-none'));
-                document.getElementById(`regStep${step}`).classList.remove('d-none');
-            },
-            addChildRow() {
-                const container = document.getElementById('childrenContainer');
-                const newRow = document.createElement('div');
-                newRow.className = 'child-row row g-2 mt-2';
-                newRow.innerHTML = `
-                    <div class="col-md-5 col-12">
-                        <input type="text" name="child_names[]" class="form-control form-control-botanical" placeholder="Child's name">
-                    </div>
-                    <div class="col-md-2 col-4">
-                        <input type="number" name="child_ages[]" class="form-control form-control-botanical" placeholder="Age">
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <select name="child_benefits[]" class="form-select form-control-botanical">
-                            <option value="">None</option>
-                            <option value="SSS">SSS</option>
-                            <option value="PhilHealth">PhilHealth</option>
-                            <option value="Pag-IBIG">Pag-IBIG</option>
-                        </select>
-                    </div>
-                    <div class="col-md-1 col-2 text-center d-flex align-items-center justify-content-center">
-                        <button type="button" class="btn" onclick="this.closest('.child-row').remove()" title="Remove child" style="color: #ef4444; border:none; background:none;">
-                            <i class="bi bi-dash-circle-fill fs-5"></i>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(newRow);
-            }
-        };
-
-        // --- FORM TOGGLES & PASSWORDS ---
-        function togglePassVisibility(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.replace("bi-eye", "bi-eye-slash");
-            } else {
-                input.type = "password";
-                icon.classList.replace("bi-eye-slash", "bi-eye");
-            }
-        }
-
-        function checkPasswordStrengthV2(password) {
-            const text = document.getElementById('strengthTextV2');
-            if (password.length === 0) { text.style.display = 'none'; return; }
-            text.style.display = 'block';
-            const hasLetters = /[a-zA-Z]/.test(password);
-            const hasNumbers = /\d/.test(password);
-            const hasSymbols = /[\W_]/.test(password);
-            text.className = 'strength-text';
-            if (hasLetters && hasNumbers && hasSymbols) {
-                text.textContent = 'Strong Password'; text.classList.add('text-strong');
-            } else if (hasLetters && (hasNumbers || hasSymbols)) {
-                text.textContent = 'Good Password'; text.classList.add('text-good');
-            } else {
-                text.textContent = 'Weak Password'; text.classList.add('text-weak');
-            }
-        }
-
-        function checkPasswordMatchV2() {
-            const pass = document.getElementById('regPasswordV2').value;
-            const confirm = document.getElementById('regConfirmPasswordV2').value;
-            const status = document.getElementById('matchStatusV2');
-            if (confirm.length === 0) { status.style.display = 'none'; return; }
-            status.style.display = 'block';
-            if (pass === confirm) {
-                status.textContent = 'Passwords Match'; status.style.color = '#20a060';
-            } else {
-                status.textContent = 'Passwords do not match'; status.style.color = '#ef4444';
-            }
-        }
-
-        // --- DEMO AUTHENTICATION (STATIC) ---
-        const staticUsers = {
-            admin: { password: '123', role: 'Admin', redirect: 'admin_dashboard.html' },
-            member: { password: '123', role: 'Member', redirect: 'member_dashboard.html' }
-        };
-
-        function autoFillCredentials(role) {
-            const uField = document.getElementById('loginUsername');
-            const pField = document.getElementById('loginPassword');
-            if(role === 'Admin') { uField.value = 'admin'; pField.value = '123'; }
-            else if(role === 'Member') { uField.value = 'member'; pField.value = '123'; }
-            else { uField.value = ''; pField.value = ''; }
-        }
-
-        function handleStaticLogin(event) {
-            event.preventDefault();
-            const uField = document.getElementById('loginUsername').value.trim().toLowerCase();
-            const pField = document.getElementById('loginPassword').value;
-            const rField = document.getElementById('loginRole').value;
-
-            TrackUI.show('Proceed to login to your cooperative account?', 'Authentication', 'primary', 'Login', 'Back')
-            .then((confirmed) => {
-                if (!confirmed) return;
-                const user = staticUsers[uField];
-                if (user && user.password === pField && user.role === rField) {
-                    // Success Simulation
-                    alert(`Welcome, ${rField}! (Static Demo)`);
-                } else {
-                    TrackUI.show('Invalid username, password, or role.', 'Login Failed', 'danger', 'Retry', 'Dismiss');
-                }
-            });
-            return false;
-        }
-
-        function handleStaticRegister(event) {
-            event.preventDefault();
-            const pass = document.getElementById('regPasswordV2').value;
-            const confirm = document.getElementById('regConfirmPasswordV2').value;
-
-            if (pass !== confirm) {
-                TrackUI.show('Passwords do not match.', 'Registration Error', 'danger', 'Fix', 'Close');
-                return false;
-            }
-            TrackUI.show('Static Demo: Registration successful! Waiting for admin approval.', 'Success', 'success', 'Okay', 'Close')
-            .then(() => { TrackUI.switchModals('#registerModal', '#loginModal'); });
-            return false;
-        }
-
-        // --- DETAIL MODALS & FILTERS ---
-        function filterModalGallery(category, btn) {
-            document.querySelectorAll('#galleryModal .modal-filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.modal-gallery-item').forEach(item => {
-                if (category === 'All' || item.getAttribute('data-category') === category) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        function filterAnnouncements(category, btn) {
-            document.querySelectorAll('.ann-filter').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.modal-ann-row-item').forEach(item => {
-                if (category === 'All' || item.getAttribute('data-category') === category) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        function openActivityDetail(element) {
-            document.getElementById('detailModalTitle').textContent = element.getAttribute('data-title');
-            document.getElementById('detailModalDate').textContent = element.getAttribute('data-date');
-            document.getElementById('detailModalCategory').textContent = element.getAttribute('data-category');
-            document.getElementById('detailModalDesc').textContent = element.getAttribute('data-desc');
-            document.getElementById('detailModalImage').style.backgroundImage = `url('${element.getAttribute('data-img')}')`;
-            new bootstrap.Modal(document.getElementById('activityDetailModal')).show();
-        }
-
-        function openAnnouncementDetail(element) {
-            document.getElementById('annDetailTitle').textContent = element.getAttribute('data-title');
-            document.getElementById('annDetailCategory').textContent = element.getAttribute('data-category');
-            document.getElementById('annDetailDate').textContent = element.getAttribute('data-date');
-            const author = element.getAttribute('data-author');
-            document.getElementById('annDetailAuthor').textContent = author;
-            document.getElementById('annDetailContent').innerHTML = element.getAttribute('data-content').replace(/\n/g, '<br>');
-            document.getElementById('annDetailInitialBox').textContent = author ? author.charAt(0).toUpperCase() : 'A';
-            new bootstrap.Modal(document.getElementById('announcementDetailModal')).show();
-        }
-    </script>
 </body>
 </html>
