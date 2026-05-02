@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Wallet, TrendingUp, Calendar } from "lucide-react";
+import { Wallet, TrendingUp, Calendar, Search, BarChart3 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCurrency } from "../../utils/formatters";
 
@@ -9,6 +9,11 @@ const heroImage =
 export default function Financial() {
   const chartId = useMemo(() => `financial-${Date.now()}`, []);
   const [financialPeriod, setFinancialPeriod] = useState<"3m" | "6m" | "12m">("6m");
+  const [transactionSearch, setTransactionSearch] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [amountFilter, setAmountFilter] = useState<
+    "all" | "under_150000" | "150000_500000" | "above_500000"
+  >("all");
 
   const financialDataAll = [
     { month: "May '25", revenue: 3900000, netIncome: 2950000 },
@@ -32,14 +37,41 @@ export default function Financial() {
     : financialDataAll;
 
   const transactions = [
-    { id: "1", date: "Apr 14, 2026", type: "Revenue", description: "Share Capital Payments", amount: 850000 },
-    { id: "2", date: "Apr 10, 2026", type: "Revenue", description: "Service Fees Collection", amount: 125000 },
-    { id: "3", date: "Apr 8, 2026", type: "Revenue", description: "Member Contributions", amount: 420000 },
-    { id: "4", date: "Apr 5, 2026", type: "Revenue", description: "Agricultural Products Sales", amount: 680000 },
-    { id: "5", date: "Apr 1, 2026", type: "Revenue", description: "Training Workshop Fees", amount: 95000 },
+    { id: "1", date: "Apr 14, 2026", type: "Revenue", source: "Share Capital", description: "Share Capital Payments", amount: 850000 },
+    { id: "2", date: "Apr 10, 2026", type: "Revenue", source: "Service Fees", description: "Service Fees Collection", amount: 125000 },
+    { id: "3", date: "Apr 8, 2026", type: "Revenue", source: "Member Contributions", description: "Member Contributions", amount: 420000 },
+    { id: "4", date: "Apr 5, 2026", type: "Revenue", source: "Product Sales", description: "Agricultural Products Sales", amount: 680000 },
+    { id: "5", date: "Apr 1, 2026", type: "Revenue", source: "Training", description: "Training Workshop Fees", amount: 95000 },
   ];
 
   const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
+  const revenueSources = Array.from(new Set(transactions.map((transaction) => transaction.source)));
+
+  const filteredTransactions = transactions.filter((transaction) => {
+    const query = transactionSearch.trim().toLowerCase();
+    const matchesSearch =
+      !query ||
+      transaction.description.toLowerCase().includes(query) ||
+      transaction.date.toLowerCase().includes(query) ||
+      transaction.source.toLowerCase().includes(query);
+    const matchesSource =
+      sourceFilter === "all" || transaction.source === sourceFilter;
+    const matchesAmount =
+      amountFilter === "all" ||
+      (amountFilter === "under_150000" && transaction.amount < 150000) ||
+      (amountFilter === "150000_500000" &&
+        transaction.amount >= 150000 &&
+        transaction.amount <= 500000) ||
+      (amountFilter === "above_500000" && transaction.amount > 500000);
+
+    return matchesSearch && matchesSource && matchesAmount;
+  });
+
+  const clearTransactionFilters = () => {
+    setTransactionSearch("");
+    setSourceFilter("all");
+    setAmountFilter("all");
+  };
 
   return (
     <div className="min-h-full bg-stone-50 text-gray-950">
@@ -72,6 +104,11 @@ export default function Financial() {
             <div className="text-sm text-muted-foreground">Total Revenue (MTD)</div>
           </div>
           <div className="bg-card rounded-xl p-6 border border-border shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-75 duration-300 hover:-translate-y-1 hover:shadow-lg transition-all">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-blue-700" />
+              </div>
+            </div>
             <div className="text-3xl font-bold mb-1">{formatCurrency(3800000)}</div>
             <div className="text-sm text-muted-foreground">Monthly Income</div>
           </div>
@@ -116,33 +153,116 @@ export default function Financial() {
           </div>
         </div>
 
-        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-3 delay-300 duration-500">
-          <div className="p-6 border-b border-border">
-            <h2 className="text-xl font-display">Revenue Transactions</h2>
+        <div className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-300 duration-500">
+          <div className="border-b border-stone-200 px-5 py-5 md:px-6">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                  Revenue Ledger
+                </p>
+                <h2 className="mt-1 text-xl font-display">Revenue Transactions</h2>
+              </div>
+              <div className="text-sm font-medium text-gray-500">
+                {filteredTransactions.length} result
+                {filteredTransactions.length === 1 ? "" : "s"}
+              </div>
+            </div>
+
+            <div className="mt-5 border-t border-stone-100 pt-4">
+              <div className="grid gap-3 xl:grid-cols-[minmax(280px,1fr)_200px_220px_auto] xl:items-center">
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={transactionSearch}
+                    onChange={(event) => setTransactionSearch(event.target.value)}
+                    placeholder="Search revenue transactions"
+                    className="h-11 w-full rounded-lg border border-stone-200 bg-white pl-10 pr-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
+                <select
+                  value={sourceFilter}
+                  onChange={(event) => setSourceFilter(event.target.value)}
+                  className="h-11 rounded-lg border border-stone-200 bg-white px-4 text-sm font-semibold text-gray-700 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  aria-label="Filter by revenue source"
+                >
+                  <option value="all">All Sources</option>
+                  {revenueSources.map((source) => (
+                    <option key={source} value={source}>
+                      {source}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={amountFilter}
+                  onChange={(event) =>
+                    setAmountFilter(
+                      event.target.value as
+                        | "all"
+                        | "under_150000"
+                        | "150000_500000"
+                        | "above_500000"
+                    )
+                  }
+                  className="h-11 rounded-lg border border-stone-200 bg-white px-4 text-sm font-semibold text-gray-700 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  aria-label="Filter by amount"
+                >
+                  <option value="all">All Amounts</option>
+                  <option value="under_150000">Under 150,000</option>
+                  <option value="150000_500000">150,000 to 500,000</option>
+                  <option value="above_500000">Above 500,000</option>
+                </select>
+
+                <button
+                  onClick={clearTransactionFilters}
+                  className="h-11 rounded-lg border border-stone-200 bg-white px-5 text-sm font-semibold text-gray-600 transition-all hover:-translate-y-0.5 hover:bg-stone-50 hover:text-primary"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-muted/50">
+              <thead className="bg-stone-50">
                 <tr>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Date</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Type</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Description</th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Amount</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Date</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Type</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Description</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Amount</th>
                 </tr>
               </thead>
-              <tbody>
-                {transactions.map((txn, index) => (
-                  <tr key={txn.id} className="border-t border-border hover:bg-muted/30 transition-colors animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${Math.min(index * 40, 200)}ms` }}>
+              <tbody
+                key={`${transactionSearch}-${sourceFilter}-${amountFilter}`}
+                className="animate-in fade-in duration-300"
+              >
+                {filteredTransactions.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-14 text-center text-gray-500">
+                      No revenue transactions found.
+                    </td>
+                  </tr>
+                ) : (
+                filteredTransactions.map((txn, index) => (
+                  <tr key={txn.id} className="border-t border-stone-100 transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 hover:bg-green-50/50" style={{ animationDelay: `${Math.min(index * 40, 200)}ms` }}>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Calendar className="w-4 h-4" /><span>{txn.date}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">{txn.type}</span></td>
-                    <td className="px-6 py-4 text-sm">{txn.description}</td>
+                    <td className="px-6 py-4"><span className="inline-flex rounded-full px-3 py-1 text-sm font-semibold bg-green-50 text-green-700">{txn.type}</span></td>
+                    <td className="px-6 py-4 text-sm text-gray-950">
+                      <div>
+                        <p>{txn.description}</p>
+                        <p className="mt-1 text-xs text-gray-500">{txn.source}</p>
+                      </div>
+                    </td>
                     <td className="px-6 py-4"><span className="font-bold text-green-600">+{formatCurrency(txn.amount)}</span></td>
                   </tr>
-                ))}
+                ))
+                )}
               </tbody>
             </table>
           </div>
