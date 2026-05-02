@@ -1,10 +1,19 @@
 import { useMemo, useState } from "react";
-import { Wallet, TrendingUp, Calendar, Search, BarChart3 } from "lucide-react";
+import {
+  Wallet,
+  TrendingUp,
+  Calendar,
+  Search,
+  BarChart3,
+  ArrowUpDown,
+} from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCurrency } from "../../utils/formatters";
 
 const heroImage =
   "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=2400";
+
+type RevenueSortKey = "date" | "type" | "description" | "amount";
 
 export default function Financial() {
   const chartId = useMemo(() => `financial-${Date.now()}`, []);
@@ -14,6 +23,8 @@ export default function Financial() {
   const [amountFilter, setAmountFilter] = useState<
     "all" | "under_150000" | "150000_500000" | "above_500000"
   >("all");
+  const [sortKey, setSortKey] = useState<RevenueSortKey>("date");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const financialDataAll = [
     { month: "May '25", revenue: 3900000, netIncome: 2950000 },
@@ -37,11 +48,11 @@ export default function Financial() {
     : financialDataAll;
 
   const transactions = [
-    { id: "1", date: "Apr 14, 2026", type: "Revenue", source: "Share Capital", description: "Share Capital Payments", amount: 850000 },
-    { id: "2", date: "Apr 10, 2026", type: "Revenue", source: "Service Fees", description: "Service Fees Collection", amount: 125000 },
-    { id: "3", date: "Apr 8, 2026", type: "Revenue", source: "Member Contributions", description: "Member Contributions", amount: 420000 },
-    { id: "4", date: "Apr 5, 2026", type: "Revenue", source: "Product Sales", description: "Agricultural Products Sales", amount: 680000 },
-    { id: "5", date: "Apr 1, 2026", type: "Revenue", source: "Training", description: "Training Workshop Fees", amount: 95000 },
+    { id: "1", date: "Apr 14, 2026", dateIso: "2026-04-14", type: "Revenue", source: "Share Capital", description: "Share Capital Payments", amount: 850000 },
+    { id: "2", date: "Apr 10, 2026", dateIso: "2026-04-10", type: "Revenue", source: "Service Fees", description: "Service Fees Collection", amount: 125000 },
+    { id: "3", date: "Apr 8, 2026", dateIso: "2026-04-08", type: "Revenue", source: "Member Contributions", description: "Member Contributions", amount: 420000 },
+    { id: "4", date: "Apr 5, 2026", dateIso: "2026-04-05", type: "Revenue", source: "Product Sales", description: "Agricultural Products Sales", amount: 680000 },
+    { id: "5", date: "Apr 1, 2026", dateIso: "2026-04-01", type: "Revenue", source: "Training", description: "Training Workshop Fees", amount: 95000 },
   ];
 
   const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
@@ -67,10 +78,35 @@ export default function Financial() {
     return matchesSearch && matchesSource && matchesAmount;
   });
 
+  const sortedTransactions = [...filteredTransactions].sort((left, right) => {
+    const direction = sortDirection === "asc" ? 1 : -1;
+
+    switch (sortKey) {
+      case "date":
+        return left.dateIso.localeCompare(right.dateIso) * direction;
+      case "type":
+      case "description":
+        return left[sortKey].localeCompare(right[sortKey]) * direction;
+      case "amount":
+        return (left.amount - right.amount) * direction;
+      default:
+        return 0;
+    }
+  });
+
   const clearTransactionFilters = () => {
     setTransactionSearch("");
     setSourceFilter("all");
     setAmountFilter("all");
+  };
+
+  const handleSort = (nextKey: RevenueSortKey) => {
+    if (sortKey === nextKey) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(nextKey);
+      setSortDirection(nextKey === "date" ? "desc" : "asc");
+    }
   };
 
   return (
@@ -163,8 +199,8 @@ export default function Financial() {
                 <h2 className="mt-1 text-xl font-display">Revenue Transactions</h2>
               </div>
               <div className="text-sm font-medium text-gray-500">
-                {filteredTransactions.length} result
-                {filteredTransactions.length === 1 ? "" : "s"}
+                {sortedTransactions.length} result
+                {sortedTransactions.length === 1 ? "" : "s"}
               </div>
             </div>
 
@@ -228,24 +264,46 @@ export default function Financial() {
             <table className="w-full">
               <thead className="bg-stone-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Date</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Type</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Description</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Amount</th>
+                  {(
+                    [
+                      ["date", "Date"],
+                      ["type", "Type"],
+                      ["description", "Description"],
+                      ["amount", "Amount"],
+                    ] as Array<[RevenueSortKey, string]>
+                  ).map(([key, label]) => (
+                    <th
+                      key={key}
+                      className="px-6 py-4 text-left text-sm font-semibold text-gray-600"
+                    >
+                      <button
+                        onClick={() => handleSort(key)}
+                        className="inline-flex items-center gap-2 transition-colors hover:text-gray-950"
+                      >
+                        {label}
+                        <ArrowUpDown className="h-4 w-4" />
+                        {sortKey === key && (
+                          <span className="text-xs uppercase tracking-[0.12em] text-primary">
+                            {sortDirection}
+                          </span>
+                        )}
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody
-                key={`${transactionSearch}-${sourceFilter}-${amountFilter}`}
+                key={`${transactionSearch}-${sourceFilter}-${amountFilter}-${sortKey}-${sortDirection}`}
                 className="animate-in fade-in duration-300"
               >
-                {filteredTransactions.length === 0 ? (
+                {sortedTransactions.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-6 py-14 text-center text-gray-500">
                       No revenue transactions found.
                     </td>
                   </tr>
                 ) : (
-                filteredTransactions.map((txn, index) => (
+                sortedTransactions.map((txn, index) => (
                   <tr key={txn.id} className="border-t border-stone-100 transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 hover:bg-green-50/50" style={{ animationDelay: `${Math.min(index * 40, 200)}ms` }}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
