@@ -1,13 +1,22 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { CheckCircle, Wallet, Calendar, Megaphone, Activity } from "lucide-react";
+import {
+  Activity,
+  ArrowRight,
+  Calendar,
+  CheckCircle,
+  Clock3,
+  Megaphone,
+  Wallet,
+} from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
-import TooltipHint from "../components/Tooltip";
+
+const heroImage =
+  "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=2400";
 
 export default function MemberDashboard() {
   const navigate = useNavigate();
 
-  // Check user role - only Member can access this page
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
 
@@ -20,13 +29,14 @@ export default function MemberDashboard() {
     }
   }, [navigate]);
 
-  // Member data (this would come from an API in a real app)
   const memberData = {
     name: "Maria Santos",
     id: "M001",
     status: "Active",
     shareCapital: 25000,
     lastContribution: "Apr 14, 2026",
+    nextDueDate: "May 15, 2026",
+    sector: "Rice Farming",
   };
 
   const recentAnnouncements = [
@@ -34,216 +44,229 @@ export default function MemberDashboard() {
       id: "ann-1",
       title: "Annual General Meeting - April 25, 2026",
       date: "Apr 12, 2026",
-      excerpt: "All members are invited to attend the Annual General Meeting...",
+      excerpt: "All members are invited to attend the Annual General Meeting.",
     },
     {
       id: "ann-2",
       title: "New Mobile App Launch",
       date: "Apr 10, 2026",
-      excerpt: "We're excited to announce the launch of our new TrackCOOP mobile app...",
+      excerpt: "TrackCOOP mobile access is now available for members.",
     },
     {
       id: "ann-3",
       title: "Dividend Distribution Schedule",
       date: "Apr 8, 2026",
-      excerpt: "Member dividends for Q1 2026 will be distributed on April 30...",
+      excerpt: "Member dividends for Q1 2026 will be distributed on April 30.",
     },
     {
       id: "ann-4",
       title: "Training Workshop: Financial Literacy",
       date: "Apr 5, 2026",
-      excerpt: "Join us for a free financial literacy workshop on May 5, 2026...",
+      excerpt: "A free financial literacy workshop will be held on May 5, 2026.",
     },
   ];
 
   const recentActivity = [
     {
       id: "act-1",
-      type: "contribution",
       description: "Share Capital Payment Added",
       amount: 5000,
       date: "Apr 14, 2026",
+      type: "Contribution",
       icon: Wallet,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
+      iconClassName: "bg-green-100 text-green-700",
     },
     {
       id: "act-2",
-      type: "meeting",
       description: "Attended Board Meeting",
       date: "Apr 10, 2026",
+      type: "Attendance",
       icon: Activity,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      iconClassName: "bg-blue-100 text-blue-700",
     },
     {
       id: "act-3",
-      type: "document",
       description: "Viewed Annual Report 2025",
       date: "Apr 8, 2026",
+      type: "Document",
       icon: Activity,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
+      iconClassName: "bg-purple-100 text-purple-700",
     },
     {
       id: "act-4",
-      type: "contribution",
-      description: "Share Capital Payment Added",
-      amount: 5000,
-      date: "Mar 14, 2026",
-      icon: Wallet,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-    },
-    {
-      id: "act-5",
-      type: "announcement",
       description: "Read Announcement: New App Launch",
       date: "Mar 10, 2026",
+      type: "Announcement",
       icon: Megaphone,
-      color: "text-amber-600",
-      bgColor: "bg-amber-100",
+      iconClassName: "bg-amber-100 text-amber-700",
     },
   ];
 
   return (
-    <div className="p-8">
-      {/* Welcome Banner */}
-      <div className="bg-primary rounded-xl p-8 text-white mb-8 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-display mb-2">Welcome back, {memberData.name}!</h1>
-            <p className="text-white/80">Member ID: {memberData.id} • Here's your cooperative dashboard overview</p>
-          </div>
-          <div className="hidden md:block">
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-              <span className="text-5xl font-bold">{memberData.name.charAt(0)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* My Status */}
-        <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-          <h3 className="text-sm text-muted-foreground mb-2">My Status</h3>
-          <div className="flex items-center gap-2">
-            <TooltipHint content="You are actively participating and contributing regularly to the cooperative" position="top">
-              <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-lg font-bold cursor-help">
-                {memberData.status}
-              </span>
-            </TooltipHint>
-          </div>
-        </div>
-
-        {/* Total Share Capital */}
-        <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-              <Wallet className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-          <h3 className="text-sm text-muted-foreground mb-2">Total Share Capital</h3>
-          <div className="text-3xl font-bold text-primary">{formatCurrency(memberData.shareCapital)}</div>
-        </div>
-
-        {/* Last Contribution Date */}
-        <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-          <h3 className="text-sm text-muted-foreground mb-2">Last Contribution Date</h3>
-          <div className="text-xl font-bold">{memberData.lastContribution}</div>
-        </div>
-      </div>
-
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Announcements */}
-        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-display">Recent Announcements</h2>
-              <button
-                onClick={() => navigate("/dashboard/member-announcements")}
-                className="text-sm text-primary hover:underline"
-              >
-                View All
-              </button>
-            </div>
-          </div>
-          <div className="divide-y divide-border">
-            {recentAnnouncements.map((announcement) => (
-              <div
-                key={announcement.id}
-                className="p-6 hover:bg-muted/30 transition-colors cursor-pointer"
-                onClick={() => navigate("/dashboard/member-announcements")}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                    <Megaphone className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold mb-1 line-clamp-1">{announcement.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{announcement.excerpt}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      <span>{announcement.date}</span>
-                    </div>
-                  </div>
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  Member Dashboard
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  Welcome back, {memberData.name}
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  Track your contributions, review updates, and stay aligned with cooperative activity.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/20 bg-white/10 px-5 py-4 text-white shadow-lg backdrop-blur">
+                <div className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+                  Member Snapshot
+                </div>
+                <div className="mt-3 space-y-1 text-sm">
+                  <p>{memberData.id}</p>
+                  <p>{memberData.sector}</p>
+                  <p>{memberData.status}</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* My Recent Activity */}
-        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-border">
-            <h2 className="text-xl font-display">My Recent Activity</h2>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => {
-                const Icon = activity.icon;
-                return (
-                  <div key={activity.id} className="flex items-start gap-4">
-                    {/* Timeline connector */}
-                    <div className="flex flex-col items-center">
-                      <div className={`w-10 h-10 ${activity.bgColor} rounded-full flex items-center justify-center shrink-0`}>
-                        <Icon className={`w-5 h-5 ${activity.color}`} />
-                      </div>
-                      {index < recentActivity.length - 1 && (
-                        <div className="w-0.5 h-8 bg-border mt-2"></div>
-                      )}
-                    </div>
-
-                    {/* Activity content */}
-                    <div className="flex-1 pb-4">
-                      <div className="font-medium mb-1">{activity.description}</div>
-                      {activity.amount && (
-                        <div className="text-sm font-bold text-green-600 mb-1">{formatCurrency(activity.amount)}</div>
-                      )}
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="w-3 h-3" />
-                        <span>{activity.date}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="rounded-xl border border-green-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+            <div className="mb-1 text-3xl font-bold text-green-600">{memberData.status}</div>
+            <div className="text-sm text-muted-foreground">Membership Status</div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-75 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <Wallet className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <div className="mb-1 text-3xl font-bold">{formatCurrency(memberData.shareCapital)}</div>
+            <div className="text-sm text-muted-foreground">Total Share Capital</div>
+          </div>
+
+          <div className="rounded-xl border border-blue-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-150 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                <Clock3 className="h-6 w-6 text-blue-700" />
+              </div>
+            </div>
+            <div className="mb-1 text-2xl font-bold">{memberData.nextDueDate}</div>
+            <div className="text-sm text-muted-foreground">Next Contribution Due</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+            <div className="border-b border-stone-200 px-5 py-5 md:px-6">
+              <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                    Announcement Feed
+                  </p>
+                  <h2 className="mt-1 text-xl font-display">Recent Announcements</h2>
+                </div>
+                <button
+                  onClick={() => navigate("/dashboard/member-announcements")}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-green-800"
+                >
+                  View all
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="divide-y divide-stone-100">
+              {recentAnnouncements.map((announcement, index) => (
+                <button
+                  key={announcement.id}
+                  onClick={() => navigate("/dashboard/member-announcements")}
+                  className="flex w-full items-start gap-4 px-5 py-5 text-left transition-all hover:bg-green-50/40 md:px-6"
+                  style={{ animationDelay: `${Math.min(index * 35, 160)}ms` }}
+                >
+                  <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <Megaphone className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
+                      <h3 className="font-semibold text-gray-950">{announcement.title}</h3>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Calendar className="h-3.5 w-3.5" />
+                        <span>{announcement.date}</span>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-gray-500">{announcement.excerpt}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-300 duration-500">
+            <div className="border-b border-stone-200 px-5 py-5 md:px-6">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                Activity Log
+              </p>
+              <h2 className="mt-1 text-xl font-display">Recent Activity</h2>
+            </div>
+
+            <div className="px-5 py-5 md:px-6">
+              <div className="space-y-4">
+                {recentActivity.map((activity, index) => {
+                  const Icon = activity.icon;
+
+                  return (
+                    <div
+                      key={activity.id}
+                      className="flex items-start gap-4 rounded-lg border border-stone-100 bg-stone-50/70 px-4 py-4"
+                      style={{ animationDelay: `${Math.min(index * 40, 160)}ms` }}
+                    >
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${activity.iconClassName}`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                          <p className="font-semibold text-gray-950">{activity.description}</p>
+                          <p className="text-xs text-gray-500">{activity.date}</p>
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
+                          <span className="rounded-full bg-white px-3 py-1 font-medium text-gray-600 ring-1 ring-stone-200">
+                            {activity.type}
+                          </span>
+                          {activity.amount && (
+                            <span className="font-bold text-green-600">
+                              {formatCurrency(activity.amount)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 }

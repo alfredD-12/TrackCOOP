@@ -1,8 +1,30 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { User, Mail, Phone, MapPin, Edit, Download } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  Calendar,
+  Download,
+  Edit,
+  Mail,
+  MapPin,
+  Phone,
+  Search,
+  User,
+  Wallet,
+  X,
+} from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
+
+const heroImage =
+  "https://images.unsplash.com/photo-1521790797524-b2497295b8a0?auto=format&fit=crop&q=80&w=2400";
 
 const memberProfile = {
   id: "M001",
@@ -13,7 +35,6 @@ const memberProfile = {
   address: "Nasugbu, Batangas",
   joinDate: "Jan 15, 2024",
   status: "Active",
-  photoUrl: ""
 };
 
 const shareCapitalDataAll = [
@@ -28,7 +49,7 @@ const shareCapitalDataAll = [
   { id: "month-9", month: "Jan '26", amount: 5000 },
   { id: "month-10", month: "Feb '26", amount: 4500 },
   { id: "month-11", month: "Mar '26", amount: 5500 },
-  { id: "month-12", month: "Apr '26", amount: 3000 }
+  { id: "month-12", month: "Apr '26", amount: 3000 },
 ];
 
 const transactionHistory = [
@@ -37,7 +58,7 @@ const transactionHistory = [
   { id: "txn-3", date: "Feb 14, 2026", amount: 4500, type: "Monthly Contribution", status: "Completed" },
   { id: "txn-4", date: "Jan 14, 2026", amount: 5000, type: "Monthly Contribution", status: "Completed" },
   { id: "txn-5", date: "Dec 14, 2025", amount: 4000, type: "Monthly Contribution", status: "Completed" },
-  { id: "txn-6", date: "Nov 14, 2025", amount: 3000, type: "Monthly Contribution", status: "Completed" }
+  { id: "txn-6", date: "Nov 14, 2025", amount: 3000, type: "Monthly Contribution", status: "Completed" },
 ];
 
 const myDocuments = [
@@ -45,7 +66,7 @@ const myDocuments = [
   { id: "doc-2", name: "Share Capital Certificate.pdf", category: "Financial", uploadDate: "Jan 20, 2024", size: "180 KB" },
   { id: "doc-3", name: "ID Verification.pdf", category: "Membership", uploadDate: "Jan 15, 2024", size: "320 KB" },
   { id: "doc-4", name: "Annual Statement 2025.pdf", category: "Financial", uploadDate: "Dec 31, 2025", size: "420 KB" },
-  { id: "doc-5", name: "Contribution Receipt Q1 2026.pdf", category: "Financial", uploadDate: "Mar 31, 2026", size: "156 KB" }
+  { id: "doc-5", name: "Contribution Receipt Q1 2026.pdf", category: "Financial", uploadDate: "Mar 31, 2026", size: "156 KB" },
 ];
 
 export default function MyProfile() {
@@ -53,13 +74,14 @@ export default function MyProfile() {
   const [activeTab, setActiveTab] = useState<"share-capital" | "documents">("share-capital");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [shareCapitalPeriod, setShareCapitalPeriod] = useState<"3m" | "6m" | "12m">("6m");
+  const [documentSearch, setDocumentSearch] = useState("");
 
-  // Filter share capital data based on period
-  const shareCapitalData = shareCapitalPeriod === "3m"
-    ? shareCapitalDataAll.slice(-3)
-    : shareCapitalPeriod === "6m"
-    ? shareCapitalDataAll.slice(-6)
-    : shareCapitalDataAll;
+  const shareCapitalData =
+    shareCapitalPeriod === "3m"
+      ? shareCapitalDataAll.slice(-3)
+      : shareCapitalPeriod === "6m"
+        ? shareCapitalDataAll.slice(-6)
+        : shareCapitalDataAll;
 
   const chartId = useMemo(() => `share-capital-chart-${Math.random()}`, []);
 
@@ -74,368 +96,389 @@ export default function MyProfile() {
     }
   }, [navigate]);
 
-  const totalContributions = transactionHistory.reduce((sum, txn) => sum + txn.amount, 0);
+  const totalContributions = transactionHistory.reduce((sum, transaction) => sum + transaction.amount, 0);
+  const filteredDocuments = myDocuments.filter((document) => {
+    const query = documentSearch.trim().toLowerCase();
+    return (
+      !query ||
+      document.name.toLowerCase().includes(query) ||
+      document.category.toLowerCase().includes(query) ||
+      document.uploadDate.toLowerCase().includes(query)
+    );
+  });
 
   return (
-    <div className="p-8 bg-background min-h-full">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-foreground mb-2">My Profile</h1>
-        <p className="text-muted-foreground">View and manage your personal information and contributions</p>
-      </div>
-
-      {/* Profile Card */}
-      <div className="bg-card rounded-lg shadow-sm border border-border p-8 mb-6">
-        <div className="flex items-start gap-8">
-          {/* Profile Photo */}
-          <div className="shrink-0">
-            <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/40 rounded-full flex items-center justify-center">
-              <User className="w-16 h-16 text-primary" />
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img src={heroImage} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  My Profile
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  {memberProfile.name}
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  Review your profile, contribution history, and personal cooperative records.
+                </p>
+              </div>
+              <button
+                onClick={() => setEditModalOpen(true)}
+                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
+              >
+                <Edit className="h-4 w-4" />
+                Edit Profile
+              </button>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Profile Info */}
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-display text-foreground mb-1">{memberProfile.name}</h2>
-                <p className="text-muted-foreground">Member ID: {memberProfile.id}</p>
-                <div className="mt-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="rounded-xl border border-green-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-1 text-3xl font-bold text-green-600">{formatCurrency(totalContributions)}</div>
+            <div className="text-sm text-muted-foreground">Total Contributions</div>
+          </div>
+          <div className="rounded-xl border border-blue-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-75 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-1 text-2xl font-bold">{transactionHistory[0].date}</div>
+            <div className="text-sm text-muted-foreground">Last Contribution</div>
+          </div>
+          <div className="rounded-xl border border-purple-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-150 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-1 text-2xl font-bold">{memberProfile.joinDate}</div>
+            <div className="text-sm text-muted-foreground">Member Since</div>
+          </div>
+        </div>
+
+        <section className="mb-8 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+          <div className="grid gap-0 lg:grid-cols-[300px_minmax(0,1fr)]">
+            <div className="border-b border-stone-200 bg-stone-50 px-6 py-6 lg:border-b-0 lg:border-r">
+              <div className="flex items-center gap-4">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                  <User className="h-10 w-10 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-display">{memberProfile.name}</h2>
+                  <p className="text-sm text-gray-500">{memberProfile.id}</p>
+                  <span className="mt-2 inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
                     {memberProfile.status}
                   </span>
                 </div>
               </div>
+            </div>
+
+            <div className="grid gap-5 px-6 py-6 md:grid-cols-2">
+              <div className="flex items-start gap-3 rounded-lg border border-stone-100 bg-stone-50/70 px-4 py-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Wallet className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Sector</p>
+                  <p className="font-semibold text-gray-950">{memberProfile.sector}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-lg border border-stone-100 bg-stone-50/70 px-4 py-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Mail className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Email Address</p>
+                  <p className="font-semibold text-gray-950">{memberProfile.email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-lg border border-stone-100 bg-stone-50/70 px-4 py-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Phone className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phone Number</p>
+                  <p className="font-semibold text-gray-950">{memberProfile.phone}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-lg border border-stone-100 bg-stone-50/70 px-4 py-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <MapPin className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="font-semibold text-gray-950">{memberProfile.address}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-300 duration-500">
+          <div className="border-b border-stone-200 px-5 py-5 md:px-6">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                  Member Records
+                </p>
+                <h2 className="mt-1 text-xl font-display">Profile Activity</h2>
+              </div>
+              <div className="flex items-center gap-2 rounded-lg bg-muted/30 p-1">
+                <button
+                  onClick={() => setActiveTab("share-capital")}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                    activeTab === "share-capital"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Share Capital
+                </button>
+                <button
+                  onClick={() => setActiveTab("documents")}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                    activeTab === "documents"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Documents
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-5 py-6 md:px-6">
+            {activeTab === "share-capital" && (
+              <div className="space-y-6">
+                <div>
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-display text-foreground">
+                      Monthly Contributions
+                    </h3>
+                    <div className="flex items-center gap-2 rounded-lg bg-muted/30 p-1">
+                      {(["3m", "6m", "12m"] as const).map((period) => (
+                        <button
+                          key={period}
+                          onClick={() => setShareCapitalPeriod(period)}
+                          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                            shareCapitalPeriod === period
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          {period.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-stone-200 bg-stone-50 p-4" key={chartId}>
+                    <ResponsiveContainer width="100%" height={320}>
+                      <BarChart data={shareCapitalData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                        <XAxis dataKey="month" stroke="#6b7280" tickLine={false} axisLine={false} />
+                        <YAxis stroke="#6b7280" tickLine={false} axisLine={false} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "white",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: "8px",
+                          }}
+                          formatter={(value: number) => formatCurrency(value)}
+                        />
+                        <Bar dataKey="amount" fill="#1b5e3f" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-lg border border-stone-200 bg-white">
+                  <div className="border-b border-stone-200 px-5 py-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-display">Transaction History</h3>
+                      <div className="text-sm font-medium text-gray-500">
+                        {transactionHistory.length} records
+                      </div>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-stone-50">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Date</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Type</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Amount</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {transactionHistory.map((transaction, index) => (
+                          <tr
+                            key={transaction.id}
+                            className="border-t border-stone-100 transition-all hover:bg-green-50/40"
+                            style={{ animationDelay: `${Math.min(index * 35, 160)}ms` }}
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-500">{transaction.date}</td>
+                            <td className="px-6 py-4 text-sm text-gray-950">{transaction.type}</td>
+                            <td className="px-6 py-4 text-sm font-bold text-green-600">{formatCurrency(transaction.amount)}</td>
+                            <td className="px-6 py-4">
+                              <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
+                                {transaction.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "documents" && (
+              <div className="space-y-5">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="text-sm font-medium text-gray-500">
+                    {filteredDocuments.length} document{filteredDocuments.length === 1 ? "" : "s"}
+                  </div>
+                  <div className="relative w-full md:max-w-sm">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      value={documentSearch}
+                      onChange={(event) => setDocumentSearch(event.target.value)}
+                      placeholder="Search documents"
+                      className="h-11 w-full rounded-lg border border-stone-200 bg-white pl-10 pr-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-lg border border-stone-200 bg-white">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-stone-50">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Document Name</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Category</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Upload Date</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Size</th>
+                          <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredDocuments.map((document, index) => (
+                          <tr
+                            key={document.id}
+                            className="border-t border-stone-100 transition-all hover:bg-green-50/30"
+                            style={{ animationDelay: `${Math.min(index * 35, 160)}ms` }}
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-950">{document.name}</td>
+                            <td className="px-6 py-4">
+                              <span
+                                className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                                  document.category === "Membership"
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-green-100 text-green-700"
+                                }`}
+                              >
+                                {document.category}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-500">{document.uploadDate}</td>
+                            <td className="px-6 py-4 text-sm text-gray-500">{document.size}</td>
+                            <td className="px-6 py-4">
+                              <div className="flex justify-end">
+                                <button className="inline-flex items-center gap-2 rounded-lg border border-stone-200 px-3 py-2 text-sm font-semibold text-primary transition-all hover:bg-green-50">
+                                  <Download className="h-4 w-4" />
+                                  Download
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+
+      {editModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
+          onClick={() => setEditModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-stone-200 px-6 py-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Profile Update</p>
+                <h2 className="mt-1 text-2xl font-display">Edit Profile Information</h2>
+              </div>
               <button
-                onClick={() => setEditModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all shadow-sm"
+                onClick={() => setEditModalOpen(false)}
+                className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-stone-100 hover:text-gray-950"
               >
-                <Edit className="w-4 h-4" />
-                Edit Info
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Sector</p>
-                  <p className="text-foreground font-medium">{memberProfile.sector}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                  <Mail className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Email Address</p>
-                  <p className="text-foreground font-medium">{memberProfile.email}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                  <Phone className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Phone Number</p>
-                  <p className="text-foreground font-medium">{memberProfile.phone}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Address</p>
-                  <p className="text-foreground font-medium">{memberProfile.address}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs Section */}
-      <div className="bg-card rounded-lg shadow-sm border border-border">
-        {/* Tab Headers */}
-        <div className="border-b border-border">
-          <div className="flex gap-1 p-1">
-            <button
-              onClick={() => setActiveTab("share-capital")}
-              className={`flex-1 px-6 py-3 rounded-lg transition-all ${
-                activeTab === "share-capital"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              }`}
-            >
-              Share Capital History
-            </button>
-            <button
-              onClick={() => setActiveTab("documents")}
-              className={`flex-1 px-6 py-3 rounded-lg transition-all ${
-                activeTab === "documents"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              }`}
-            >
-              My Documents
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-6">
-          {activeTab === "share-capital" && (
-            <div className="space-y-6">
-              {/* Summary Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-                  <p className="text-sm text-green-700 mb-1">Total Contributions</p>
-                  <p className="text-2xl font-display text-green-900">{formatCurrency(totalContributions)}</p>
-                </div>
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-700 mb-1">Last Contribution</p>
-                  <p className="text-2xl font-display text-blue-900">{transactionHistory[0].date}</p>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                  <p className="text-sm text-purple-700 mb-1">Member Since</p>
-                  <p className="text-2xl font-display text-purple-900">{memberProfile.joinDate}</p>
-                </div>
-              </div>
-
-              {/* Bar Chart */}
+            <div className="space-y-4 px-6 py-6">
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-display text-foreground">
-                    Monthly Contributions ({shareCapitalPeriod === "3m" ? "Last 3 Months" : shareCapitalPeriod === "6m" ? "Last 6 Months" : "Last 12 Months"})
-                  </h3>
-                  {/* Period Filter */}
-                  <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-1">
-                    <button
-                      onClick={() => setShareCapitalPeriod("3m")}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                        shareCapitalPeriod === "3m"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      3M
-                    </button>
-                    <button
-                      onClick={() => setShareCapitalPeriod("6m")}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                        shareCapitalPeriod === "6m"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      6M
-                    </button>
-                    <button
-                      onClick={() => setShareCapitalPeriod("12m")}
-                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                        shareCapitalPeriod === "12m"
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      12M
-                    </button>
-                  </div>
-                </div>
-                <div className="bg-background p-4 rounded-lg border border-border" key={chartId}>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={shareCapitalData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis dataKey="month" stroke="#6b7280" />
-                      <YAxis stroke="#6b7280" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "white",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: "8px"
-                        }}
-                        formatter={(value: number) => formatCurrency(value)}
-                      />
-                      <Bar dataKey="amount" fill="#1b5e3f" radius={[8, 8, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Transaction Table */}
-              <div>
-                <h3 className="text-lg font-display text-foreground mb-4">Transaction History</h3>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                  <table className="w-full">
-                    <thead className="bg-accent">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Type
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Amount
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-card divide-y divide-border">
-                      {transactionHistory.map((txn) => (
-                        <tr key={txn.id} className="hover:bg-accent/50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                            {txn.date}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                            {txn.type}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                            {formatCurrency(txn.amount)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-green-100 text-green-800">
-                              {txn.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "documents" && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-display text-foreground">My Documents</h3>
-                <p className="text-sm text-muted-foreground">{myDocuments.length} documents</p>
-              </div>
-
-              <div className="overflow-x-auto rounded-lg border border-border">
-                <table className="w-full">
-                  <thead className="bg-accent">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Document Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Upload Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Size
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-card divide-y divide-border">
-                    {myDocuments.map((doc) => (
-                      <tr key={doc.id} className="hover:bg-accent/50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-foreground">
-                          {doc.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs ${
-                            doc.category === "Membership"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-green-100 text-green-800"
-                          }`}>
-                            {doc.category}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {doc.uploadDate}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {doc.size}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
-                            <Download className="w-4 h-4" />
-                            <span className="text-sm">Download</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Edit Modal */}
-      {editModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-border">
-              <h2 className="text-xl font-display text-foreground">Edit Profile Information</h2>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm text-foreground mb-2">Full Name</label>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Full Name</label>
                 <input
                   type="text"
                   defaultValue={memberProfile.name}
-                  className="w-full px-4 py-2 rounded-lg border border-input bg-input-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="h-11 w-full rounded-lg border border-stone-200 bg-white px-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-foreground mb-2">Email Address</label>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Email Address</label>
                 <input
                   type="email"
                   defaultValue={memberProfile.email}
-                  className="w-full px-4 py-2 rounded-lg border border-input bg-input-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="h-11 w-full rounded-lg border border-stone-200 bg-white px-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-foreground mb-2">Phone Number</label>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Phone Number</label>
                 <input
                   type="tel"
                   defaultValue={memberProfile.phone}
-                  className="w-full px-4 py-2 rounded-lg border border-input bg-input-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="h-11 w-full rounded-lg border border-stone-200 bg-white px-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
               <div>
-                <label className="block text-sm text-foreground mb-2">Address</label>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">Address</label>
                 <textarea
                   defaultValue={memberProfile.address}
                   rows={3}
-                  className="w-full px-4 py-2 rounded-lg border border-input bg-input-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-lg border border-stone-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             </div>
 
-            <div className="p-6 border-t border-border flex justify-end gap-3">
+            <div className="flex justify-end gap-3 border-t border-stone-200 px-6 py-5">
               <button
                 onClick={() => setEditModalOpen(false)}
-                className="px-4 py-2 rounded-lg border border-input hover:bg-accent transition-colors"
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-stone-200 bg-white px-5 text-sm font-semibold text-gray-700 transition-all hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
                 onClick={() => setEditModalOpen(false)}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all shadow-sm"
+                className="inline-flex h-11 items-center justify-center rounded-lg bg-[#1B5E3C] px-5 text-sm font-semibold text-white transition-all hover:bg-[#164d30]"
               >
                 Save Changes
               </button>

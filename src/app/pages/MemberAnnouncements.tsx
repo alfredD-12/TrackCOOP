@@ -1,6 +1,13 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { Search, Calendar, CheckCircle2, Circle } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle2,
+  Circle,
+  Filter,
+  Megaphone,
+  Search,
+} from "lucide-react";
 
 type Sector = "all" | "rice_farming" | "corn" | "fishery" | "livestock" | "high_value_crops";
 
@@ -13,6 +20,9 @@ interface Announcement {
   sector: Sector;
   unread: boolean;
 }
+
+const heroImage =
+  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=2400";
 
 const sectorLabels: Record<Sector, string> = {
   all: "All Members",
@@ -41,7 +51,8 @@ export default function MemberAnnouncements() {
     {
       id: "ann-1",
       title: "Annual General Meeting - April 25, 2026",
-      content: "All members are invited to attend the Annual General Meeting on April 25, 2026, at 2:00 PM in the Community Hall. We will discuss financial reports, elect new board members, and plan for the upcoming year. Your participation is highly encouraged as we make important decisions about our cooperative's future.",
+      content:
+        "All members are invited to attend the Annual General Meeting on April 25, 2026, at 2:00 PM in the Community Hall. We will discuss financial reports, elect new board members, and plan for the upcoming year.",
       date: "Apr 12, 2026",
       sender: "Board of Directors",
       sector: "all",
@@ -50,7 +61,8 @@ export default function MemberAnnouncements() {
     {
       id: "ann-2",
       title: "Rice Farming Best Practices Workshop",
-      content: "Special workshop for rice farming members on modern cultivation techniques and pest management. Join us on April 20, 2026, at 9:00 AM for a comprehensive session led by agricultural experts. Topics include sustainable farming practices, water management, and organic pest control methods.",
+      content:
+        "Special workshop for rice farming members on modern cultivation techniques and pest management. Join us on April 20, 2026, at 9:00 AM for a comprehensive session led by agricultural experts.",
       date: "Apr 10, 2026",
       sender: "Agricultural Team",
       sector: "rice_farming",
@@ -59,7 +71,8 @@ export default function MemberAnnouncements() {
     {
       id: "ann-3",
       title: "Dividend Distribution Schedule",
-      content: "Member dividends for Q1 2026 will be distributed on April 30, 2026. Please ensure your bank account details are up to date in your profile. If you need to update your information, visit the office or update it through your member dashboard. The dividend amount is based on your share capital and participation.",
+      content:
+        "Member dividends for Q1 2026 will be distributed on April 30, 2026. Please ensure your bank account details are up to date in your profile.",
       date: "Apr 8, 2026",
       sender: "Finance Team",
       sector: "all",
@@ -68,7 +81,8 @@ export default function MemberAnnouncements() {
     {
       id: "ann-4",
       title: "Rice Farming Equipment Loan Program",
-      content: "We are pleased to announce a new equipment loan program specifically for rice farming members. Low-interest loans are now available for purchasing tractors, harvesters, and other essential farming equipment. Applications are being accepted until May 31, 2026.",
+      content:
+        "Low-interest equipment loans are now available for rice farming members. Applications are being accepted until May 31, 2026.",
       date: "Apr 5, 2026",
       sender: "Loan Committee",
       sector: "rice_farming",
@@ -77,7 +91,8 @@ export default function MemberAnnouncements() {
     {
       id: "ann-5",
       title: "Office Hours Update",
-      content: "Starting May 1, 2026, our office hours will be Monday to Friday, 8:00 AM - 5:00 PM. Saturday hours remain 9:00 AM - 1:00 PM. Please plan your visits accordingly. For urgent matters outside office hours, you can reach us via our emergency hotline.",
+      content:
+        "Starting May 1, 2026, our office hours will be Monday to Friday, 8:00 AM - 5:00 PM. Saturday hours remain 9:00 AM - 1:00 PM.",
       date: "Apr 2, 2026",
       sender: "Administration",
       sector: "all",
@@ -86,7 +101,8 @@ export default function MemberAnnouncements() {
     {
       id: "ann-6",
       title: "Irrigation System Maintenance - Rice Farming Sector",
-      content: "The cooperative's irrigation system will undergo scheduled maintenance from April 18-20, 2026. This may affect water supply to rice farming areas. We recommend adjusting your planting schedules accordingly. Our technical team will work to minimize disruption.",
+      content:
+        "The cooperative's irrigation system will undergo scheduled maintenance from April 18-20, 2026. This may affect water supply to rice farming areas.",
       date: "Mar 30, 2026",
       sender: "Technical Services",
       sector: "rice_farming",
@@ -95,7 +111,8 @@ export default function MemberAnnouncements() {
     {
       id: "ann-7",
       title: "Share Capital Contribution Reminder",
-      content: "This is a friendly reminder that monthly share capital contributions are due by the 15th of each month. Regular contributions help strengthen our cooperative and increase your ownership stake. Thank you for your continued support and commitment.",
+      content:
+        "Monthly share capital contributions are due by the 15th of each month. Regular contributions help strengthen our cooperative and increase your ownership stake.",
       date: "Mar 28, 2026",
       sender: "Finance Team",
       sector: "all",
@@ -114,167 +131,189 @@ export default function MemberAnnouncements() {
     }
   }, [navigate]);
 
-  const relevantAnnouncements = announcements.filter(
-    (ann) => ann.sector === "all" || ann.sector === memberSector
+  const relevantAnnouncements = useMemo(
+    () => announcements.filter((announcement) => announcement.sector === "all" || announcement.sector === memberSector),
+    [announcements],
   );
 
-  const filteredAnnouncements = relevantAnnouncements.filter((ann) =>
-    ann.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ann.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ann.sender.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredAnnouncements = useMemo(
+    () =>
+      relevantAnnouncements.filter((announcement) => {
+        const query = searchQuery.trim().toLowerCase();
+
+        return (
+          !query ||
+          announcement.title.toLowerCase().includes(query) ||
+          announcement.content.toLowerCase().includes(query) ||
+          announcement.sender.toLowerCase().includes(query)
+        );
+      }),
+    [relevantAnnouncements, searchQuery],
   );
 
-  const unreadCount = filteredAnnouncements.filter((ann) => ann.unread).length;
+  const unreadCount = filteredAnnouncements.filter((announcement) => announcement.unread).length;
 
   const handleMarkAllAsRead = () => {
-    setAnnouncements((prev) =>
-      prev.map((ann) => ({ ...ann, unread: false }))
-    );
+    setAnnouncements((current) => current.map((announcement) => ({ ...announcement, unread: false })));
   };
 
   const handleToggleRead = (id: string) => {
-    setAnnouncements((prev) =>
-      prev.map((ann) => (ann.id === id ? { ...ann, unread: !ann.unread } : ann))
+    setAnnouncements((current) =>
+      current.map((announcement) =>
+        announcement.id === id ? { ...announcement, unread: !announcement.unread } : announcement,
+      ),
     );
   };
 
   return (
-    <div className="p-8 bg-background min-h-full">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-foreground mb-2">Announcements</h1>
-        <p className="text-muted-foreground">
-          Stay updated with cooperative news and important information
-        </p>
-      </div>
-
-      {/* Search and Actions Bar */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        {/* Search Bar */}
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search announcements..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-input bg-input-background focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-
-        {/* Mark All as Read Button */}
-        <button
-          onClick={handleMarkAllAsRead}
-          disabled={unreadCount === 0}
-          className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 ${
-            unreadCount > 0
-              ? "bg-primary text-primary-foreground hover:opacity-90 shadow-sm"
-              : "bg-muted text-muted-foreground cursor-not-allowed"
-          }`}
-        >
-          <CheckCircle2 className="w-4 h-4" />
-          Mark All as Read
-          {unreadCount > 0 && (
-            <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs">
-              {unreadCount}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Unread Count Summary */}
-      {unreadCount > 0 && (
-        <div className="mb-6 bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <p className="text-sm text-primary">
-            You have <span className="font-bold">{unreadCount}</span> unread announcement{unreadCount !== 1 ? "s" : ""}
-          </p>
-        </div>
-      )}
-
-      {/* Announcements Feed */}
-      <div className="space-y-4">
-        {filteredAnnouncements.length === 0 && (
-          <div className="bg-card rounded-lg border border-border p-12 text-center">
-            <p className="text-muted-foreground">No announcements found</p>
-          </div>
-        )}
-
-        {filteredAnnouncements.map((announcement) => (
-          <div
-            key={announcement.id}
-            className={`bg-card rounded-lg border shadow-sm hover:shadow-md transition-all cursor-pointer ${
-              announcement.unread
-                ? "border-primary/40 bg-primary/5"
-                : "border-border"
-            }`}
-            onClick={() => handleToggleRead(announcement.id)}
-          >
-            <div className="p-6">
-              {/* Header Section */}
-              <div className="flex items-start gap-4 mb-4">
-                {/* Unread/Read Status Dot */}
-                <div className="pt-1">
-                  {announcement.unread ? (
-                    <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-                  ) : (
-                    <Circle className="w-3 h-3 text-muted-foreground/30" />
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1">
-                  {/* Title and Badge */}
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <h3 className={`text-lg font-display ${
-                      announcement.unread ? "text-foreground font-bold" : "text-foreground"
-                    }`}>
-                      {announcement.title}
-                    </h3>
-                    <span className={`px-3 py-1 rounded-full text-xs border shrink-0 ${sectorColors[announcement.sector]}`}>
-                      {sectorLabels[announcement.sector]}
-                    </span>
-                  </div>
-
-                  {/* Meta Information */}
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap mb-4">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4" />
-                      <span>{announcement.date}</span>
-                    </div>
-                    <span>•</span>
-                    <span>From: {announcement.sender}</span>
-                  </div>
-
-                  {/* Message Body */}
-                  <p className="text-muted-foreground leading-relaxed">
-                    {announcement.content}
-                  </p>
-                </div>
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img src={heroImage} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  Member Announcements
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  Cooperative Updates
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  Read general notices and sector-specific updates relevant to your membership.
+                </p>
               </div>
+              <button
+                onClick={handleMarkAllAsRead}
+                disabled={unreadCount === 0}
+                className={`inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg px-5 py-3 font-semibold shadow-lg transition-all ${
+                  unreadCount > 0
+                    ? "bg-green-300 text-green-950 hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
+                    : "cursor-not-allowed bg-white/20 text-white/70 shadow-none"
+                }`}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Mark All as Read
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-4 border-t border-border ml-7">
-                <div className="text-xs text-muted-foreground">
-                  Click to mark as {announcement.unread ? "read" : "unread"}
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="rounded-xl border border-green-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-1 text-3xl font-bold text-green-600">{filteredAnnouncements.length}</div>
+            <div className="text-sm text-muted-foreground">Visible Announcements</div>
+          </div>
+          <div className="rounded-xl border border-amber-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-75 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-1 text-3xl font-bold text-amber-600">{unreadCount}</div>
+            <div className="text-sm text-muted-foreground">Unread Updates</div>
+          </div>
+          <div className="rounded-xl border border-blue-200 bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-150 duration-300 transition-all hover:-translate-y-1 hover:shadow-lg">
+            <div className="mb-1 text-2xl font-bold">{sectorLabels[memberSector]}</div>
+            <div className="text-sm text-muted-foreground">Current Sector Feed</div>
+          </div>
+        </div>
+
+        <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+          <div className="border-b border-stone-200 px-5 py-5 md:px-6">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                  Announcement Feed
+                </p>
+                <h2 className="mt-1 text-xl font-display">Inbox</h2>
+              </div>
+              <div className="text-sm font-medium text-gray-500">
+                {filteredAnnouncements.length} result{filteredAnnouncements.length === 1 ? "" : "s"}
+              </div>
+            </div>
+
+            <div className="mt-5 border-t border-stone-100 pt-4">
+              <div className="grid gap-3 xl:grid-cols-[minmax(280px,1fr)_220px] xl:items-center">
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Search announcements"
+                    className="h-11 w-full rounded-lg border border-stone-200 bg-white pl-10 pr-4 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
                 </div>
-                {announcement.unread && (
-                  <div className="text-xs font-medium text-primary">
-                    NEW
-                  </div>
-                )}
+
+                <div className="inline-flex h-11 items-center gap-2 rounded-lg border border-stone-200 bg-stone-50 px-4 text-sm font-semibold text-gray-600">
+                  <Filter className="h-4 w-4" />
+                  {sectorLabels[memberSector]} + General
+                </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Info Box */}
-      <div className="mt-8 bg-muted/30 rounded-lg p-4 border border-border">
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Note:</span> You are viewing announcements for{" "}
-          <span className="font-medium text-foreground">{sectorLabels[memberSector]}</span> sector and general announcements for all members.
-        </p>
-      </div>
+          <div className="divide-y divide-stone-100">
+            {filteredAnnouncements.length === 0 ? (
+              <div className="px-6 py-14 text-center text-gray-500">No announcements found.</div>
+            ) : (
+              filteredAnnouncements.map((announcement, index) => (
+                <button
+                  key={announcement.id}
+                  onClick={() => handleToggleRead(announcement.id)}
+                  className={`block w-full px-5 py-5 text-left transition-all hover:bg-green-50/30 md:px-6 ${
+                    announcement.unread ? "bg-green-50/25" : "bg-white"
+                  }`}
+                  style={{ animationDelay: `${Math.min(index * 35, 180)}ms` }}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="pt-1">
+                      {announcement.unread ? (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                          <Megaphone className="h-5 w-5 text-primary" />
+                        </div>
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-stone-100">
+                          <Circle className="h-4 w-4 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className={`text-lg ${announcement.unread ? "font-bold" : "font-semibold"}`}>
+                              {announcement.title}
+                            </h3>
+                            {announcement.unread && (
+                              <span className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
+                                New
+                              </span>
+                            )}
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                            <span className="inline-flex items-center gap-1.5">
+                              <Calendar className="h-4 w-4" />
+                              {announcement.date}
+                            </span>
+                            <span>{announcement.sender}</span>
+                            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${sectorColors[announcement.sector]}`}>
+                              {sectorLabels[announcement.sector]}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="mt-4 text-sm leading-6 text-gray-600">{announcement.content}</p>
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
