@@ -505,6 +505,7 @@ export default function Gallery() {
                 {!selectedAlbum && viewMode === "albums" && (
                   <button
                     onClick={() => setShowCreateAlbumModal(true)}
+                    data-tour="gallery-create-album"
                     className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-gray-900 shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-50"
                   >
                     <FolderPlus className="h-4 w-4" />
@@ -513,6 +514,7 @@ export default function Gallery() {
                 )}
                 <button
                   onClick={() => setShowUploadModal(true)}
+                  data-tour="gallery-upload-media"
                   className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200"
                 >
                   <Upload className="h-4 w-4" />
@@ -566,7 +568,10 @@ export default function Gallery() {
       )}
 
       {/* Filters */}
-      <div className="bg-card rounded-xl p-6 border border-border shadow-sm mb-8">
+      <div
+        className="bg-card rounded-xl p-6 border border-border shadow-sm mb-8"
+        data-tour="gallery-filters"
+      >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="md:col-span-2">

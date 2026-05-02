@@ -406,6 +406,7 @@ export default function Documents() {
                 <button
                   onClick={openDemoUpload}
                   disabled={toastState === "processing"}
+                  data-tour="documents-upload"
                   className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
                 >
                   <Upload className="h-4 w-4" />
@@ -477,7 +478,10 @@ export default function Documents() {
               </button>
             </div>
 
-            <div className="mt-5 border-t border-stone-100 pt-4">
+            <div
+              className="mt-5 border-t border-stone-100 pt-4"
+              data-tour="documents-filters"
+            >
               <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(220px,0.9fr)_minmax(260px,1fr)_auto_auto] xl:items-center">
                 <div className="relative">
                   <FolderOpen className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -552,7 +556,7 @@ export default function Documents() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" data-tour="documents-table">
             <table className="w-full">
               <thead className="bg-stone-50">
                 <tr>

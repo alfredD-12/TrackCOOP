@@ -147,7 +147,10 @@ export default function Alerts() {
       </div>
 
       {/* Filters */}
-      <div className="bg-card rounded-xl p-4 border border-border shadow-sm mb-6">
+      <div
+        className="bg-card rounded-xl p-4 border border-border shadow-sm mb-6"
+        data-tour="alerts-filters"
+      >
         <div className="flex flex-wrap gap-2">
           <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm">
             All Alerts
@@ -168,7 +171,7 @@ export default function Alerts() {
       </div>
 
       {/* Alerts List */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour="alerts-list">
         {alerts.map((alert, index) => {
           const styles = getAlertStyles(alert.type);
           const Icon = alert.icon;

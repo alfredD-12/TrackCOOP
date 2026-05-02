@@ -188,6 +188,7 @@ export default function MemberAnnouncements() {
               <button
                 onClick={handleMarkAllAsRead}
                 disabled={unreadCount === 0}
+                data-tour="member-announcements-read"
                 className={`inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg px-5 py-3 font-semibold shadow-lg transition-all ${
                   unreadCount > 0
                     ? "bg-green-300 text-green-950 hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
@@ -232,7 +233,10 @@ export default function MemberAnnouncements() {
               </div>
             </div>
 
-            <div className="mt-5 border-t border-stone-100 pt-4">
+            <div
+              className="mt-5 border-t border-stone-100 pt-4"
+              data-tour="member-announcements-filters"
+            >
               <div className="grid gap-3 xl:grid-cols-[minmax(280px,1fr)_220px] xl:items-center">
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -253,7 +257,10 @@ export default function MemberAnnouncements() {
             </div>
           </div>
 
-          <div className="divide-y divide-stone-100">
+          <div
+            className="divide-y divide-stone-100"
+            data-tour="member-announcements-list"
+          >
             {filteredAnnouncements.length === 0 ? (
               <div className="px-6 py-14 text-center text-gray-500">No announcements found.</div>
             ) : (

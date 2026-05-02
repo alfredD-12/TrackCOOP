@@ -248,7 +248,10 @@ export default function Reports() {
 
       <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
         {/* Report Type Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        data-tour="reports-cards"
+      >
         {reportCards.map((card, index) => {
           const Icon = card.icon;
           return (
@@ -274,7 +277,10 @@ export default function Reports() {
       </div>
 
       {/* Recent Reports Table */}
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden mb-8">
+      <div
+        className="bg-card rounded-xl border border-border shadow-sm overflow-hidden mb-8"
+        data-tour="reports-table"
+      >
         <div className="p-6 border-b border-border">
           <h2 className="text-xl font-display">Recent Reports</h2>
         </div>

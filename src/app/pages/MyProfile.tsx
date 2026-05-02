@@ -129,6 +129,7 @@ export default function MyProfile() {
               </div>
               <button
                 onClick={() => setEditModalOpen(true)}
+                data-tour="member-profile-edit"
                 className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
               >
                 <Edit className="h-4 w-4" />
@@ -155,7 +156,10 @@ export default function MyProfile() {
           </div>
         </div>
 
-        <section className="mb-8 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+        <section
+          className="mb-8 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500"
+          data-tour="member-profile-summary"
+        >
           <div className="grid gap-0 lg:grid-cols-[300px_minmax(0,1fr)]">
             <div className="border-b border-stone-200 bg-stone-50 px-6 py-6 lg:border-b-0 lg:border-r">
               <div className="flex items-center gap-4">
@@ -225,7 +229,10 @@ export default function MyProfile() {
                 </p>
                 <h2 className="mt-1 text-xl font-display">Profile Activity</h2>
               </div>
-              <div className="flex items-center gap-2 rounded-lg bg-muted/30 p-1">
+              <div
+                className="flex items-center gap-2 rounded-lg bg-muted/30 p-1"
+                data-tour="member-profile-tabs"
+              >
                 <button
                   onClick={() => setActiveTab("share-capital")}
                   className={`rounded-md px-3 py-1.5 text-sm font-medium transition-all ${

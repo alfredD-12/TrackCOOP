@@ -407,6 +407,7 @@ export default function Members() {
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center lg:justify-end">
                 <button
                   onClick={() => setShowAddModal(true)}
+                  data-tour="members-add"
                   className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
                 >
                   <UserPlus className="h-4 w-4" />
@@ -477,7 +478,10 @@ export default function Members() {
               </div>
             </div>
 
-            <div className="mt-5 border-t border-stone-100 pt-4">
+            <div
+              className="mt-5 border-t border-stone-100 pt-4"
+              data-tour="members-filters"
+            >
               <div className="grid gap-3 xl:grid-cols-[minmax(280px,1fr)_200px_220px_auto] xl:items-center">
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -536,7 +540,7 @@ export default function Members() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" data-tour="members-table">
             <table className="w-full">
               <thead className="bg-stone-50">
                 <tr>

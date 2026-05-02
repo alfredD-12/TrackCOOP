@@ -176,7 +176,10 @@ export default function MemberDashboard() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+          <section
+            className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500"
+            data-tour="member-dashboard-announcements"
+          >
             <div className="border-b border-stone-200 px-5 py-5 md:px-6">
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div>
@@ -221,7 +224,10 @@ export default function MemberDashboard() {
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-300 duration-500">
+          <section
+            className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-300 duration-500"
+            data-tour="member-dashboard-activity"
+          >
             <div className="border-b border-stone-200 px-5 py-5 md:px-6">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
                 Activity Log

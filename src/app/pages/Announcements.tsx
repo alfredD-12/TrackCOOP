@@ -235,6 +235,7 @@ export default function Announcements() {
                 {activeTab === "announcements" && (
                   <button
                     onClick={() => { setModalMode("compose"); setShowComposeModal(true); }}
+                    data-tour="announcements-compose"
                     className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
                   >
                     <Megaphone className="h-4 w-4" />
@@ -249,7 +250,7 @@ export default function Announcements() {
 
       <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
         {/* Tabs */}
-      <div className="mb-6 border-b border-border">
+      <div className="mb-6 border-b border-border" data-tour="announcements-tabs">
         <div className="flex gap-1">
           <button
             onClick={() => setActiveTab("announcements")}
@@ -294,7 +295,7 @@ export default function Announcements() {
         <>
 
           {/* Announcements List */}
-          <div className="space-y-4">
+          <div className="space-y-4" data-tour="announcements-table">
             {announcements.map((announcement, index) => (
               <div
                 key={announcement.id}

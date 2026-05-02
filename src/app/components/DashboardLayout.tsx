@@ -15,6 +15,13 @@ import {
   Wallet
 } from "lucide-react";
 import TrackCoopLogo from "./TrackCoopLogo";
+import SpotlightOnboarding from "./SpotlightOnboarding";
+import {
+  bookkeeperTourSteps,
+  chairmanTourSteps,
+  memberTourSteps,
+} from "../onboarding/chairmanTour";
+import { hasSeenOnboarding, markOnboardingSeen } from "../onboarding/runtimeOnboarding";
 
 type UserRole = "chairman" | "bookkeeper" | "member";
 
@@ -48,19 +55,58 @@ const navItems: NavItem[] = [
   { name: "Announcements", path: "/dashboard/member-announcements", icon: Megaphone, roles: ["member"] },
 ];
 
+const roleTourSteps = {
+  chairman: chairmanTourSteps,
+  bookkeeper: bookkeeperTourSteps,
+  member: memberTourSteps,
+} satisfies Record<UserRole, typeof chairmanTourSteps>;
+
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [userRole, setUserRole] = useState<UserRole>("chairman");
+  const [roleLoaded, setRoleLoaded] = useState(false);
+  const [tourActive, setTourActive] = useState(false);
+  const [tourStepIndex, setTourStepIndex] = useState(0);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole") as UserRole;
     if (role) {
       setUserRole(role);
+      setRoleLoaded(true);
     } else {
       navigate("/");
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (!roleLoaded || tourActive) {
+      return;
+    }
+
+    const activeTourSteps = roleTourSteps[userRole];
+    if (activeTourSteps.length === 0) {
+      return;
+    }
+
+    const onboardingKey = `tour:${userRole}`;
+    if (hasSeenOnboarding(onboardingKey)) {
+      return;
+    }
+
+    setTourActive(true);
+    setTourStepIndex(0);
+
+    if (location.pathname !== activeTourSteps[0].path) {
+      navigate(activeTourSteps[0].path);
+    }
+  }, [location.pathname, navigate, roleLoaded, tourActive, userRole]);
+
+  const closeOnboarding = () => {
+    markOnboardingSeen(`tour:${userRole}`);
+    setTourActive(false);
+    setTourStepIndex(0);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("userRole");
@@ -74,6 +120,40 @@ export default function DashboardLayout() {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);
+  };
+
+  const currentTourSteps = roleTourSteps[userRole];
+  const currentTourStep = tourActive ? currentTourSteps[tourStepIndex] : null;
+
+  const handleNextTourStep = () => {
+    if (!currentTourStep) {
+      return;
+    }
+
+    const nextIndex = tourStepIndex + 1;
+    if (nextIndex >= currentTourSteps.length) {
+      closeOnboarding();
+      return;
+    }
+
+    const nextStep = currentTourSteps[nextIndex];
+    setTourStepIndex(nextIndex);
+    if (nextStep.path !== location.pathname) {
+      navigate(nextStep.path);
+    }
+  };
+
+  const handlePreviousTourStep = () => {
+    if (!currentTourStep || tourStepIndex === 0) {
+      return;
+    }
+
+    const previousIndex = tourStepIndex - 1;
+    const previousStep = currentTourSteps[previousIndex];
+    setTourStepIndex(previousIndex);
+    if (previousStep.path !== location.pathname) {
+      navigate(previousStep.path);
+    }
   };
 
   return (
@@ -91,7 +171,10 @@ export default function DashboardLayout() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-2 overflow-y-auto">
+        <nav
+          className="flex-1 px-4 py-2 overflow-y-auto"
+          data-tour="dashboard-sidebar"
+        >
           <div className="mb-3 px-3 text-xs font-bold text-green-800/40 uppercase tracking-widest">
             Menu
           </div>
@@ -138,6 +221,17 @@ export default function DashboardLayout() {
       <main className="flex-1 overflow-auto">
         <Outlet />
       </main>
+
+      {currentTourStep && (
+        <SpotlightOnboarding
+          step={currentTourStep}
+          stepIndex={tourStepIndex}
+          stepCount={currentTourSteps.length}
+          onClose={closeOnboarding}
+          onNext={handleNextTourStep}
+          onPrevious={handlePreviousTourStep}
+        />
+      )}
     </div>
   );
 }

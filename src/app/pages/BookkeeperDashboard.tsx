@@ -275,7 +275,10 @@ export default function BookkeeperDashboard() {
           })}
         </div>
 
-        <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+        <div
+          className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500"
+          data-tour="bookkeeper-cashflow"
+        >
           <div className="mb-6 flex items-start justify-between">
             <div>
               <h2 className="mb-1 text-xl font-display">Monthly Cash Flow</h2>
@@ -375,7 +378,10 @@ export default function BookkeeperDashboard() {
               </div>
             </div>
 
-            <div className="mt-5 border-t border-stone-100 pt-4">
+            <div
+              className="mt-5 border-t border-stone-100 pt-4"
+              data-tour="bookkeeper-transactions-filters"
+            >
               <div className="grid gap-3 xl:grid-cols-[minmax(280px,1fr)_180px_180px_auto] xl:items-center">
                 <div className="relative">
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -428,7 +434,10 @@ export default function BookkeeperDashboard() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto"
+            data-tour="bookkeeper-transactions-table"
+          >
             <table className="w-full">
               <thead className="bg-stone-50">
                 <tr>

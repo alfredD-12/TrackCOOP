@@ -289,6 +289,7 @@ export default function Dashboard() {
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center lg:justify-end">
                 <button
                   onClick={() => navigate("/dashboard/reports")}
+                  data-tour="dashboard-view-reports"
                   className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
                 >
                   View Reports
@@ -296,6 +297,7 @@ export default function Dashboard() {
                 </button>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
+                  data-tour="dashboard-filters"
                   className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg border border-white/35 bg-white/10 px-5 py-3 font-semibold text-white shadow-lg backdrop-blur transition-all hover:-translate-y-1 hover:bg-white/20"
                 >
                   <Filter className="h-4 w-4" />
@@ -377,7 +379,10 @@ export default function Dashboard() {
           </section>
         )}
 
-        <section className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <section
+          className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4"
+          data-tour="dashboard-kpis"
+        >
           {kpis.map((kpi, index) => {
             const Icon = kpi.icon;
 

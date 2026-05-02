@@ -274,6 +274,7 @@ export default function Predictions() {
                 <button
                   onClick={handleGeneratePredictions}
                   disabled={isGenerating}
+                  data-tour="predictions-generate"
                   className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
                 >
                   {isGenerating ? (
@@ -342,7 +343,10 @@ export default function Predictions() {
       </div>
 
       {/* Predictions Table */}
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div
+        className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        data-tour="predictions-filters"
+      >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             type="text"
@@ -386,7 +390,10 @@ export default function Predictions() {
         </button>
       </div>
 
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+      <div
+        className="bg-card rounded-xl border border-border shadow-sm overflow-hidden"
+        data-tour="predictions-table"
+      >
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50">
