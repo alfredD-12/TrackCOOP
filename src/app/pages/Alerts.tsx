@@ -1,5 +1,8 @@
 import { Bell, AlertCircle, CheckCircle, Info, XCircle } from "lucide-react";
 
+const heroImage =
+  "https://images.unsplash.com/photo-1751818430558-1c2a12283155?auto=format&fit=crop&q=80&w=2400";
+
 export default function Alerts() {
   const alerts = [
     {
@@ -80,36 +83,61 @@ export default function Alerts() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display mb-2">Alerts</h1>
-        <p className="text-muted-foreground">System notifications and important updates</p>
-      </div>
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-      {/* Alert Summary */}
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  Alerts
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  System Alerts
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  System notifications and important updates
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        {/* Alert Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-card rounded-xl p-6 border border-red-200 shadow-sm">
+        <div className="bg-card rounded-xl p-6 border border-red-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">Critical</span>
             <AlertCircle className="w-5 h-5 text-red-600" />
           </div>
           <div className="text-3xl font-bold text-red-600">2</div>
         </div>
-        <div className="bg-card rounded-xl p-6 border border-orange-200 shadow-sm">
+        <div className="bg-card rounded-xl p-6 border border-orange-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-75 duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">Warning</span>
             <Info className="w-5 h-5 text-orange-600" />
           </div>
           <div className="text-3xl font-bold text-orange-600">2</div>
         </div>
-        <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm">
+        <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-150 duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">Success</span>
             <CheckCircle className="w-5 h-5 text-green-600" />
           </div>
           <div className="text-3xl font-bold text-green-600">1</div>
         </div>
-        <div className="bg-card rounded-xl p-6 border border-blue-200 shadow-sm">
+        <div className="bg-card rounded-xl p-6 border border-blue-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">Info</span>
             <Bell className="w-5 h-5 text-blue-600" />
@@ -148,7 +176,8 @@ export default function Alerts() {
           return (
             <div
               key={index}
-              className={`${styles.bg} ${styles.border} border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow`}
+              className={`${styles.bg} ${styles.border} border rounded-xl p-6 shadow-sm transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 hover:-translate-y-1 hover:shadow-lg`}
+              style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }}
             >
               <div className="flex items-start gap-4">
                 <div className={`${styles.icon} mt-1`}>
@@ -174,6 +203,7 @@ export default function Alerts() {
           );
         })}
       </div>
+      </main>
     </div>
   );
 }

@@ -43,10 +43,15 @@ const sectorColors: Record<Sector, string> = {
   high_value_crops: "bg-purple-100 text-purple-700",
 };
 
+const heroImage =
+  "https://images.unsplash.com/photo-1751818430558-1c2a12283155?auto=format&fit=crop&q=80&w=2400";
+
 export default function Announcements() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"announcements" | "alerts">("announcements");
   const [showComposeModal, setShowComposeModal] = useState(false);
+  const [modalMode, setModalMode] = useState<"compose" | "edit">("compose");
+  const [viewingAnnouncement, setViewingAnnouncement] = useState<Announcement | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     message: "",
@@ -165,6 +170,18 @@ export default function Announcements() {
     navigate(`/dashboard/members`);
   };
 
+  const handleEdit = (announcement: Announcement) => {
+    setFormData({
+      title: announcement.title,
+      message: announcement.content,
+      sector: announcement.sector,
+      scheduled: false,
+      scheduleDate: "",
+    });
+    setModalMode("edit");
+    setShowComposeModal(true);
+  };
+
   const handleSubmitAnnouncement = (e: React.FormEvent) => {
     e.preventDefault();
     setConfirmDialog({
@@ -188,24 +205,50 @@ export default function Announcements() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display mb-2">Announcements & Alerts</h1>
-          <p className="text-muted-foreground">Communicate with members and manage at-risk alerts</p>
-        </div>
-        {activeTab === "announcements" && (
-          <button
-            onClick={() => setShowComposeModal(true)}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
-          >
-            <Megaphone className="w-5 h-5" />
-            Compose Announcement
-          </button>
-        )}
-      </div>
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-      {/* Tabs */}
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  Announcements
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  Announcements & Alerts
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  Communicate with members and manage at-risk alerts
+                </p>
+              </div>
+
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center lg:justify-end">
+                {activeTab === "announcements" && (
+                  <button
+                    onClick={() => { setModalMode("compose"); setShowComposeModal(true); }}
+                    className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
+                  >
+                    <Megaphone className="h-4 w-4" />
+                    Compose Announcement
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        {/* Tabs */}
       <div className="mb-6 border-b border-border">
         <div className="flex gap-1">
           <button
@@ -252,12 +295,13 @@ export default function Announcements() {
 
           {/* Announcements List */}
           <div className="space-y-4">
-            {announcements.map((announcement) => (
+            {announcements.map((announcement, index) => (
               <div
                 key={announcement.id}
-                className={`bg-card rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow ${
+                className={`bg-card rounded-xl p-6 border shadow-sm transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 hover:-translate-y-1 hover:shadow-lg ${
                   announcement.pinned ? "border-primary" : "border-border"
                 }`}
+                style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -301,20 +345,15 @@ export default function Announcements() {
                 </div>
 
                 <div className="flex items-center gap-3 pt-4 border-t border-border">
-                  <button className="text-sm text-primary hover:underline">View Details</button>
+                  <button
+                    onClick={() => setViewingAnnouncement(announcement)}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    View Details
+                  </button>
                   <span className="text-muted-foreground">•</span>
                   <button
-                    onClick={() => {
-                      setConfirmDialog({
-                        isOpen: true,
-                        title: "Edit Announcement?",
-                        message: `Are you sure you want to edit "${announcement.title}"? Changes will be immediately visible to all members.`,
-                        variant: "info",
-                        onConfirm: () => {
-                          console.log("Edit announcement:", announcement.id);
-                        },
-                      });
-                    }}
+                    onClick={() => handleEdit(announcement)}
                     className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
                   >
                     <Edit className="w-3 h-3" />
@@ -374,8 +413,8 @@ export default function Announcements() {
                   </tr>
                 </thead>
                 <tbody>
-                  {atRiskMembers.map((member) => (
-                    <tr key={member.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                  {atRiskMembers.map((member, index) => (
+                    <tr key={member.id} className="border-t border-border hover:bg-muted/30 transition-colors animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${Math.min(index * 35, 220)}ms` }}>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleMemberClick(member.id)}
@@ -432,6 +471,79 @@ export default function Announcements() {
         </div>
       )}
 
+      {/* View Announcement Modal */}
+      {viewingAnnouncement && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setViewingAnnouncement(null)}>
+          <div
+            className="bg-background rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200 p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                {viewingAnnouncement.pinned && <Pin className="w-5 h-5 text-primary" />}
+                <h2 className="text-2xl font-bold">{viewingAnnouncement.title}</h2>
+              </div>
+              <button
+                onClick={() => setViewingAnnouncement(null)}
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-3 text-sm text-muted-foreground mb-6 pb-6 border-b border-border">
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span>{viewingAnnouncement.date}</span>
+              </div>
+              <span>•</span>
+              <span>By {viewingAnnouncement.author}</span>
+              <span>•</span>
+              <span className={`px-3 py-1 rounded-full text-xs ${sectorColors[viewingAnnouncement.sector]}`}>
+                {sectorLabels[viewingAnnouncement.sector]}
+              </span>
+            </div>
+
+            <div className="prose prose-stone max-w-none mb-8">
+              <p className="text-lg leading-relaxed">{viewingAnnouncement.content}</p>
+            </div>
+
+            <div className="bg-muted/50 rounded-lg p-4 mb-6">
+               <h3 className="text-sm font-semibold mb-2">Read Progress</h3>
+               <div className="flex items-center justify-between mb-1 text-xs text-muted-foreground">
+                 <span>{viewingAnnouncement.readCount} of {viewingAnnouncement.totalRecipients} members have read this</span>
+                 <span>{Math.round((viewingAnnouncement.readCount / viewingAnnouncement.totalRecipients) * 100)}%</span>
+               </div>
+               <div className="w-full bg-muted-foreground/20 rounded-full h-2 overflow-hidden">
+                 <div
+                   className="bg-primary h-full rounded-full transition-all"
+                   style={{ width: `${(viewingAnnouncement.readCount / viewingAnnouncement.totalRecipients) * 100}%` }}
+                 />
+               </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-border">
+              <button
+                onClick={() => {
+                  setViewingAnnouncement(null);
+                  handleEdit(viewingAnnouncement);
+                }}
+                className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors font-medium flex items-center gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                Edit
+              </button>
+              <button
+                onClick={() => setViewingAnnouncement(null)}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Compose Announcement Modal */}
       {showComposeModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowComposeModal(false)}>
@@ -441,7 +553,7 @@ export default function Announcements() {
           >
             {/* Modal Header */}
             <div className="sticky top-0 bg-primary text-primary-foreground p-6 rounded-t-xl flex items-center justify-between">
-              <h2 className="text-2xl font-display">Compose Announcement</h2>
+              <h2 className="text-2xl font-display">{modalMode === "edit" ? "Edit Announcement" : "Compose Announcement"}</h2>
               <button
                 onClick={() => setShowComposeModal(false)}
                 className="p-2 hover:bg-white/20 rounded-lg transition-colors"
@@ -453,6 +565,7 @@ export default function Announcements() {
             {/* Modal Content */}
             <div className="p-6">
               {/* Quick Examples */}
+              {modalMode === "compose" && (
               <div className="mb-6 p-4 bg-muted/30 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-medium">Quick Examples (Click to use)</h3>
@@ -525,6 +638,7 @@ export default function Announcements() {
                   </button>
                 </div>
               </div>
+              )}
 
               <form onSubmit={handleSubmitAnnouncement} className="space-y-5">
                 <div>
@@ -606,7 +720,7 @@ export default function Announcements() {
                     className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2"
                   >
                     <Send className="w-4 h-4" />
-                    {formData.scheduled ? "Schedule Announcement" : "Send Now"}
+                    {modalMode === "edit" ? "Save Changes" : (formData.scheduled ? "Schedule Announcement" : "Send Now")}
                   </button>
                 </div>
               </form>
@@ -624,6 +738,7 @@ export default function Announcements() {
         message={confirmDialog.message}
         variant={confirmDialog.variant}
       />
+      </main>
     </div>
   );
 }

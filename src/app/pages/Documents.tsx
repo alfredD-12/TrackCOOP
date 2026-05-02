@@ -1,4 +1,4 @@
-import { useMemo, useState, type ElementType } from "react";
+import { useMemo, useState, useRef, type ElementType } from "react";
 import {
   Archive,
   ArrowRight,
@@ -18,6 +18,7 @@ import {
   Sparkles,
   Upload,
   X,
+  Check,
 } from "lucide-react";
 
 type DocumentCategory =
@@ -243,7 +244,12 @@ export default function Documents() {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
   );
-  const [downloadToast, setDownloadToast] = useState<Document | null>(null);
+  // Download toast state
+  type DownloadStage = "idle" | "preparing" | "downloading" | "done";
+  const [downloadStage, setDownloadStage] = useState<DownloadStage>("idle");
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadLabel, setDownloadLabel] = useState("");
+  const dlProgressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const [toastState, setToastState] = useState<ToastState>("idle");
   const [processingStage, setProcessingStage] =
     useState<ProcessingStage>("uploading");
@@ -335,10 +341,31 @@ export default function Documents() {
   };
 
   const handleDownload = (doc: Document) => {
-    setDownloadToast(doc);
-    window.setTimeout(() => {
-      setDownloadToast((current) => (current?.id === doc.id ? null : current));
-    }, 2600);
+    if (downloadStage !== "idle") return;
+    setDownloadLabel(doc.name);
+    setDownloadProgress(0);
+    setDownloadStage("preparing");
+
+    setTimeout(() => {
+      setDownloadStage("downloading");
+      setDownloadProgress(0);
+      let progress = 0;
+      dlProgressTimer.current = setInterval(() => {
+        progress += Math.random() * 18 + 8;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(dlProgressTimer.current!);
+          setDownloadProgress(100);
+          setDownloadStage("done");
+          setTimeout(() => {
+            setDownloadStage("idle");
+            setDownloadProgress(0);
+          }, 3000);
+        } else {
+          setDownloadProgress(Math.round(progress));
+        }
+      }, 200);
+    }, 1000);
   };
 
   const clearFilters = () => {
@@ -360,7 +387,7 @@ export default function Documents() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-        <div className="relative mx-auto max-w-[1600px] px-6 py-8 md:px-8 md:py-10">
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-4xl">
@@ -701,27 +728,47 @@ export default function Documents() {
         </div>
       )}
 
-      {downloadToast && (
-        <div className="fixed right-5 top-[7.5rem] z-[90] w-[calc(100vw-2.5rem)] max-w-sm animate-in fade-in slide-in-from-right-4 duration-300">
-          <div className="rounded-lg border border-green-100 bg-white p-4 shadow-xl">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-100 text-primary">
-                <Download className="h-5 w-5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-gray-950">Download Started</p>
-                <p className="mt-1 truncate text-sm text-gray-600">
-                  {downloadToast.name}
-                </p>
-              </div>
-              <button
-                onClick={() => setDownloadToast(null)}
-                className="rounded-md p-1 text-gray-400 hover:bg-stone-100 hover:text-gray-700"
-                aria-label="Dismiss download toast"
-              >
-                <X className="h-4 w-4" />
-              </button>
+      {/* Download Progress Toast */}
+      {downloadStage !== "idle" && (
+        <div className="fixed bottom-6 right-6 z-50 w-80 rounded-xl border border-green-200 bg-white shadow-2xl p-5 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="flex items-start gap-3">
+            <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
+              downloadStage === "done" ? "bg-green-100" : "bg-stone-100"
+            }`}>
+              {downloadStage === "done" ? (
+                <Check className="h-5 w-5 text-green-600" />
+              ) : (
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              )}
             </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm truncate">{downloadLabel}</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {downloadStage === "preparing" && "Preparing your file…"}
+                {downloadStage === "downloading" && `Downloading — ${downloadProgress}%`}
+                {downloadStage === "done" && "Download complete!"}
+              </p>
+
+              {downloadStage !== "done" && (
+                <div className="mt-2 h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-200"
+                    style={{ width: downloadStage === "preparing" ? "12%" : `${downloadProgress}%` }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                clearInterval(dlProgressTimer.current!);
+                setDownloadStage("idle");
+              }}
+              className="shrink-0 p-1 rounded hover:bg-stone-100 transition-colors"
+            >
+              <X className="h-4 w-4 text-gray-400" />
+            </button>
           </div>
         </div>
       )}

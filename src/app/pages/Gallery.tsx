@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Upload, X, Calendar, Filter, FolderPlus, Folder, Image, Trash2, Edit } from "lucide-react";
+import { Search, Upload, X, Calendar, Filter, FolderPlus, Folder, Image, Trash2, Edit, Check } from "lucide-react";
 import ConfirmDialog from "../components/ConfirmDialog";
 
 type Sector = "all" | "rice_farming" | "corn" | "fishery" | "livestock" | "high_value_crops";
@@ -54,6 +54,9 @@ const activityTypeLabels: Record<ActivityType, string> = {
   community_event: "Community Event",
 };
 
+const heroImage =
+  "https://images.unsplash.com/photo-1751818430558-1c2a12283155?auto=format&fit=crop&q=80&w=2400";
+
 export default function Gallery() {
   const [viewMode, setViewMode] = useState<"albums" | "all-photos">("albums");
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,6 +66,7 @@ export default function Gallery() {
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showCreateAlbumModal, setShowCreateAlbumModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [uploadForm, setUploadForm] = useState({
     title: "",
     sector: "rice_farming" as Sector,
@@ -408,6 +412,8 @@ export default function Gallery() {
           file: null,
           albumId: "",
         });
+        setToastMessage("Media uploaded successfully!");
+        setTimeout(() => setToastMessage(null), 3000);
       },
     });
   };
@@ -427,6 +433,8 @@ export default function Gallery() {
           sector: "rice_farming",
           activityType: "training_seminar",
         });
+        setToastMessage("Album created successfully!");
+        setTimeout(() => setToastMessage(null), 3000);
       },
     });
   };
@@ -458,44 +466,66 @@ export default function Gallery() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display mb-2">Gallery</h1>
-          <p className="text-muted-foreground">
-            {selectedAlbum ? `Album: ${selectedAlbum.name}` : "Media archive of cooperative activities and events"}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {selectedAlbum && (
-            <button
-              onClick={() => setSelectedAlbum(null)}
-              className="px-6 py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-all flex items-center gap-2"
-            >
-              <X className="w-5 h-5" />
-              Close Album
-            </button>
-          )}
-          {!selectedAlbum && viewMode === "albums" && (
-            <button
-              onClick={() => setShowCreateAlbumModal(true)}
-              className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
-            >
-              <FolderPlus className="w-5 h-5" />
-              Create Album
-            </button>
-          )}
-          <button
-            onClick={() => setShowUploadModal(true)}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
-          >
-            <Upload className="w-5 h-5" />
-            Upload Media
-          </button>
-        </div>
-      </div>
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-      {/* View Mode Tabs */}
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  Gallery
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  Media Repository
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  {selectedAlbum ? `Album: ${selectedAlbum.name}` : "Media archive of cooperative activities and events"}
+                </p>
+              </div>
+
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center lg:justify-end">
+                {selectedAlbum && (
+                  <button
+                    onClick={() => setSelectedAlbum(null)}
+                    className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-white/10 px-5 py-3 font-semibold text-white shadow-sm backdrop-blur transition-all hover:-translate-y-1 hover:bg-white/20 border border-white/20"
+                  >
+                    <X className="h-4 w-4" />
+                    Close Album
+                  </button>
+                )}
+                {!selectedAlbum && viewMode === "albums" && (
+                  <button
+                    onClick={() => setShowCreateAlbumModal(true)}
+                    className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-gray-900 shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-50"
+                  >
+                    <FolderPlus className="h-4 w-4" />
+                    Create Album
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowUploadModal(true)}
+                  className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200"
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Media
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        {/* View Mode Tabs */}
       {!selectedAlbum && (
         <div className="mb-6 border-b border-border">
           <div className="flex gap-1">
@@ -595,11 +625,12 @@ export default function Gallery() {
       {/* Albums Grid */}
       {viewMode === "albums" && !selectedAlbum && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAlbums.map((album) => (
+          {filteredAlbums.map((album, index) => (
             <div
               key={album.id}
               onClick={() => setSelectedAlbum(album)}
-              className="bg-card rounded-xl border border-border shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all group"
+              className="bg-card rounded-xl border border-border shadow-sm overflow-hidden cursor-pointer transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 hover:-translate-y-1 hover:shadow-lg group"
+              style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }}
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 <img
@@ -642,11 +673,12 @@ export default function Gallery() {
       {/* Media Grid */}
       {(viewMode === "all-photos" || selectedAlbum) && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredMedia.map((item) => (
+          {filteredMedia.map((item, index) => (
           <div
             key={item.id}
             onClick={() => setSelectedMedia(item)}
-            className="bg-card rounded-xl border border-border shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-all group"
+            className="bg-card rounded-xl border border-border shadow-sm overflow-hidden cursor-pointer transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 hover:-translate-y-1 hover:shadow-lg group"
+            style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }}
           >
             <div className="relative aspect-[4/3] overflow-hidden bg-muted">
               <img
@@ -1023,6 +1055,16 @@ export default function Gallery() {
         message={confirmDialog.message}
         variant={confirmDialog.variant}
       />
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 bg-white border border-green-200 text-green-950 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5 fade-in duration-300 z-50">
+          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+            <Check className="w-5 h-5 text-green-600" />
+          </div>
+          <span className="font-medium">{toastMessage}</span>
+        </div>
+      )}
+      </main>
     </div>
   );
 }

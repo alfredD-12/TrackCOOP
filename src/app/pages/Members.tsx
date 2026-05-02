@@ -389,7 +389,7 @@ export default function Members() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-        <div className="relative mx-auto max-w-[1600px] px-6 py-8 md:px-8 md:py-10">
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-4xl">

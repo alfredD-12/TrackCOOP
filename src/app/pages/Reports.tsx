@@ -1,6 +1,9 @@
-import { useState, useMemo } from "react";
-import { FileText, Download, Calendar, Users, Wallet, TrendingUp, FileBarChart, X, Printer } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { FileText, Download, Calendar, Users, Wallet, TrendingUp, FileBarChart, X, Printer, Check, Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+
+const heroImage =
+  "https://images.unsplash.com/photo-1751818430558-1c2a12283155?auto=format&fit=crop&q=80&w=2400";
 
 type ReportType = "membership" | "share_capital" | "engagement" | "document_activity";
 
@@ -22,6 +25,13 @@ interface GeneratedReport {
 export default function Reports() {
   const [selectedReport, setSelectedReport] = useState<ReportType | null>(null);
   const chartId = useMemo(() => `reports-${Date.now()}`, []);
+
+  // Download toast state
+  type DownloadStage = "idle" | "preparing" | "downloading" | "done";
+  const [downloadStage, setDownloadStage] = useState<DownloadStage>("idle");
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadLabel, setDownloadLabel] = useState("");
+  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const reportCards: ReportCard[] = [
     {
@@ -167,8 +177,35 @@ export default function Reports() {
     setSelectedReport(type);
   };
 
-  const handleDownloadPDF = () => {
-    alert("Downloading PDF...");
+  const handleDownloadPDF = (reportName?: string) => {
+    if (downloadStage !== "idle") return;
+    const label = reportName ?? (selectedCard?.title ?? "Report");
+    setDownloadLabel(label);
+    setDownloadProgress(0);
+    setDownloadStage("preparing");
+
+    // After 1 s move to downloading and animate progress bar
+    setTimeout(() => {
+      setDownloadStage("downloading");
+      setDownloadProgress(0);
+
+      let progress = 0;
+      progressTimer.current = setInterval(() => {
+        progress += Math.random() * 18 + 8; // 8–26 % per tick
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(progressTimer.current!);
+          setDownloadProgress(100);
+          setDownloadStage("done");
+          setTimeout(() => {
+            setDownloadStage("idle");
+            setDownloadProgress(0);
+          }, 3000);
+        } else {
+          setDownloadProgress(Math.round(progress));
+        }
+      }, 200);
+    }, 1000);
   };
 
   const handlePrint = () => {
@@ -179,20 +216,46 @@ export default function Reports() {
   const selectedCard = reportCards.find(c => c.id === selectedReport);
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display mb-2">Reports</h1>
-        <p className="text-muted-foreground">Generate comprehensive reports and analytics for cooperative management</p>
-      </div>
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-      {/* Report Type Cards */}
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  Reports
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  Analytics & Reports
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  Generate comprehensive reports and analytics for cooperative management
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        {/* Report Type Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {reportCards.map((card) => {
+        {reportCards.map((card, index) => {
           const Icon = card.icon;
           return (
             <div
               key={card.id}
-              className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-lg transition-all group"
+              className="bg-card rounded-xl p-6 border border-border shadow-sm transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 hover:-translate-y-1 hover:shadow-lg group"
+              style={{ animationDelay: `${Math.min(index * 50, 200)}ms` }}
             >
               <div className={`${card.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <Icon className="w-6 h-6 text-white" />
@@ -228,7 +291,7 @@ export default function Reports() {
             </thead>
             <tbody>
               {recentReports.map((report, index) => (
-                <tr key={index} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <tr key={index} className="border-t border-border hover:bg-muted/30 transition-colors animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${Math.min(index * 35, 220)}ms` }}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -250,7 +313,10 @@ export default function Reports() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all text-sm flex items-center gap-2">
+                    <button
+                      onClick={() => handleDownloadPDF(report.name)}
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all text-sm flex items-center gap-2"
+                    >
                       <Download className="w-4 h-4" />
                       Download
                     </button>
@@ -277,7 +343,7 @@ export default function Reports() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={handleDownloadPDF}
+                  onClick={() => handleDownloadPDF()}
                   className="px-4 py-2 bg-white text-primary rounded-lg hover:bg-white/90 transition-all text-sm flex items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
@@ -405,6 +471,55 @@ export default function Reports() {
                 <p>Report generated on {new Date().toLocaleString()}</p>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      </main>
+
+      {/* Download Toast */}
+      {downloadStage !== "idle" && (
+        <div className="fixed bottom-6 right-6 z-50 w-80 rounded-xl border border-green-200 bg-white shadow-2xl p-5 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <div className="flex items-start gap-3">
+            {/* Icon */}
+            <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors ${
+              downloadStage === "done" ? "bg-green-100" : "bg-stone-100"
+            }`}>
+              {downloadStage === "done" ? (
+                <Check className="h-5 w-5 text-green-600" />
+              ) : (
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm truncate">{downloadLabel}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {downloadStage === "preparing" && "Preparing your report…"}
+                {downloadStage === "downloading" && `Downloading PDF — ${downloadProgress}%`}
+                {downloadStage === "done" && "Download complete!"}
+              </p>
+
+              {/* Progress bar */}
+              {downloadStage !== "done" && (
+                <div className="mt-2 h-1.5 w-full rounded-full bg-stone-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-200"
+                    style={{ width: downloadStage === "preparing" ? "12%" : `${downloadProgress}%` }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Dismiss */}
+            <button
+              onClick={() => {
+                clearInterval(progressTimer.current!);
+                setDownloadStage("idle");
+              }}
+              className="shrink-0 p-1 rounded hover:bg-muted transition-colors"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
           </div>
         </div>
       )}

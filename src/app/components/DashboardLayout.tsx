@@ -79,18 +79,23 @@ export default function DashboardLayout() {
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-64 bg-sidebar text-sidebar-foreground flex flex-col shadow-lg">
+      <aside className="w-64 md:w-72 bg-[#f6fcf8] text-green-950 flex flex-col border-r border-green-100 shadow-sm z-10">
         {/* Logo */}
-        <div className="p-6 border-b border-sidebar-border">
-          <div>
-            <TrackCoopLogo markClassName="h-10 w-10 shadow-sm" titleClassName="text-xl" />
-            <p className="mt-2 text-xs text-sidebar-foreground/70 capitalize">{userRole}</p>
+        <div className="p-6">
+          <div className="flex flex-col gap-1">
+            <TrackCoopLogo tone="dark" markClassName="h-9 w-9 shadow-sm ring-1 ring-green-900/5" titleClassName="text-xl" />
+            <span className="mt-2 ml-1 inline-flex w-fit items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-green-700 capitalize">
+              {userRole}
+            </span>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <ul className="space-y-1">
+        <nav className="flex-1 px-4 py-2 overflow-y-auto">
+          <div className="mb-3 px-3 text-xs font-bold text-green-800/40 uppercase tracking-widest">
+            Menu
+          </div>
+          <ul className="space-y-1.5">
             {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
@@ -99,14 +104,17 @@ export default function DashboardLayout() {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all cursor-pointer ${
+                    className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all relative ${
                       active
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md font-medium"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm font-normal"
+                        ? "bg-white text-green-950 font-semibold shadow-sm ring-1 ring-green-900/5"
+                        : "text-green-900/60 hover:bg-green-100/50 hover:text-green-950 font-medium"
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.name}</span>
+                    {active && (
+                      <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-green-600 rounded-r-full shadow-sm" />
+                    )}
+                    <Icon className={`w-5 h-5 transition-colors ${active ? "text-green-600" : "text-green-800/40 group-hover:text-green-700"}`} />
+                    <span>{item.name}</span>
                   </Link>
                 </li>
               );
@@ -115,12 +123,12 @@ export default function DashboardLayout() {
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-sidebar-border">
+        <div className="p-4 border-t border-green-100">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl w-full text-green-900/60 hover:bg-red-50 hover:text-red-700 transition-all font-medium group"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5 text-green-800/40 group-hover:text-red-500 transition-colors" />
             <span>Logout</span>
           </button>
         </div>

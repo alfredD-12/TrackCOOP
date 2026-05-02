@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { TrendingUp, TrendingDown, AlertTriangle, X, Sparkles } from "lucide-react";
+import { useState, useMemo } from "react";
+import { TrendingUp, TrendingDown, AlertTriangle, X, Sparkles, ArrowUpDown } from "lucide-react";
 import { useNavigate } from "react-router";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 type PredictedStatus = "Active" | "At-Risk" | "Inactive";
 type Sector = "rice_farming" | "corn" | "fishery" | "livestock" | "high_value_crops";
+type PredictionStage = "gathering" | "analyzing" | "scoring" | "complete";
+type SortKey = "name" | "sector" | "engagementScore" | "predictedStatus" | "lastActive";
 
 interface MemberPrediction {
   id: string;
@@ -31,6 +33,29 @@ const statusColors: Record<PredictedStatus, string> = {
   Active: "bg-green-100 text-green-700",
   "At-Risk": "bg-amber-100 text-amber-700",
   Inactive: "bg-red-100 text-red-700",
+};
+
+const heroImage =
+  "https://images.unsplash.com/photo-1751818430558-1c2a12283155?auto=format&fit=crop&q=80&w=2400";
+
+const predictionStages: Array<{
+  id: PredictionStage;
+  label: string;
+  description: string;
+  progress: number;
+}> = [
+  { id: "gathering", label: "Gathering Data", description: "Collecting recent member activities and financial records...", progress: 25 },
+  { id: "analyzing", label: "Analyzing Patterns", description: "Running AI models on engagement patterns...", progress: 60 },
+  { id: "scoring", label: "Calculating Scores", description: "Updating risk factors and engagement scores...", progress: 90 },
+  { id: "complete", label: "Predictions Updated", description: "All member predictions have been successfully generated.", progress: 100 },
+];
+
+const sortLabels: Record<SortKey, string> = {
+  name: "Member Name",
+  sector: "Sector",
+  engagementScore: "Engagement Score",
+  predictedStatus: "Predicted Status",
+  lastActive: "Last Active",
 };
 
 export default function Predictions() {
@@ -133,6 +158,15 @@ export default function Predictions() {
 
   const [selectedMember, setSelectedMember] = useState<MemberPrediction | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [toastState, setToastState] = useState<"idle" | "processing" | "complete">("idle");
+  const [currentStageIndex, setCurrentStageIndex] = useState(0);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSectorFilter, setSelectedSectorFilter] = useState<Sector | "all">("all");
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<PredictedStatus | "all">("all");
+  
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const stats = {
     active: predictions.filter(p => p.predictedStatus === "Active").length,
@@ -141,10 +175,64 @@ export default function Predictions() {
   };
 
   const handleGeneratePredictions = () => {
+    if (isGenerating) return;
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
-    }, 2000);
+    setToastState("processing");
+    setCurrentStageIndex(0);
+
+    const runStage = (index: number) => {
+      if (index >= predictionStages.length) {
+        setToastState("complete");
+        setIsGenerating(false);
+        setTimeout(() => setToastState("idle"), 4000);
+        return;
+      }
+      setCurrentStageIndex(index);
+      setTimeout(() => runStage(index + 1), 1500); // 1.5s per stage
+    };
+
+    runStage(0);
+  };
+
+  const filteredPredictions = useMemo(() => {
+    return predictions.filter((p) => {
+      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSector = selectedSectorFilter === "all" || p.sector === selectedSectorFilter;
+      const matchesStatus = selectedStatusFilter === "all" || p.predictedStatus === selectedStatusFilter;
+      return matchesSearch && matchesSector && matchesStatus;
+    });
+  }, [predictions, searchQuery, selectedSectorFilter, selectedStatusFilter]);
+
+  const sortedPredictions = useMemo(() => {
+    const sorted = [...filteredPredictions].sort((left, right) => {
+      const direction = sortDirection === "asc" ? 1 : -1;
+
+      switch (sortKey) {
+        case "name":
+          return left.name.localeCompare(right.name) * direction;
+        case "sector":
+          return sectorLabels[left.sector].localeCompare(sectorLabels[right.sector]) * direction;
+        case "predictedStatus":
+          return left.predictedStatus.localeCompare(right.predictedStatus) * direction;
+        case "engagementScore":
+          return (left.engagementScore - right.engagementScore) * direction;
+        case "lastActive":
+          return left.lastActive.localeCompare(right.lastActive) * direction;
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [filteredPredictions, sortDirection, sortKey]);
+
+  const handleSort = (nextKey: SortKey) => {
+    if (sortKey === nextKey) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(nextKey);
+      setSortDirection("asc");
+    }
   };
 
   const handleSendAlert = (member: MemberPrediction) => {
@@ -152,40 +240,65 @@ export default function Predictions() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display mb-2">Member Predictions</h1>
-          <p className="text-muted-foreground">AI-powered member engagement forecasts and risk analysis</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Model Accuracy: 87.3%</span>
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img
+          src={heroImage}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
+
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+              <div className="max-w-4xl">
+                <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                  Predictions
+                </p>
+                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                  Member Predictions
+                </h1>
+                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                  AI-powered member engagement forecasts and risk analysis
+                </p>
+              </div>
+
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center lg:justify-end">
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/15 backdrop-blur border border-white/30 text-white rounded-lg shadow-sm">
+                  <Sparkles className="w-4 h-4" />
+                  <span className="text-sm font-medium">Model Accuracy: 87.3%</span>
+                </div>
+                <button
+                  onClick={handleGeneratePredictions}
+                  disabled={isGenerating}
+                  className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-green-900 border-t-transparent rounded-full animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      Generate Predictions
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
-          <button
-            onClick={handleGeneratePredictions}
-            disabled={isGenerating}
-            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50"
-          >
-            {isGenerating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                Generate Predictions
-              </>
-            )}
-          </button>
         </div>
-      </div>
+      </section>
+
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm">
+        <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-green-600" />
@@ -199,7 +312,7 @@ export default function Predictions() {
           <div className="text-sm text-muted-foreground">Total Active Members</div>
         </div>
 
-        <div className="bg-card rounded-xl p-6 border border-amber-200 shadow-sm">
+        <div className="bg-card rounded-xl p-6 border border-amber-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-75 duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-6 h-6 text-amber-600" />
@@ -213,7 +326,7 @@ export default function Predictions() {
           <div className="text-sm text-muted-foreground">At-Risk Members</div>
         </div>
 
-        <div className="bg-card rounded-xl p-6 border border-red-200 shadow-sm">
+        <div className="bg-card rounded-xl p-6 border border-red-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-150 duration-300 hover:-translate-y-1 hover:shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
               <TrendingDown className="w-6 h-6 text-red-600" />
@@ -229,24 +342,96 @@ export default function Predictions() {
       </div>
 
       {/* Predictions Table */}
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            type="text"
+            placeholder="Search member..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-10 rounded-lg border border-stone-200 px-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <select
+            value={selectedSectorFilter}
+            onChange={(e) => setSelectedSectorFilter(e.target.value as Sector | "all")}
+            className="h-10 rounded-lg border border-stone-200 px-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="all">All Sectors</option>
+            <option value="rice_farming">Rice Farming</option>
+            <option value="corn">Corn</option>
+            <option value="fishery">Fishery</option>
+            <option value="livestock">Livestock</option>
+            <option value="high_value_crops">High-Value Crops</option>
+          </select>
+          <select
+            value={selectedStatusFilter}
+            onChange={(e) => setSelectedStatusFilter(e.target.value as PredictedStatus | "all")}
+            className="h-10 rounded-lg border border-stone-200 px-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="all">All Status</option>
+            <option value="Active">Active</option>
+            <option value="At-Risk">At-Risk</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+        <button
+          onClick={() => {
+            setSearchQuery("");
+            setSelectedSectorFilter("all");
+            setSelectedStatusFilter("all");
+          }}
+          className="h-10 rounded-lg border border-stone-200 bg-white px-4 text-sm font-semibold text-gray-600 hover:bg-stone-50 hover:text-gray-900"
+        >
+          Clear Filters
+        </button>
+      </div>
+
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Member Name</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Sector</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Engagement Score</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Predicted Status</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Last Active</th>
+                {([
+                  "name",
+                  "sector",
+                  "engagementScore",
+                  "predictedStatus",
+                  "lastActive",
+                ] as SortKey[]).map((key) => (
+                  <th
+                    key={key}
+                    className="text-left px-6 py-4 text-sm font-medium text-muted-foreground"
+                  >
+                    <button
+                      onClick={() => handleSort(key)}
+                      className="inline-flex items-center gap-2 transition-colors hover:text-gray-950"
+                    >
+                      {sortLabels[key]}
+                      <ArrowUpDown className="h-4 w-4" />
+                      {sortKey === key && (
+                        <span className="text-xs uppercase tracking-[0.12em] text-primary">
+                          {sortDirection}
+                        </span>
+                      )}
+                    </button>
+                  </th>
+                ))}
                 <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Action</th>
               </tr>
             </thead>
             <tbody>
-              {predictions.map((prediction) => (
+              {sortedPredictions.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-14 text-center text-gray-500">
+                    No predictions found matching your filters.
+                  </td>
+                </tr>
+              ) : (
+                sortedPredictions.map((prediction, index) => (
                 <tr
                   key={prediction.id}
-                  className="border-t border-border hover:bg-muted/30 transition-colors cursor-pointer"
+                  className="border-t border-border hover:bg-muted/30 transition-colors cursor-pointer animate-in fade-in slide-in-from-bottom-2"
+                  style={{ animationDelay: `${Math.min(index * 35, 220)}ms` }}
                   onClick={() => setSelectedMember(prediction)}
                 >
                   <td className="px-6 py-4">
@@ -307,7 +492,8 @@ export default function Predictions() {
                     )}
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>
@@ -481,6 +667,7 @@ export default function Predictions() {
           </div>
         </div>
       )}
+      </main>
     </div>
   );
 }

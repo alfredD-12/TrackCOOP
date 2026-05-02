@@ -3,6 +3,9 @@ import { Wallet, TrendingUp, Calendar } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { formatCurrency } from "../../utils/formatters";
 
+const heroImage =
+  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=2400";
+
 export default function Financial() {
   const chartId = useMemo(() => `financial-${Date.now()}`, []);
   const [financialPeriod, setFinancialPeriod] = useState<"3m" | "6m" | "12m">("6m");
@@ -22,7 +25,6 @@ export default function Financial() {
     { month: "Apr '26", revenue: 3800000, netIncome: 2555000 },
   ];
 
-  // Filter financial data based on period selection
   const financialData = financialPeriod === "3m"
     ? financialDataAll.slice(-3)
     : financialPeriod === "6m"
@@ -40,171 +42,112 @@ export default function Financial() {
   const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display mb-2">Financial Records</h1>
-        <p className="text-muted-foreground">Income, revenue, and financial performance tracking</p>
-      </div>
-
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <Wallet className="w-6 h-6 text-green-600" />
+    <div className="min-h-full bg-stone-50 text-gray-950">
+      <section className="relative overflow-hidden border-b border-stone-200">
+        <img src={heroImage} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
+        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="max-w-4xl">
+              <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
+                Financial Records
+              </p>
+              <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">Income & Revenue</h1>
+              <p className="mt-3 max-w-2xl text-lg text-white/85">Income, revenue, and financial performance tracking</p>
             </div>
           </div>
-          <div className="text-3xl font-bold mb-1 text-green-600">{formatCurrency(totalRevenue)}</div>
-          <div className="text-sm text-muted-foreground">Total Revenue (MTD)</div>
         </div>
+      </section>
 
-        <div className="bg-card rounded-xl p-6 border border-border shadow-sm">
-          <div className="text-3xl font-bold mb-1">{formatCurrency(3800000)}</div>
-          <div className="text-sm text-muted-foreground">Monthly Income</div>
-        </div>
-
-        <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-600" />
+      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-300 hover:-translate-y-1 hover:shadow-lg transition-all">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <Wallet className="w-6 h-6 text-green-600" />
+              </div>
             </div>
+            <div className="text-3xl font-bold mb-1 text-green-600">{formatCurrency(totalRevenue)}</div>
+            <div className="text-sm text-muted-foreground">Total Revenue (MTD)</div>
           </div>
-          <div className="text-3xl font-bold mb-1 text-green-600">{formatCurrency(2555000)}</div>
-          <div className="text-sm text-muted-foreground">Net Income (MTD)</div>
+          <div className="bg-card rounded-xl p-6 border border-border shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-75 duration-300 hover:-translate-y-1 hover:shadow-lg transition-all">
+            <div className="text-3xl font-bold mb-1">{formatCurrency(3800000)}</div>
+            <div className="text-sm text-muted-foreground">Monthly Income</div>
+          </div>
+          <div className="bg-card rounded-xl p-6 border border-green-200 shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-150 duration-300 hover:-translate-y-1 hover:shadow-lg transition-all">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1 text-green-600">{formatCurrency(2555000)}</div>
+            <div className="text-sm text-muted-foreground">Net Income (MTD)</div>
+          </div>
         </div>
-      </div>
 
-      {/* Revenue Trend Chart */}
-      <div className="bg-card rounded-xl p-6 border border-border shadow-sm mb-8">
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h2 className="text-xl font-display mb-1">Revenue & Net Income Trend</h2>
-            <p className="text-sm text-muted-foreground">
-              {financialPeriod === "3m" ? "3-month" : financialPeriod === "6m" ? "6-month" : "12-month"} financial performance overview
-            </p>
-          </div>
-          {/* Period Filter */}
-          <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-1">
-            <button
-              onClick={() => setFinancialPeriod("3m")}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                financialPeriod === "3m"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              3M
-            </button>
-            <button
-              onClick={() => setFinancialPeriod("6m")}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                financialPeriod === "6m"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              6M
-            </button>
-            <button
-              onClick={() => setFinancialPeriod("12m")}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                financialPeriod === "12m"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              12M
-            </button>
-          </div>
-        </div>
-        <div className="h-80" key={`financial-chart-${chartId}`}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={financialData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e4" vertical={false} />
-              <XAxis
-                dataKey="month"
-                stroke="#666"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="#666"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `₱${(value / 1000000).toFixed(1)}M`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #e5e5e4",
-                  borderRadius: "8px",
-                }}
-                formatter={(value: number) => formatCurrency(value)}
-              />
-              <Line
-                type="monotone"
-                dataKey="revenue"
-                stroke="#22c55e"
-                strokeWidth={3}
-                dot={false}
-                isAnimationActive={false}
-                name="Revenue"
-              />
-              <Line
-                type="monotone"
-                dataKey="netIncome"
-                stroke="#1b5e3f"
-                strokeWidth={3}
-                dot={false}
-                isAnimationActive={false}
-                name="Net Income"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Revenue Transactions */}
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-border">
-          <h2 className="text-xl font-display">Revenue Transactions</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Date</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Type</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Description</th>
-                <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((transaction) => (
-                <tr key={transaction.id} className="border-t border-border hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>{transaction.date}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">
-                      {transaction.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">{transaction.description}</td>
-                  <td className="px-6 py-4">
-                    <span className="font-bold text-green-600">+{formatCurrency(transaction.amount)}</span>
-                  </td>
-                </tr>
+        <div className="bg-card rounded-xl p-6 border border-border shadow-sm mb-8 animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+          <div className="mb-6 flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-display mb-1">Revenue & Net Income Trend</h2>
+              <p className="text-sm text-muted-foreground">
+                {financialPeriod === "3m" ? "3-month" : financialPeriod === "6m" ? "6-month" : "12-month"} financial performance overview
+              </p>
+            </div>
+            <div className="flex items-center gap-2 bg-muted/30 rounded-lg p-1">
+              {(["3m", "6m", "12m"] as const).map((p) => (
+                <button key={p} onClick={() => setFinancialPeriod(p)} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${financialPeriod === p ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+                  {p.toUpperCase()}
+                </button>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
+          <div className="h-80" key={`financial-chart-${chartId}`}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={financialData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e4" vertical={false} />
+                <XAxis dataKey="month" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₱${(v / 1000000).toFixed(1)}M`} />
+                <Tooltip contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e5e4", borderRadius: "8px" }} formatter={(value: number) => formatCurrency(value)} />
+                <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={3} dot={false} isAnimationActive={false} name="Revenue" />
+                <Line type="monotone" dataKey="netIncome" stroke="#1b5e3f" strokeWidth={3} dot={false} isAnimationActive={false} name="Net Income" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
+
+        <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-3 delay-300 duration-500">
+          <div className="p-6 border-b border-border">
+            <h2 className="text-xl font-display">Revenue Transactions</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Date</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Type</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Description</th>
+                  <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((txn, index) => (
+                  <tr key={txn.id} className="border-t border-border hover:bg-muted/30 transition-colors animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${Math.min(index * 40, 200)}ms` }}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" /><span>{txn.date}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4"><span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-700">{txn.type}</span></td>
+                    <td className="px-6 py-4 text-sm">{txn.description}</td>
+                    <td className="px-6 py-4"><span className="font-bold text-green-600">+{formatCurrency(txn.amount)}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
