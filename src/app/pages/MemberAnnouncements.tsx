@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
+  ArrowLeft,
   Calendar,
   CheckCircle2,
   Circle,
   Filter,
   Megaphone,
   Search,
+  X,
 } from "lucide-react";
 
 type Sector = "all" | "rice_farming" | "corn" | "fishery" | "livestock" | "high_value_crops";
+type AnnouncementCategory = "General" | "Sector Update" | "Finance" | "Training" | "Reminder";
 
 interface Announcement {
   id: string;
@@ -18,6 +21,7 @@ interface Announcement {
   date: string;
   sender: string;
   sector: Sector;
+  category: AnnouncementCategory;
   unread: boolean;
 }
 
@@ -42,11 +46,20 @@ const sectorColors: Record<Sector, string> = {
   high_value_crops: "bg-purple-100 text-purple-700 border-purple-200",
 };
 
+const categoryColors: Record<AnnouncementCategory, string> = {
+  General: "bg-blue-50 text-blue-700 border-blue-200",
+  "Sector Update": "bg-green-50 text-green-700 border-green-200",
+  Finance: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Training: "bg-purple-50 text-purple-700 border-purple-200",
+  Reminder: "bg-amber-50 text-amber-700 border-amber-200",
+};
+
 const memberSector: Sector = "rice_farming";
 
 export default function MemberAnnouncements() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedAnnouncementId, setSelectedAnnouncementId] = useState<string | null>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([
     {
       id: "ann-1",
@@ -56,6 +69,7 @@ export default function MemberAnnouncements() {
       date: "Apr 12, 2026",
       sender: "Board of Directors",
       sector: "all",
+      category: "General",
       unread: true,
     },
     {
@@ -66,6 +80,7 @@ export default function MemberAnnouncements() {
       date: "Apr 10, 2026",
       sender: "Agricultural Team",
       sector: "rice_farming",
+      category: "Training",
       unread: true,
     },
     {
@@ -76,6 +91,7 @@ export default function MemberAnnouncements() {
       date: "Apr 8, 2026",
       sender: "Finance Team",
       sector: "all",
+      category: "Finance",
       unread: false,
     },
     {
@@ -86,6 +102,7 @@ export default function MemberAnnouncements() {
       date: "Apr 5, 2026",
       sender: "Loan Committee",
       sector: "rice_farming",
+      category: "Sector Update",
       unread: false,
     },
     {
@@ -96,6 +113,7 @@ export default function MemberAnnouncements() {
       date: "Apr 2, 2026",
       sender: "Administration",
       sector: "all",
+      category: "Reminder",
       unread: false,
     },
     {
@@ -106,6 +124,7 @@ export default function MemberAnnouncements() {
       date: "Mar 30, 2026",
       sender: "Technical Services",
       sector: "rice_farming",
+      category: "Sector Update",
       unread: false,
     },
     {
@@ -116,6 +135,7 @@ export default function MemberAnnouncements() {
       date: "Mar 28, 2026",
       sender: "Finance Team",
       sector: "all",
+      category: "Reminder",
       unread: false,
     },
   ]);
@@ -127,6 +147,8 @@ export default function MemberAnnouncements() {
         navigate("/dashboard");
       } else if (role === "bookkeeper") {
         navigate("/dashboard/bookkeeper");
+      } else {
+        navigate("/");
       }
     }
   }, [navigate]);
@@ -145,13 +167,17 @@ export default function MemberAnnouncements() {
           !query ||
           announcement.title.toLowerCase().includes(query) ||
           announcement.content.toLowerCase().includes(query) ||
-          announcement.sender.toLowerCase().includes(query)
+          announcement.sender.toLowerCase().includes(query) ||
+          announcement.category.toLowerCase().includes(query)
         );
       }),
     [relevantAnnouncements, searchQuery],
   );
 
   const unreadCount = filteredAnnouncements.filter((announcement) => announcement.unread).length;
+  const selectedAnnouncement = selectedAnnouncementId
+    ? announcements.find((announcement) => announcement.id === selectedAnnouncementId)
+    : null;
 
   const handleMarkAllAsRead = () => {
     setAnnouncements((current) => current.map((announcement) => ({ ...announcement, unread: false })));
@@ -161,6 +187,15 @@ export default function MemberAnnouncements() {
     setAnnouncements((current) =>
       current.map((announcement) =>
         announcement.id === id ? { ...announcement, unread: !announcement.unread } : announcement,
+      ),
+    );
+  };
+
+  const handleOpenAnnouncement = (id: string) => {
+    setSelectedAnnouncementId(id);
+    setAnnouncements((current) =>
+      current.map((announcement) =>
+        announcement.id === id ? { ...announcement, unread: false } : announcement,
       ),
     );
   };
@@ -176,28 +211,37 @@ export default function MemberAnnouncements() {
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-4xl">
                 <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
-                  Member Announcements
+                  Communication & Announcements
                 </p>
                 <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
-                  Cooperative Updates
+                  Communication and Announcements
                 </h1>
                 <p className="mt-3 max-w-2xl text-lg text-white/85">
-                  Read general notices and sector-specific updates relevant to your membership.
+                  Read cooperative announcements, sector updates, reminders, and member notices.
                 </p>
               </div>
-              <button
-                onClick={handleMarkAllAsRead}
-                disabled={unreadCount === 0}
-                data-tour="member-announcements-read"
-                className={`inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg px-5 py-3 font-semibold shadow-lg transition-all ${
-                  unreadCount > 0
-                    ? "bg-green-300 text-green-950 hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
-                    : "cursor-not-allowed bg-white/20 text-white/70 shadow-none"
-                }`}
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                Mark All as Read
-              </button>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={() => navigate("/dashboard/member")}
+                  className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-5 py-3 font-semibold text-white shadow-lg backdrop-blur transition-all hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Dashboard
+                </button>
+                <button
+                  onClick={handleMarkAllAsRead}
+                  disabled={unreadCount === 0}
+                  data-tour="member-announcements-read"
+                  className={`inline-flex min-h-[52px] items-center justify-center gap-2 rounded-lg px-5 py-3 font-semibold shadow-lg transition-all ${
+                    unreadCount > 0
+                      ? "bg-green-300 text-green-950 hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
+                      : "cursor-not-allowed bg-white/20 text-white/70 shadow-none"
+                  }`}
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Mark All as Read
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -267,7 +311,7 @@ export default function MemberAnnouncements() {
               filteredAnnouncements.map((announcement, index) => (
                 <button
                   key={announcement.id}
-                  onClick={() => handleToggleRead(announcement.id)}
+                  onClick={() => handleOpenAnnouncement(announcement.id)}
                   className={`block w-full px-5 py-5 text-left transition-all hover:bg-green-50/30 md:px-6 ${
                     announcement.unread ? "bg-green-50/25" : "bg-white"
                   }`}
@@ -308,6 +352,12 @@ export default function MemberAnnouncements() {
                             <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${sectorColors[announcement.sector]}`}>
                               {sectorLabels[announcement.sector]}
                             </span>
+                            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${categoryColors[announcement.category]}`}>
+                              {announcement.category}
+                            </span>
+                            <span className="inline-flex rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                              {announcement.unread ? "Unread" : "Read"}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -321,6 +371,82 @@ export default function MemberAnnouncements() {
           </div>
         </section>
       </main>
+
+      {selectedAnnouncement && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4"
+          onClick={() => setSelectedAnnouncementId(null)}
+        >
+          <div
+            className="w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-stone-200 px-6 py-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Announcement Details</p>
+                <h2 className="mt-1 text-2xl font-display text-gray-950">{selectedAnnouncement.title}</h2>
+              </div>
+              <button
+                onClick={() => setSelectedAnnouncementId(null)}
+                className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-stone-100 hover:text-gray-950"
+                aria-label="Close announcement details"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-5 px-6 py-6">
+              <div className="flex flex-wrap gap-2">
+                <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${categoryColors[selectedAnnouncement.category]}`}>
+                  {selectedAnnouncement.category}
+                </span>
+                <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${sectorColors[selectedAnnouncement.sector]}`}>
+                  {sectorLabels[selectedAnnouncement.sector]}
+                </span>
+                <span className="inline-flex rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                  {selectedAnnouncement.unread ? "Unread" : "Read"}
+                </span>
+              </div>
+
+              <div className="grid gap-4 rounded-lg border border-stone-200 bg-stone-50 px-4 py-4 text-sm md:grid-cols-2">
+                <div>
+                  <p className="text-gray-500">Date</p>
+                  <p className="font-semibold text-gray-950">{selectedAnnouncement.date}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Sender</p>
+                  <p className="font-semibold text-gray-950">{selectedAnnouncement.sender}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Sector</p>
+                  <p className="font-semibold text-gray-950">{sectorLabels[selectedAnnouncement.sector]}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Status</p>
+                  <p className="font-semibold text-gray-950">{selectedAnnouncement.unread ? "Unread" : "Read"}</p>
+                </div>
+              </div>
+
+              <p className="text-sm leading-7 text-gray-600">{selectedAnnouncement.content}</p>
+            </div>
+
+            <div className="flex flex-col justify-end gap-3 border-t border-stone-200 px-6 py-5 sm:flex-row">
+              <button
+                onClick={() => handleToggleRead(selectedAnnouncement.id)}
+                className="inline-flex h-11 items-center justify-center rounded-lg border border-stone-200 bg-white px-5 text-sm font-semibold text-gray-700 transition-all hover:bg-stone-50"
+              >
+                Mark as {selectedAnnouncement.unread ? "Read" : "Unread"}
+              </button>
+              <button
+                onClick={() => setSelectedAnnouncementId(null)}
+                className="inline-flex h-11 items-center justify-center rounded-lg bg-[#1B5E3C] px-5 text-sm font-semibold text-white transition-all hover:bg-[#164d30]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

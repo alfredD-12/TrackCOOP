@@ -7,6 +7,7 @@ import {
   CheckCircle,
   Clock3,
   Megaphone,
+  MessageSquare,
   Wallet,
 } from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
@@ -18,14 +19,16 @@ export default function MemberDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userRole = localStorage.getItem("userRole");
+    const role = localStorage.getItem("userRole");
 
-    if (userRole === "chairman") {
-      navigate("/dashboard");
-    } else if (userRole === "bookkeeper") {
-      navigate("/dashboard/bookkeeper");
-    } else if (!userRole) {
-      navigate("/");
+    if (role !== "member") {
+      if (role === "chairman") {
+        navigate("/dashboard");
+      } else if (role === "bookkeeper") {
+        navigate("/dashboard/bookkeeper");
+      } else {
+        navigate("/");
+      }
     }
   }, [navigate]);
 
@@ -102,6 +105,55 @@ export default function MemberDashboard() {
     },
   ];
 
+  const quickActions = [
+    {
+      title: "View Member & Share Capital",
+      description: "Open your profile, contributions, documents, and share capital records.",
+      path: "/dashboard/profile",
+      icon: Wallet,
+      accentClassName: "bg-green-100 text-green-700",
+    },
+    {
+      title: "View Announcements",
+      description: "Read cooperative notices, reminders, and sector updates.",
+      path: "/dashboard/member-announcements",
+      icon: Megaphone,
+      accentClassName: "bg-amber-100 text-amber-700",
+    },
+    {
+      title: "View Activities & Programs",
+      description: "Browse trainings, meetings, and cooperative programs.",
+      path: "/dashboard/member-activities",
+      icon: Calendar,
+      accentClassName: "bg-blue-100 text-blue-700",
+    },
+    {
+      title: "Submit Inquiry",
+      description: "Send concerns about membership, documents, or cooperative services.",
+      path: "/dashboard/member-support",
+      icon: MessageSquare,
+      accentClassName: "bg-purple-100 text-purple-700",
+    },
+  ];
+
+  const upcomingActivities = [
+    {
+      title: "Rice Farming Best Practices Workshop",
+      date: "May 5, 2026",
+      category: "Training",
+    },
+    {
+      title: "Financial Literacy Training",
+      date: "May 10, 2026",
+      category: "Training",
+    },
+    {
+      title: "Share Capital Orientation",
+      date: "May 15, 2026",
+      category: "Financial Program",
+    },
+  ];
+
   return (
     <div className="min-h-full bg-stone-50 text-gray-950">
       <section className="relative overflow-hidden border-b border-stone-200">
@@ -174,6 +226,79 @@ export default function MemberDashboard() {
             <div className="text-sm text-muted-foreground">Next Contribution Due</div>
           </div>
         </div>
+
+        <section className="mb-8 animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+          <div className="mb-4 flex flex-col justify-between gap-3 md:flex-row md:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                Member Modules
+              </p>
+              <h2 className="mt-1 text-xl font-display">Quick Actions</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <button
+                  key={action.path}
+                  onClick={() => navigate(action.path)}
+                  className="group flex min-h-[150px] flex-col justify-between rounded-lg border border-stone-200 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-green-200 hover:bg-green-50/30 hover:shadow-lg"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${action.accentClassName}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="mt-5 font-semibold text-gray-950">{action.title}</h3>
+                    <p className="mt-2 text-sm leading-5 text-gray-500">{action.description}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mb-8 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm animate-in fade-in slide-in-from-bottom-3 delay-200 duration-500">
+          <div className="border-b border-stone-200 px-5 py-5 md:px-6">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                  Cooperative Calendar
+                </p>
+                <h2 className="mt-1 text-xl font-display">Upcoming Cooperative Activities</h2>
+              </div>
+              <button
+                onClick={() => navigate("/dashboard/member-activities")}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-green-800"
+              >
+                View all activities
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 divide-y divide-stone-100 md:grid-cols-3 md:divide-x md:divide-y-0">
+            {upcomingActivities.map((activity) => (
+              <button
+                key={activity.title}
+                onClick={() => navigate("/dashboard/member-activities")}
+                className="px-5 py-5 text-left transition-all hover:bg-green-50/40 md:px-6"
+              >
+                <span className="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                  {activity.category}
+                </span>
+                <h3 className="mt-3 font-semibold text-gray-950">{activity.title}</h3>
+                <div className="mt-3 flex items-center gap-2 text-sm text-gray-500">
+                  <Calendar className="h-4 w-4" />
+                  {activity.date}
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <section

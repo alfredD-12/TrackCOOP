@@ -17,6 +17,8 @@ import Financial from "./pages/Financial";
 import FinancialExpenditures from "./pages/FinancialExpenditures";
 import MemberDashboard from "./pages/MemberDashboard";
 import MemberAnnouncements from "./pages/MemberAnnouncements";
+import MemberActivities from "./pages/MemberActivities";
+import MemberSupport from "./pages/MemberSupport";
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +46,8 @@ export const router = createBrowserRouter([
       { path: "alerts", Component: Alerts },
       { path: "profile", Component: MyProfile },
       { path: "member-announcements", Component: MemberAnnouncements },
+      { path: "member-activities", Component: MemberActivities },
+      { path: "member-support", Component: MemberSupport },
       { path: "gallery", Component: Gallery },
       { path: "reports", Component: Reports },
     ],

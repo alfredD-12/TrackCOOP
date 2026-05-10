@@ -7,12 +7,13 @@ import {
   TrendingUp,
   Megaphone,
   Bell,
-  User,
   LogOut,
   Image,
   FileBarChart,
   Receipt,
-  Wallet
+  Wallet,
+  Calendar,
+  MessageSquare,
 } from "lucide-react";
 import TrackCoopLogo from "./TrackCoopLogo";
 import SpotlightOnboarding from "./SpotlightOnboarding";
@@ -51,8 +52,10 @@ const navItems: NavItem[] = [
 
   // Member pages
   { name: "Dashboard", path: "/dashboard/member", icon: LayoutDashboard, roles: ["member"] },
-  { name: "My Profile", path: "/dashboard/profile", icon: User, roles: ["member"] },
-  { name: "Announcements", path: "/dashboard/member-announcements", icon: Megaphone, roles: ["member"] },
+  { name: "Member & Share Capital", path: "/dashboard/profile", icon: Wallet, roles: ["member"] },
+  { name: "Activities & Programs", path: "/dashboard/member-activities", icon: Calendar, roles: ["member"] },
+  { name: "Communication & Announcements", path: "/dashboard/member-announcements", icon: Megaphone, roles: ["member"] },
+  { name: "Inquiry & Support", path: "/dashboard/member-support", icon: MessageSquare, roles: ["member"] },
 ];
 
 const roleTourSteps = {

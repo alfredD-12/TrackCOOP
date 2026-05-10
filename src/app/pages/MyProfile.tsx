@@ -92,6 +92,8 @@ export default function MyProfile() {
         navigate("/dashboard");
       } else if (role === "bookkeeper") {
         navigate("/dashboard/bookkeeper");
+      } else {
+        navigate("/");
       }
     }
   }, [navigate]);
@@ -118,13 +120,13 @@ export default function MyProfile() {
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-4xl">
                 <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
-                  My Profile
+                  Member & Share Capital
                 </p>
                 <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
                   {memberProfile.name}
                 </h1>
                 <p className="mt-3 max-w-2xl text-lg text-white/85">
-                  Review your profile, contribution history, and personal cooperative records.
+                  Review your member information, contribution history, share capital records, and cooperative documents.
                 </p>
               </div>
               <button
