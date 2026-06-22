@@ -216,17 +216,17 @@ export default function Announcements() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+        <div className="relative mx-auto flex min-h-[240px] max-w-[1600px] flex-col justify-start px-4 py-6 sm:px-6 sm:py-8 md:min-h-[320px] md:px-8 md:py-10">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-4xl">
                 <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
                   Announcements
                 </p>
-                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                <h1 className="font-display text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
                   Announcements & Alerts
                 </h1>
-                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                <p className="mt-3 max-w-2xl text-base leading-7 text-white/85 sm:text-lg">
                   Communicate with members and manage at-risk alerts
                 </p>
               </div>
@@ -248,7 +248,7 @@ export default function Announcements() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 md:px-8">
         {/* Tabs */}
       <div className="mb-6 border-b border-border" data-tour="announcements-tabs">
         <div className="flex gap-1">
@@ -403,7 +403,7 @@ export default function Announcements() {
           {/* At-Risk Members Table */}
           <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="min-w-[760px] w-full">
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="text-left px-6 py-4 text-sm font-medium text-muted-foreground">Member Name</th>
@@ -474,9 +474,9 @@ export default function Announcements() {
 
       {/* View Announcement Modal */}
       {viewingAnnouncement && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setViewingAnnouncement(null)}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onClick={() => setViewingAnnouncement(null)}>
           <div
-            className="bg-background rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200 p-6"
+            className="max-h-[92svh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-background p-5 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200 sm:rounded-xl sm:p-6 sm:zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
@@ -547,9 +547,9 @@ export default function Announcements() {
 
       {/* Compose Announcement Modal */}
       {showComposeModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowComposeModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onClick={() => setShowComposeModal(false)}>
           <div
-            className="bg-background rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="max-h-[92svh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-background shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200 sm:rounded-xl sm:zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}

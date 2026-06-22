@@ -477,17 +477,17 @@ export default function Gallery() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-stone-50 to-transparent" />
 
-        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+        <div className="relative mx-auto flex min-h-[240px] max-w-[1600px] flex-col justify-start px-4 py-6 sm:px-6 sm:py-8 md:min-h-[320px] md:px-8 md:py-10">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-4xl">
                 <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
                   Gallery
                 </p>
-                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                <h1 className="font-display text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
                   Media Repository
                 </h1>
-                <p className="mt-3 max-w-2xl text-lg text-white/85">
+                <p className="mt-3 max-w-2xl text-base leading-7 text-white/85 sm:text-lg">
                   {selectedAlbum ? `Album: ${selectedAlbum.name}` : "Media archive of cooperative activities and events"}
                 </p>
               </div>
@@ -526,7 +526,7 @@ export default function Gallery() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 md:px-8">
         {/* View Mode Tabs */}
       {!selectedAlbum && (
         <div className="mb-6 border-b border-border">
@@ -736,9 +736,9 @@ export default function Gallery() {
 
       {/* Lightbox Modal */}
       {selectedMedia && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedMedia(null)}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/90 p-0 sm:items-center sm:p-4" onClick={() => setSelectedMedia(null)}>
           <div
-            className="bg-background rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="max-h-[92svh] w-full max-w-4xl overflow-y-auto rounded-t-2xl bg-background shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200 sm:rounded-xl sm:zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -815,9 +815,9 @@ export default function Gallery() {
 
       {/* Upload Media Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowUploadModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onClick={() => setShowUploadModal(false)}>
           <div
-            className="bg-background rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="max-h-[92svh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-background shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200 sm:rounded-xl sm:zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -951,9 +951,9 @@ export default function Gallery() {
 
       {/* Create Album Modal */}
       {showCreateAlbumModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowCreateAlbumModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onClick={() => setShowCreateAlbumModal(false)}>
           <div
-            className="bg-background rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="max-h-[92svh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-background shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200 sm:rounded-xl sm:zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}

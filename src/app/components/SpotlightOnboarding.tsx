@@ -90,6 +90,7 @@ export default function SpotlightOnboarding({
   onPrevious,
 }: SpotlightOnboardingProps) {
   const [targetRect, setTargetRect] = useState<RectState | null>(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const targetRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -121,7 +122,12 @@ export default function SpotlightOnboarding({
         return;
       }
 
-      const element = document.querySelector(step.selector) as HTMLElement | null;
+      const element = Array.from(document.querySelectorAll(step.selector)).find((candidate) => {
+        const rect = candidate.getBoundingClientRect();
+        const styles = window.getComputedStyle(candidate);
+        return rect.width > 0 && rect.height > 0 && styles.visibility !== "hidden" && styles.display !== "none";
+      }) as HTMLElement | undefined;
+
       if (element) {
         targetRef.current = element;
         element.scrollIntoView({
@@ -155,6 +161,16 @@ export default function SpotlightOnboarding({
     };
   }, [step]);
 
+  useEffect(() => {
+    const updateViewportMode = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    updateViewportMode();
+    window.addEventListener("resize", updateViewportMode);
+    return () => window.removeEventListener("resize", updateViewportMode);
+  }, []);
+
   const tooltipPosition = useMemo(() => {
     if (!targetRect || !step) {
       return null;
@@ -182,16 +198,20 @@ export default function SpotlightOnboarding({
       )}
 
       <div
-        className="pointer-events-auto fixed w-[min(360px,calc(100vw-24px))] rounded-[28px] bg-white p-6 shadow-2xl"
+        className={`pointer-events-auto fixed bg-white shadow-2xl ${
+          isMobile
+            ? "inset-x-0 bottom-0 max-h-[70svh] overflow-y-auto rounded-t-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+            : "w-[min(360px,calc(100vw-24px))] rounded-[28px] p-6"
+        }`}
         style={{
-          top: tooltipPosition?.top ?? "50%",
-          left: tooltipPosition?.left ?? "50%",
-          transform: tooltipPosition ? undefined : "translate(-50%, -50%)",
+          top: isMobile ? undefined : tooltipPosition?.top ?? "50%",
+          left: isMobile ? undefined : tooltipPosition?.left ?? "50%",
+          transform: !isMobile && !tooltipPosition ? "translate(-50%, -50%)" : undefined,
         }}
         role="dialog"
         aria-modal="true"
       >
-        {tooltipPosition && (
+        {tooltipPosition && !isMobile && (
           <div
             className="absolute h-5 w-5 rotate-45 bg-white"
             style={
@@ -237,14 +257,14 @@ export default function SpotlightOnboarding({
         <div className="inline-flex rounded-full bg-green-50 px-3 py-1 text-sm font-semibold text-primary">
           Step {stepIndex + 1} of {stepCount}
         </div>
-        <h2 className="mt-4 text-3xl font-display font-bold text-gray-950">
+        <h2 className="mt-4 font-display text-2xl font-bold text-gray-950 sm:text-3xl">
           {step.title}
         </h2>
-        <p className="mt-3 text-base leading-7 text-gray-600">
+        <p className="mt-3 text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
           {step.description}
         </p>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
+        <div className="mt-5 grid gap-3 sm:mt-6 sm:flex sm:justify-between">
           <button
             onClick={onPrevious}
             disabled={stepIndex === 0}
@@ -258,16 +278,16 @@ export default function SpotlightOnboarding({
             Back
           </button>
 
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:flex">
             <button
               onClick={onClose}
-              className="inline-flex h-12 items-center justify-center rounded-xl border border-stone-200 bg-white px-6 text-sm font-semibold text-gray-700 transition-all hover:bg-stone-50"
+              className="inline-flex h-12 items-center justify-center rounded-xl border border-stone-200 bg-white px-5 text-sm font-semibold text-gray-700 transition-all hover:bg-stone-50 sm:px-6"
             >
               Skip
             </button>
             <button
               onClick={onNext}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#35553b] px-6 text-sm font-semibold text-white transition-all hover:bg-[#29452e]"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#35553b] px-5 text-sm font-semibold text-white transition-all hover:bg-[#29452e] sm:px-6"
             >
               {stepIndex === stepCount - 1 ? "Finish" : "Next"}
               {stepIndex !== stepCount - 1 && <ChevronRight className="h-4 w-4" />}

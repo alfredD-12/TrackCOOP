@@ -271,17 +271,17 @@ export default function Dashboard() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/15" />
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-stone-50 to-transparent" />
 
-        <div className="relative mx-auto flex min-h-[280px] max-w-[1600px] flex-col justify-start px-6 py-8 md:min-h-[320px] md:px-8 md:py-10">
+        <div className="relative mx-auto flex min-h-[240px] max-w-[1600px] flex-col justify-start px-4 py-6 sm:px-6 sm:py-8 md:min-h-[320px] md:px-8 md:py-10">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div className="max-w-4xl">
                 <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur">
                   Dashboard
                 </p>
-                <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+                <h1 className="font-display text-3xl font-bold leading-tight text-white sm:text-4xl md:text-5xl">
                   Cooperative Performance Dashboard
                 </h1>
-                <p className="mt-3 max-w-2xl text-lg leading-8 text-white/85">
+                <p className="mt-3 max-w-2xl text-base leading-7 text-white/85 sm:text-lg sm:leading-8">
                   {selectedYear} snapshot for {selectedSectorLabel}, focused on participation, capital, and member health.
                 </p>
               </div>
@@ -312,7 +312,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1600px] px-6 py-8 md:px-8">
+      <main className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 md:px-8">
         {showFilters && (
           <section className="mb-8 animate-in fade-in slide-in-from-top-3 duration-300 rounded-lg border border-green-100 bg-white p-5 shadow-sm">
             <div className="mb-4 flex items-start justify-between gap-4">
@@ -458,7 +458,7 @@ export default function Dashboard() {
             </div>
 
             <div
-              className="h-80 animate-in fade-in zoom-in-95 duration-300"
+              className="h-64 animate-in fade-in zoom-in-95 duration-300 sm:h-80"
               key={`line-chart-wrapper-${chartId}-${lineChartPeriod}`}
             >
               <ResponsiveContainer width="100%" height="100%">
@@ -549,7 +549,7 @@ export default function Dashboard() {
             </div>
 
             <div
-              className="mt-4 h-64 animate-in fade-in zoom-in-95 duration-300"
+              className="mt-4 h-56 animate-in fade-in zoom-in-95 duration-300 sm:h-64"
               key={`pie-chart-wrapper-${chartId}-${pieChartFilter}`}
             >
               <ResponsiveContainer width="100%" height="100%">
@@ -615,7 +615,7 @@ export default function Dashboard() {
             </div>
 
             <div
-              className="h-80 animate-in fade-in zoom-in-95 duration-300"
+              className="h-64 animate-in fade-in zoom-in-95 duration-300 sm:h-80"
               key={`bar-chart-${barChartMetric}`}
             >
               <ResponsiveContainer width="100%" height="100%">
@@ -761,13 +761,13 @@ export default function Dashboard() {
 
       {showDetailModal && detailModalData && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 p-0 backdrop-blur-sm animate-in fade-in duration-200 sm:items-center sm:p-4"
           onClick={() => setShowDetailModal(false)}
           role="dialog"
           aria-modal="true"
         >
           <div
-            className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-2xl animate-in zoom-in-95 duration-200"
+            className="max-h-[92svh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-white shadow-2xl animate-in slide-in-from-bottom-4 duration-200 sm:rounded-lg sm:zoom-in-95"
             onClick={(event) => event.stopPropagation()}
           >
             <div

@@ -301,11 +301,12 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 text-gray-950">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/20 bg-white/90 shadow-sm backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/20 bg-white/95 shadow-sm backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-8 md:py-4">
           <TrackCoopLogo
-            markClassName="h-10 w-10 shadow-sm"
-            titleClassName="text-xl"
+            className="min-w-0"
+            markClassName="h-9 w-9 shadow-sm md:h-10 md:w-10"
+            titleClassName="text-lg md:text-xl"
             tone="dark"
           />
 
@@ -338,7 +339,7 @@ export default function LandingPage() {
 
           <button
             onClick={() => setShowLoginModal(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-green-800 hover:shadow-md"
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-green-800 hover:shadow-md sm:px-4"
           >
             <LogIn className="h-4 w-4" />
             Portal
@@ -347,46 +348,46 @@ export default function LandingPage() {
       </header>
 
       <main>
-        <section className="relative flex min-h-[88vh] items-end overflow-hidden">
+        <section className="relative flex min-h-[100svh] items-end overflow-hidden md:min-h-[88vh]">
           <img
             src={heroImage}
             alt="Green rice field in the Philippines"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/15 md:bg-gradient-to-r md:from-black/75 md:via-black/45 md:to-black/10" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-stone-50 to-transparent" />
 
-          <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-32 md:px-8 md:pb-24">
+          <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 pt-28 sm:px-5 md:px-8 md:pb-24 md:pt-32">
             <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-700">
-              <p className="mb-5 inline-flex rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-medium text-white shadow-sm backdrop-blur">
+              <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/15 px-3 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur sm:px-4 sm:py-2 sm:text-sm">
                 Nasugbu, Batangas
               </p>
-              <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-6xl">
+              <h1 className="font-display text-3xl font-bold leading-tight text-white sm:text-4xl md:text-6xl">
                 Nasugbu Farmers and Fisherfolks Agriculture Cooperative
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/90 md:text-xl">
+              <p className="mt-4 max-w-2xl text-base leading-7 text-white/90 sm:text-lg md:mt-6 md:text-xl md:leading-8">
                 A community cooperative supporting farmers and fisherfolks through
                 shared resources, member participation, livelihood programs, and
                 transparent cooperative service.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-7 grid gap-3 sm:flex sm:flex-wrap md:mt-8">
                 <button
                   onClick={() => setShowMemberModal(true)}
-                  className="inline-flex items-center gap-2 rounded-lg bg-green-300 px-5 py-3 font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-green-300 px-5 py-3 text-sm font-semibold text-green-950 shadow-lg transition-all hover:-translate-y-1 hover:bg-green-200 hover:shadow-xl sm:w-auto sm:text-base"
                 >
                   Become A Member
                   <UserPlus className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => scrollToSection("about")}
-                  className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-primary shadow-lg transition-all hover:-translate-y-1 hover:bg-green-50 hover:shadow-xl"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-primary shadow-lg transition-all hover:-translate-y-1 hover:bg-green-50 hover:shadow-xl sm:w-auto sm:text-base"
                 >
                   About the Cooperative
                   <ArrowRight className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-white/35 bg-white/10 px-5 py-3 font-semibold text-white backdrop-blur transition-all hover:-translate-y-1 hover:bg-white/20"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/35 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:-translate-y-1 hover:bg-white/20 sm:w-auto sm:text-base"
                 >
                   Member Portal
                 </button>
@@ -395,14 +396,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="announcements" className="bg-stone-50 px-5 py-20 md:px-8">
+        <section id="announcements" className="bg-stone-50 px-4 py-14 sm:px-5 md:px-8 md:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
                   Cooperative Updates
                 </p>
-                <h2 className="font-display text-3xl font-bold text-gray-950 md:text-4xl">
+                <h2 className="font-display text-2xl font-bold text-gray-950 sm:text-3xl md:text-4xl">
                   Announcements
                 </h2>
               </div>
@@ -441,9 +442,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="about" className="bg-white px-5 py-20 md:px-8">
+        <section id="about" className="bg-white px-4 py-14 sm:px-5 md:px-8 md:py-20">
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-            <div className="relative min-h-[520px] overflow-hidden rounded-lg">
+            <div className="relative min-h-[340px] overflow-hidden rounded-lg sm:min-h-[420px] lg:min-h-[520px]">
               <img
                 src="https://images.pexels.com/photos/11196642/pexels-photo-11196642.jpeg?auto=compress&cs=tinysrgb&w=1400"
                 alt="Farmers harvesting rice in a field"
@@ -465,7 +466,7 @@ export default function LandingPage() {
               <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
                 About Us
               </p>
-              <h2 className="font-display text-3xl font-bold leading-tight text-gray-950 md:text-4xl">
+              <h2 className="font-display text-2xl font-bold leading-tight text-gray-950 sm:text-3xl md:text-4xl">
                 A cooperative built around shared effort and shared progress.
               </h2>
               <p className="mt-6 leading-8 text-gray-700">
@@ -508,14 +509,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="gallery" className="bg-stone-100 px-5 py-20 md:px-8">
+        <section id="gallery" className="bg-stone-100 px-4 py-14 sm:px-5 md:px-8 md:py-20">
           <div className="mx-auto max-w-7xl">
             <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
                 <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
                   Cooperative Life
                 </p>
-                <h2 className="font-display text-3xl font-bold text-gray-950 md:text-4xl">
+                <h2 className="font-display text-2xl font-bold text-gray-950 sm:text-3xl md:text-4xl">
                   Gallery
                 </h2>
               </div>
@@ -525,7 +526,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid auto-rows-[260px] gap-4 md:grid-cols-3">
+            <div className="grid auto-rows-[220px] gap-4 sm:auto-rows-[260px] md:grid-cols-3">
               {galleryItems.map((item, index) => (
                 <figure
                   key={item.title}
@@ -553,13 +554,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="contact" className="bg-white px-5 py-20 md:px-8">
+        <section id="contact" className="bg-white px-4 py-14 sm:px-5 md:px-8 md:py-20">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-primary">
                 Contact Us
               </p>
-              <h2 className="font-display text-3xl font-bold leading-tight text-gray-950 md:text-4xl">
+              <h2 className="font-display text-2xl font-bold leading-tight text-gray-950 sm:text-3xl md:text-4xl">
                 Reach the cooperative office.
               </h2>
               <p className="mt-5 max-w-2xl leading-8 text-gray-700">
@@ -616,7 +617,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-br from-[#08251c]/95 via-[#12372a]/88 to-[#164e63]/78" />
               <form
                 onSubmit={handleContactSubmit}
-                className="relative space-y-5 rounded-lg border border-white/15 bg-white/10 p-6 text-white shadow-2xl backdrop-blur-md md:p-8"
+                className="relative space-y-5 rounded-lg border border-white/15 bg-white/10 p-4 text-white shadow-2xl backdrop-blur-md sm:p-6 md:p-8"
               >
                 <div>
                   <h3 className="font-display text-2xl font-bold">Send a Message</h3>
@@ -719,7 +720,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="relative overflow-hidden bg-[#08251c] px-5 py-14 text-white md:px-8">
+      <footer className="relative overflow-hidden bg-[#08251c] px-4 py-12 text-white sm:px-5 md:px-8 md:py-14">
         <img
           src={heroImage}
           alt=""
@@ -1405,16 +1406,16 @@ export default function LandingPage() {
 
       {showLoginModal && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-end justify-center overflow-y-auto bg-black/55 p-0 backdrop-blur-sm sm:items-center sm:p-4"
           onClick={() => setShowLoginModal(false)}
         >
           <div
-            className="w-full max-w-md animate-in fade-in zoom-in-95 rounded-lg bg-white shadow-2xl duration-200"
+            className="max-h-[calc(100svh-1rem)] w-full max-w-md animate-in fade-in slide-in-from-bottom-4 overflow-y-auto rounded-t-2xl bg-white shadow-2xl duration-200 sm:max-h-[calc(100svh-2rem)] sm:rounded-lg sm:zoom-in-95"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between border-b border-gray-200 p-6">
-              <div>
-                <h2 className="font-display text-2xl font-bold text-gray-950">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-gray-200 bg-white p-5 sm:p-6">
+              <div className="min-w-0">
+                <h2 className="font-display text-xl font-bold text-gray-950 sm:text-2xl">
                   Welcome Back
                 </h2>
                 <p className="mt-1 text-sm text-gray-600">
@@ -1423,14 +1424,14 @@ export default function LandingPage() {
               </div>
               <button
                 onClick={() => setShowLoginModal(false)}
-                className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
+                className="shrink-0 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
                 aria-label="Close login modal"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-5 p-6">
+            <form onSubmit={handleLogin} className="space-y-4 p-5 sm:space-y-5 sm:p-6">
               <div>
                 <label
                   htmlFor="login-email"
@@ -1443,7 +1444,7 @@ export default function LandingPage() {
                   type="email"
                   value={loginEmail}
                   onChange={(event) => setLoginEmail(event.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="min-h-12 w-full rounded-lg border border-gray-300 px-4 py-3 text-base transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="you@example.com"
                   required
                 />
@@ -1462,7 +1463,7 @@ export default function LandingPage() {
                     type={showPassword ? "text" : "password"}
                     value={loginPassword}
                     onChange={(event) => setLoginPassword(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="min-h-12 w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 text-base transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="Password"
                     required
                   />
@@ -1494,7 +1495,7 @@ export default function LandingPage() {
                   onChange={(event) =>
                     handleRoleChange(event.target.value as PortalRole)
                   }
-                  className="w-full cursor-pointer rounded-lg border border-gray-300 px-4 py-3 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="min-h-12 w-full cursor-pointer rounded-lg border border-gray-300 px-4 py-3 text-base transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="chairman">Chairman</option>
                   <option value="bookkeeper">Bookkeeper</option>
@@ -1507,7 +1508,7 @@ export default function LandingPage() {
 
               <button
                 type="submit"
-                className="w-full rounded-lg bg-primary py-3.5 text-lg font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-green-800 hover:shadow-md"
+                className="min-h-12 w-full rounded-lg bg-primary py-3.5 text-base font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-green-800 hover:shadow-md sm:text-lg"
               >
                 Sign In
               </button>

@@ -14,6 +14,8 @@ import {
   Wallet,
   Calendar,
   MessageSquare,
+  Menu,
+  X,
 } from "lucide-react";
 import TrackCoopLogo from "./TrackCoopLogo";
 import SpotlightOnboarding from "./SpotlightOnboarding";
@@ -71,6 +73,7 @@ export default function DashboardLayout() {
   const [roleLoaded, setRoleLoaded] = useState(false);
   const [tourActive, setTourActive] = useState(false);
   const [tourStepIndex, setTourStepIndex] = useState(0);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const role = localStorage.getItem("userRole") as UserRole;
@@ -104,6 +107,10 @@ export default function DashboardLayout() {
       navigate(activeTourSteps[0].path);
     }
   }, [location.pathname, navigate, roleLoaded, tourActive, userRole]);
+
+  useEffect(() => {
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
 
   const closeOnboarding = () => {
     markOnboardingSeen(`tour:${userRole}`);
@@ -160,9 +167,111 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-[100dvh] flex-col bg-background md:flex-row">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-green-100 bg-[#f6fcf8] px-4 shadow-sm md:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileSidebarOpen(true)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-green-900 transition-all hover:bg-green-100"
+          aria-label="Open navigation menu"
+          data-tour="dashboard-sidebar"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+        <TrackCoopLogo
+          tone="dark"
+          markClassName="h-9 w-9 shadow-sm ring-1 ring-green-900/5"
+          titleClassName="text-lg"
+        />
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold tracking-wide text-green-700 capitalize">
+            {userRole}
+          </span>
+          <button
+            onClick={handleLogout}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-green-900/60 transition-all hover:bg-red-50 hover:text-red-700"
+            aria-label="Logout"
+          >
+            <LogOut className="h-5 w-5" />
+          </button>
+        </div>
+      </header>
+
+      <div
+        className={`fixed inset-0 z-50 bg-black/45 backdrop-blur-sm transition-opacity md:hidden ${
+          mobileSidebarOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={() => setMobileSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-[60] flex w-[min(20rem,calc(100vw-2rem))] flex-col border-r border-green-100 bg-[#f6fcf8] text-green-950 shadow-2xl transition-transform duration-300 md:hidden ${
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-label="Mobile navigation menu"
+      >
+        <div className="flex items-start justify-between gap-4 p-6">
+          <div className="flex flex-col gap-1">
+            <TrackCoopLogo tone="dark" markClassName="h-9 w-9 shadow-sm ring-1 ring-green-900/5" titleClassName="text-xl" />
+            <span className="mt-2 ml-1 inline-flex w-fit items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold tracking-wide text-green-700 capitalize">
+              {userRole}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-green-900/60 transition-all hover:bg-green-100 hover:text-green-950"
+            aria-label="Close navigation menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto px-4 py-2">
+          <div className="mb-3 px-3 text-xs font-bold uppercase tracking-widest text-green-800/40">
+            Menu
+          </div>
+          <ul className="space-y-1.5">
+            {filteredNavItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+
+              return (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    className={`group relative flex items-center gap-3 rounded-xl px-3 py-3 transition-all ${
+                      active
+                        ? "bg-white font-semibold text-green-950 shadow-sm ring-1 ring-green-900/5"
+                        : "font-medium text-green-900/60 hover:bg-green-100/50 hover:text-green-950"
+                    }`}
+                  >
+                    {active && (
+                      <div className="absolute -left-4 top-1/2 h-6 w-1.5 -translate-y-1/2 rounded-r-full bg-green-600 shadow-sm" />
+                    )}
+                    <Icon className={`h-5 w-5 transition-colors ${active ? "text-green-600" : "text-green-800/40 group-hover:text-green-700"}`} />
+                    <span>{item.name}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="border-t border-green-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <button
+            onClick={handleLogout}
+            className="group flex w-full items-center gap-3 rounded-xl px-3 py-3 font-medium text-green-900/60 transition-all hover:bg-red-50 hover:text-red-700"
+          >
+            <LogOut className="h-5 w-5 text-green-800/40 transition-colors group-hover:text-red-500" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
       {/* Sidebar */}
-      <aside className="w-64 md:w-72 bg-[#f6fcf8] text-green-950 flex flex-col border-r border-green-100 shadow-sm z-10">
+      <aside className="z-10 hidden w-64 flex-col border-r border-green-100 bg-[#f6fcf8] text-green-950 shadow-sm md:flex md:w-72">
         {/* Logo */}
         <div className="p-6">
           <div className="flex flex-col gap-1">
@@ -221,7 +330,7 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="min-h-0 flex-1 overflow-auto">
         <Outlet />
       </main>
 
